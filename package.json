@@ -1,0 +1,63 @@
+{
+  "name": "geostyler-openlayers-parser",
+  "version": "0.1.0",
+  "description": "GeoStyler Style Parser implementation for OpenLayers styles",
+  "main": "build/dist/OlStyleParser.js",
+  "files": [
+    "build",
+    "index.d.ts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/terrestris/geostyler-openlayers-parser.git"
+  },
+  "keywords": [
+    "geostyler",
+    "parser",
+    "style",
+    "openlayers"
+  ],
+  "author": "",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/terrestris/geostyler-openlayers-parser/issues"
+  },
+  "homepage": "https://github.com/terrestris/geostyler-openlayers-parser#readme",
+  "dependencies": {
+    "@types/lodash": "4.14.108",
+    "geostyler-style": "0.2.0",
+    "lodash": "4.17.10",
+    "openlayers": "^4.6.5"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "pretest": "npm run lint",
+    "test": "jest",
+    "lint": "tslint --project tsconfig.json --config tslint.json",
+    "release": "np --no-yarn"
+  },
+  "devDependencies": {
+    "@types/jest": "22.2.3",
+    "@types/node": "10.0.9",
+    "@types/ol": "^4.6.1",
+    "coveralls": "3.0.1",
+    "jest": "22.4.3",
+    "np": "2.20.1",
+    "ts-jest": "22.4.6",
+    "tslint": "5.10.0",
+    "typescript": "2.8.3"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "/src/.*\\.spec.(ts|js)$",
+    "collectCoverageFrom": [
+      "src/*.{ts,js}"
+    ]
+  }
+}
