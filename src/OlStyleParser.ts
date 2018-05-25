@@ -85,10 +85,11 @@ class OlStyleParser implements StyleParser {
   }
 
   /**
-   * Get the SLD Object (readable with xml2js) from an GeoStyler-Style Symbolizer.
+   * Get the OpenLayers Style object or an OL StyleFunction from an
+   * GeoStyler-Style Symbolizer.
    *
    * @param {Symbolizer} symbolizer A GeoStyler-Style Symbolizer.
-   * @return {object} The object representation of a SLD Symbolizer (readable with xml2js)
+   * @return {object} The OpenLayers Style object or a StyleFunction
    */
   getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer): any {
     let olSymbolizer: ol.style.Style | ol.StyleFunction;
@@ -110,7 +111,8 @@ class OlStyleParser implements StyleParser {
         olSymbolizer = this.getOlPolygonSymbolizerFromFillSymbolizer(symbolizer);
         break;
       default:
-        // Return the OL default style since the TS type binding does not allow us to set olSymbolizer to undefined
+        // Return the OL default style since the TS type binding does not allow
+        // us to set olSymbolizer to undefined
         var fill = new ol.style.Fill({
           color: 'rgba(255,255,255,0.4)'
         });
@@ -133,8 +135,10 @@ class OlStyleParser implements StyleParser {
   }
 
   /**
+   * Get the OL Style object  from an GeoStyler-Style CircleSymbolizer.
    *
-   * @param symbolizer
+   * @param {CircleSymbolizer} circleSymbolizer A GeoStyler-Style CircleSymbolizer.
+   * @return {object} The OL Style object
    */
   getOlPointSymbolizerFromCircleSymbolizer(symbolizer: CircleSymbolizer): ol.style.Style {
     let stroke;
@@ -147,7 +151,7 @@ class OlStyleParser implements StyleParser {
 
     return new ol.style.Style({
       image: new ol.style.Circle({
-        radius: symbolizer.radius || 4,
+        radius: symbolizer.radius || 5,
         fill: new ol.style.Fill({
           color: (symbolizer.color && symbolizer.opacity) ?
             OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
@@ -158,7 +162,10 @@ class OlStyleParser implements StyleParser {
   }
 
   /**
+   * Get the OL Style object from an GeoStyler-Style LineSymbolizer.
    *
+   * @param {LineSymbolizer} lineSymbolizer A GeoStyler-Style LineSymbolizer.
+   * @return {object} The OL Style object
    */
   getOlLineSymbolizerFromLineSymbolizer(symbolizer: LineSymbolizer) {
     return new ol.style.Style({
@@ -171,8 +178,10 @@ class OlStyleParser implements StyleParser {
   }
 
   /**
+   * Get the OL Style object from an GeoStyler-Style FillSymbolizer.
    *
-   * @param symbolizer
+   * @param {FillSymbolizer} fillSymbolizer A GeoStyler-Style FillSymbolizer.
+   * @return {object} The OL Style object
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer) {
     return new ol.style.Style({
@@ -187,8 +196,10 @@ class OlStyleParser implements StyleParser {
   }
 
   /**
+   * Get the OL StyleFunction object from an GeoStyler-Style TextSymbolizer.
    *
-   * @param symbolizer
+   * @param {TextSymbolizer} textSymbolizer A GeoStyler-Style TextSymbolizer.
+   * @return {object} The OL StyleFunction
    */
   getOlTextSymbolizerFromTextSymbolizer(symbolizer: TextSymbolizer): ol.StyleFunction {
 
