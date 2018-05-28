@@ -7,9 +7,12 @@ import {
   CircleSymbolizer,
   LineSymbolizer,
   FillSymbolizer,
-  TextSymbolizer
+  TextSymbolizer,
+  StyleType,
+  PointSymbolizer
 } from 'geostyler-style';
 import OlStyleUtil from './Util/OlStyleUtil';
+import { isNumber } from 'util';
 
 /**
  * This parser can be used with the GeoStyler.
@@ -20,8 +23,150 @@ import OlStyleUtil from './Util/OlStyleUtil';
  */
 class OlStyleParser implements StyleParser {
 
-  olStyleToGeoStylerStyle(olStyle: ol.style.Style): any {
-    return null;
+  /**
+   * Get the GeoStyler-Style PointSymbolizer from an OpenLayers Style object.
+   *
+   * @param {object} olStyle The OpenLayers Style object
+   * @return {PointSymbolizer} The GeoStyler-Style PointSymbolizer
+   */
+  getPointSymbolizerFromOlStyle(olStyle: ol.style.Style): PointSymbolizer {
+    const olCircleStyle = olStyle.getImage() as ol.style.Circle;
+    const olFillStyle = olCircleStyle.getFill();
+    const olStrokeStyle = olCircleStyle.getStroke();
+
+    return {
+      kind: 'Circle',
+      color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
+      opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
+      radius: isNumber(olCircleStyle.getRadius()) ? olCircleStyle.getRadius() : 5,
+      strokeColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined,
+      strokeOpacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
+      strokeWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined
+    };
+  }
+
+  /**
+   * Get the GeoStyler-Style LineSymbolizer from an OpenLayers Style object.
+   *
+   * @param {object} olStyle The OpenLayers Style object
+   * @return {LineSymbolizer} The GeoStyler-Style LineSymbolizer
+   */
+  getLineSymbolizerFromOlStyle(olStyle: ol.style.Style): LineSymbolizer {
+    const olStrokeStyle = olStyle.getStroke() as ol.style.Stroke;
+
+    return {
+      kind: 'Line',
+      color: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) as string : undefined,
+      opacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
+      width: olStrokeStyle ? olStrokeStyle.getWidth() : undefined
+    };
+  }
+
+  /**
+   * Get the GeoStyler-Style FillSymbolizer from an OpenLayers Style object.
+   *
+   * PolygonSymbolizer Stroke is just partially supported.
+   *
+   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @return {FillSymbolizer} The GeoStyler-Style FillSymbolizer
+   */
+  getFillSymbolizerFromOlStyle(olStyle: ol.style.Style): FillSymbolizer {
+    const olFillStyle = olStyle.getFill() as ol.style.Fill;
+    const olStrokeStyle = olStyle.getStroke() as ol.style.Stroke;
+
+    return {
+      kind: 'Fill',
+      color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
+      opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
+      outlineColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined
+    };
+  }
+
+  /**
+   * Get the GeoStyler-Style Symbolizer from an OpenLayers Style object.
+   *
+   * Currently only one symbolizer per rule is supported.
+   *
+   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @return {Symbolizer} The GeoStyler-Style Symbolizer
+   */
+  getSymbolizerFromOlStyle(olStyle: ol.style.Style): Symbolizer {
+    let symbolizer: Symbolizer = <Symbolizer> {};
+    const symbType = this.getStyleTypeFromOlStyle(olStyle);
+
+    switch (symbType) {
+      case 'Point':
+        symbolizer = this.getPointSymbolizerFromOlStyle(olStyle);
+        break;
+      case 'Line':
+        symbolizer = this.getLineSymbolizerFromOlStyle(olStyle);
+        break;
+      // case 'TextSymbolizer':
+      //   symbolizer = this.getTextSymbolizerFromOlStyle(olStyle);
+      //   break;
+      case 'Fill':
+        symbolizer = this.getFillSymbolizerFromOlStyle(olStyle);
+        break;
+      default:
+        throw new Error('Failed to parse SymbolizerKind from OpenLayers Style');
+    }
+
+    return symbolizer;
+  }
+
+  /**
+   * Get the GeoStyler-Style Rule from an OpenLayers Style object.
+   *
+   * Currently only one symbolizer per rule is supported.
+   *
+   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @return {Rule} The GeoStyler-Style Rule
+   */
+  getRulesFromOlStyle(olStyle: ol.style.Style): Rule[] {
+    const symbolizer: Symbolizer = this.getSymbolizerFromOlStyle(olStyle);
+    let rule = {
+      symbolizer
+    };
+    let rules: Rule[] = [rule];
+
+    return rules;
+  }
+
+  /**
+   * Get the GeoStyler-Style Symbolizer from an OpenLayers Style object.
+   *
+   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @return {Symbolizer} The GeoStyler-Style Symbolizer
+   */
+  getStyleTypeFromOlStyle(olStyle: ol.style.Style): StyleType {
+    let styleType: StyleType;
+
+    if (olStyle.getImage() instanceof ol.style.Image) {
+      styleType = 'Point';
+    } else if (olStyle.getFill() instanceof ol.style.Fill) {
+      styleType = 'Fill';
+    } else if (olStyle.getStroke() && !olStyle.getFill()) {
+      styleType = 'Line';
+    } else {
+      throw new Error('StyleType could not be detected');
+    }
+
+    return styleType;
+  }
+
+  /**
+   * Get the GeoStyler-Style Style from an OpenLayers Style object.
+   *
+   * @param {object} olStyle The OpenLayers Style object
+   * @return {Style} The GeoStyler-Style Style
+   */
+  olStyleToGeoStylerStyle(olStyle: ol.style.Style): Style {
+    const type = this.getStyleTypeFromOlStyle(olStyle);
+    const rules = this.getRulesFromOlStyle(olStyle);
+    return {
+      type,
+      rules
+    };
   }
 
   /**
