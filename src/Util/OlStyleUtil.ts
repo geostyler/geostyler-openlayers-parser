@@ -93,10 +93,11 @@ class OlStyleUtil {
    * @param symbolizer The TextSymbolizer to derive the font string from
    */
   public static getTextFont(symbolizer: TextSymbolizer) {
+    // since TextSymbolizer has no prop for font weight we use 'Normal' as default
     const weight = 'Normal';
     const size = symbolizer.size;
     const font = symbolizer.font;
-    return weight + ' ' + size + ' ' + font;
+    return weight + ' ' + size + 'px ' + font;
   }
 }
 
