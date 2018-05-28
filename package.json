@@ -33,6 +33,7 @@
     "build": "tsc -p tsconfig.json",
     "pretest": "npm run lint",
     "test": "jest",
+    "test:watch": "jest --watchAll",
     "lint": "tslint --project tsconfig.json --config tslint.json",
     "release": "np --no-yarn"
   },
