@@ -9,7 +9,9 @@ import {
   FillSymbolizer,
   TextSymbolizer,
   StyleType,
-  PointSymbolizer
+  PointSymbolizer,
+  ComparisonFilter,
+  Filter
 } from 'geostyler-style';
 import OlStyleUtil from './Util/OlStyleUtil';
 import { isNumber } from 'util';
@@ -220,10 +222,35 @@ class OlStyleParser implements StyleParser {
   geoStylerStyleToOlStyle(geoStylerStyle: Style): any {
 
     const rules = geoStylerStyle.rules;
-
     let symbArr: any[] = [];
+
     rules.forEach((rule: Rule) => {
-      symbArr.push(this.getOlSymbolizerFromSymbolizer(rule.symbolizer));
+
+      const olStyle = this.getOlSymbolizerFromSymbolizer(rule.symbolizer) as ol.style.Style;
+
+      // if we have a filter we have to wrap the Style as StyleFunction
+      if (rule.filter) {
+        // get the filter expressiona as stringified JS string
+        const olFilterStr = this.getOlFilterFromFilter(rule.filter);
+
+        // wrap filter expression in a StyleFunction
+        const olFilterFn = (feature: ol.Feature, res: number): ol.style.Style | ol.style.Style[] | undefined => {
+
+          // excecute the filter expression
+          // tslint:disable-next-line:no-eval
+          if (eval(olFilterStr)) {
+            return olStyle;
+          } else {
+            return undefined;
+          }
+        };
+
+        symbArr.push(olFilterFn);
+
+      } else {
+        symbArr.push(olStyle);
+      }
+
     });
 
     return symbArr;
@@ -236,7 +263,7 @@ class OlStyleParser implements StyleParser {
    * @param {Symbolizer} symbolizer A GeoStyler-Style Symbolizer.
    * @return {object} The OpenLayers Style object or a StyleFunction
    */
-  getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer): any {
+  getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer): ol.style.Style | ol.StyleFunction {
     let olSymbolizer: ol.style.Style | ol.StyleFunction;
     switch (symbolizer.kind) {
       case 'Circle':
@@ -376,6 +403,90 @@ class OlStyleParser implements StyleParser {
     };
 
     return olPointStyledLabelFn;
+  }
+
+  /**
+   * Get the OL compliant filter as a stringified JavaScript statement from a
+   * GeoStyler-Style ComparisonFilter, like
+   *
+   * 'feature.get("NAME") == "New York"'
+   *
+   * @param {ComparisonFilter} comparisonFilter A GeoStyler-Style ComparisonFilter.
+   * @return {object} The OL compliant filter a stringified JavaScript statement
+   */
+  getOlComparisonFilterFromComparisonFilter(comparisonFilter: ComparisonFilter): any {
+    const operator = comparisonFilter[0];
+    const key = comparisonFilter[1];
+    const value = comparisonFilter[2];
+
+    const filterStr = 'feature.get("' + key + '") ' + operator + ' "' + value + '"';
+
+    return filterStr;
+  }
+
+  /**
+   * Get a OL compliant filter as a stringified JavaScript statement.
+   *
+   * @param {Filter} filter A GeoStyler-Style Filter.
+   * @return {object} The OL compliant filter a stringified JavaScript statement
+   */
+  getOlFilterFromFilter(filter: Filter): string {
+
+    const comparisonMap = {
+      PropertyIsEqualTo: '==',
+      PropertyIsNotEqualTo: '!=',
+      PropertyIsLike: '*=',
+      PropertyIsLessThan: '<',
+      PropertyIsLessThanOrEqualTo: '<=',
+      PropertyIsGreaterThan: '>',
+      PropertyIsGreaterThanOrEqualTo: '>=',
+      PropertyIsNull: '=='
+    };
+    const negationOperatorMap = {
+      Not: '!'
+    };
+    const combinationMap = {
+      And: '&&',
+      Or: '||',
+      PropertyIsBetween: '&&'
+    };
+
+    let olFilterStr = '';
+    const [
+      operator,
+      ...args
+    ] = <Array<any>> filter;
+
+    if (Object.values(comparisonMap).includes(operator)) {
+      // add the JS comparison filter as string, like 'feature.get("NAME") == "New York"'
+      olFilterStr += this.getOlComparisonFilterFromComparisonFilter(filter as ComparisonFilter);
+
+    } else if (Object.values(combinationMap).includes(operator)) {
+      const combinator = operator;
+
+      // add sub filters and combine by combinator oprator (&& / ||)
+      args.forEach((subFilter, idx) => {
+        let subFilterStr = this.getOlFilterFromFilter(subFilter);
+        olFilterStr += subFilterStr;
+
+        if (idx < args.length - 1) {
+          olFilterStr += ' ' + combinator + ' ';
+        }
+      });
+
+    } else if (Object.values(negationOperatorMap).includes(operator)) {
+      const negOperator = operator;
+
+      // add sub filters and wrap by !(...)
+      olFilterStr += negOperator + '( ';
+      args.forEach((subFilter, idx) => {
+        let subFilterStr = this.getOlFilterFromFilter(subFilter);
+        olFilterStr += subFilterStr;
+      });
+      olFilterStr += ' )';
+    }
+
+    return olFilterStr;
   }
 
 }

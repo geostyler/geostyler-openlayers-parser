@@ -6,10 +6,11 @@ import point_simplepoint from '../data/styles/point_simplepoint';
 import line_simpleline from '../data/styles/line_simpleline';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import point_styledlabel from '../data/styles/point_styledlabel';
+import point_simplepoint_filter from '../data/styles/point_simplepoint_filter';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
-import { CircleSymbolizer, LineSymbolizer, FillSymbolizer, TextSymbolizer, Style } from 'geostyler-style';
+import { CircleSymbolizer, LineSymbolizer, FillSymbolizer, TextSymbolizer, Style, Filter } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 
@@ -224,19 +225,47 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olTextOffsetY).toEqual(expectedOffsetY);
         });
     });
-    // it('can write a OpenLayers style with a filter', () => {
-    //   expect.assertions(2);
-    //   return styleParser.writeStyle(point_simplepoint_filter)
-    //     .then((sldString: string) => {
-    //       expect(sldString).toBeDefined();
-    //       // As string comparison between to XML-Strings is awkward and nonesens
-    //       // we read it again and compare the json input with the parser output
-    //       return styleParser.readStyle(sldString)
-    //         .then(readStyle => {
-    //           expect(readStyle).toEqual(point_simplepoint_filter);
-    //         });
-    //     });
-    // });
+    it('can write a OpenLayers style with a filter', () => {
+      expect.assertions(7);
+      return styleParser.writeStyle(point_simplepoint_filter)
+        .then((olStyles: ol.style.Style[] | ol.StyleFunction[]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simplepoint_filter.rules[0].symbolizer as CircleSymbolizer;
+
+          const dummyFeatOk = new ol.Feature({
+            NAME: 'New York',
+            POPULATION: 1
+          });
+          const dummyFeatNoOk1 = new ol.Feature({
+            NAME: 'Berlin',
+            POPULATION: 1
+          });
+          const dummyFeatNoOk2 = new ol.Feature({
+            NAME: 'New York',
+            POPULATION: 1000000000000
+          });
+
+          const olStyleFn = olStyles[0] as ol.StyleFunction;
+          expect(olStyleFn).toBeDefined();
+          // execute the returned StyleFunction and get the underlying OL style object
+          const olStyle = olStyleFn(dummyFeatOk, 1) as ol.style.Style;
+
+          const olImage = olStyle.getImage() as ol.style.Circle;
+          const olFill = olImage.getFill();
+          expect(olFill).toBeDefined();
+          expect(olFill.getColor()).toEqual(expecSymb.color);
+          expect(olImage.getRadius()).toEqual(expecSymb.radius);
+
+          // execute the returned StyleFunction and get the underlying OL style object
+          const olStyleNok = olStyleFn(dummyFeatNoOk1, 1) as ol.style.Style;
+          expect(olStyleNok).toBeUndefined();
+
+          // execute the returned StyleFunction and get the underlying OL style object
+          const olStyleNok2 = olStyleFn(dummyFeatNoOk2, 1) as ol.style.Style;
+          expect(olStyleNok2).toBeUndefined();
+        });
+    });
 
     describe('#getRulesFromOlStyle', () => {
       it('is defined', () => {
@@ -274,17 +303,11 @@ describe('OlStyleParser implements StyleParser', () => {
       });
     });
 
-    // describe('#getSldComparisonFilterFromComparisonFilte', () => {
-    //   it('is defined', () => {
-    //     expect(styleParser.getSldComparisonFilterFromComparisonFilter).toBeDefined();
-    //   });
-    // });
-
-    // describe('#getSldFilterFromFilter', () => {
-    //   it('is defined', () => {
-    //     expect(styleParser.getSldFilterFromFilter).toBeDefined();
-    //   });
-    // });
+    describe('#getOlFilterFromFilter', () => {
+      it('is defined', () => {
+        expect(styleParser.getOlFilterFromFilter).toBeDefined();
+      });
+    });
 
   });
 
