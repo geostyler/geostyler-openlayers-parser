@@ -6,15 +6,18 @@ import point_simplepoint from '../data/styles/point_simplepoint';
 import line_simpleline from '../data/styles/line_simpleline';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import point_styledlabel from '../data/styles/point_styledlabel';
-import { CircleSymbolizer, LineSymbolizer, FillSymbolizer, TextSymbolizer } from 'geostyler-style';
+import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
+import ol_line_simpleline from '../data/olStyles/line_simpleline';
+import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
+import { CircleSymbolizer, LineSymbolizer, FillSymbolizer, TextSymbolizer, Style } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 
-it('SldStyleParser is defined', () => {
+it('OlStyleParser is defined', () => {
   expect(OlStyleParser).toBeDefined();
 });
 
-describe('SldStyleParser implements StyleParser', () => {
+describe('OlStyleParser implements StyleParser', () => {
   let styleParser: OlStyleParser;
 
   beforeEach(() => {
@@ -26,56 +29,65 @@ describe('SldStyleParser implements StyleParser', () => {
       expect(styleParser.readStyle).toBeDefined();
     });
     it('can read a OpenLayers PointSymbolizer', () => {
-      // expect.assertions(2);
-      // const sld = fs.readFileSync( './data/slds/point_simplepoint.sld', 'utf8');
-      // return styleParser.readStyle(sld)
-      //   .then((geoStylerStyle: Style) => {
-      //     expect(geoStylerStyle).toBeDefined();
-      //     expect(geoStylerStyle).toEqual(point_simplepoint);
-      //   });
+      expect.assertions(2);
+      return styleParser.readStyle(ol_point_simplepoint)
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_simplepoint);
+        });
     });
     it('can read a OpenLayers LineSymbolizer', () => {
-      // expect.assertions(2);
-      // const sld = fs.readFileSync( './data/slds/line_simpleline.sld', 'utf8');
-      // return styleParser.readStyle(sld)
-      // .then((geoStylerStyle: Style) => {
-      //   expect(geoStylerStyle).toBeDefined();
-      //   expect(geoStylerStyle).toEqual(line_simpleline);
-      // });
+      expect.assertions(2);
+      return styleParser.readStyle(ol_line_simpleline)
+      .then((geoStylerStyle: Style) => {
+        expect(geoStylerStyle).toBeDefined();
+        expect(geoStylerStyle).toEqual(line_simpleline);
+      });
     });
     it('can read a OpenLayers PolygonSymbolizer', () => {
-      // expect.assertions(2);
-      // const sld = fs.readFileSync( './data/slds/polygon_transparentpolygon.sld', 'utf8');
-      // return styleParser.readStyle(sld)
-      // .then((geoStylerStyle: Style) => {
-      //   expect(geoStylerStyle).toBeDefined();
-      //   expect(geoStylerStyle).toEqual(polygon_transparentpolygon);
-      //   });
+      expect.assertions(2);
+      return styleParser.readStyle(ol_polygon_transparentpolygon)
+      .then((geoStylerStyle: Style) => {
+        expect(geoStylerStyle).toBeDefined();
+        expect(geoStylerStyle).toEqual(polygon_transparentpolygon);
+      });
     });
-    it('can read a OpenLayers TextSymbolizer', () => {
-      // expect.assertions(2);
-      // const sld = fs.readFileSync( './data/slds/point_styledlabel.sld', 'utf8');
-      // return styleParser.readStyle(sld)
-      //   .then((geoStylerStyle: Style) => {
-      //     expect(geoStylerStyle).toBeDefined();
-      //     expect(geoStylerStyle).toEqual(point_styledlabel);
-      //   });
-    });
-    it('can read a OpenLayers style with a filter', () => {
-      // expect.assertions(2);
-      // const sld = fs.readFileSync( './data/slds/point_simplepoint_filter.sld', 'utf8');
-      // return styleParser.readStyle(sld)
-      //   .then((geoStylerStyle: Style) => {
-      //     expect(geoStylerStyle).toBeDefined();
-      //     expect(geoStylerStyle).toEqual(point_simplepoint_filter);
-      //   });
+    // it('can read a OpenLayers TextSymbolizer', () => {
+    //   expect.assertions(2);
+    //   const sld = fs.readFileSync( './data/slds/point_styledlabel.sld', 'utf8');
+    //   return styleParser.readStyle(sld)
+    //     .then((geoStylerStyle: Style) => {
+    //       expect(geoStylerStyle).toBeDefined();
+    //       expect(geoStylerStyle).toEqual(point_styledlabel);
+    //     });
+    // });
+    // it('can read a OpenLayers style with a filter', () => {
+    //   expect.assertions(2);
+    //   const sld = fs.readFileSync( './data/slds/point_simplepoint_filter.sld', 'utf8');
+    //   return styleParser.readStyle(sld)
+    //     .then((geoStylerStyle: Style) => {
+    //       expect(geoStylerStyle).toBeDefined();
+    //       expect(geoStylerStyle).toEqual(point_simplepoint_filter);
+    //     });
+    // });
+
+    describe('#getStyleTypeFromOlStyle', () => {
+      it('is defined', () => {
+        expect(styleParser.getStyleTypeFromOlStyle).toBeDefined();
+      });
     });
 
-    // describe('#getStyleTypeFromOlStyle', () => {
-    //   it('is defined', () => {
-    //     expect(styleParser.getStyleTypeFromOlStyle).toBeDefined();
-    //   });
-    // });
+    describe('#getRulesFromOlStyle', () => {
+      it('is defined', () => {
+        expect(styleParser.getRulesFromOlStyle).toBeDefined();
+      });
+    });
+
+    describe('#getSymbolizerFromOlStyle', () => {
+      it('is defined', () => {
+        expect(styleParser.getSymbolizerFromOlStyle).toBeDefined();
+      });
+    });
 
     // describe('#getFilterFromOperatorAndComparison', () => {
     //   it('is defined', () => {
@@ -95,47 +107,29 @@ describe('SldStyleParser implements StyleParser', () => {
     //   });
     // });
 
-    // describe('#getPointSymbolizerFromSldSymbolizer', () => {
-    //   it('is defined', () => {
-    //     expect(styleParser.getPointSymbolizerFromSldSymbolizer).toBeDefined();
-    //   });
-    // });
+    describe('#getPointSymbolizerFromOlSymbolizer', () => {
+      it('is defined', () => {
+        expect(styleParser.getPointSymbolizerFromOlStyle).toBeDefined();
+      });
+    });
 
     describe('#getLineSymbolizerFromOlSymbolizer', () => {
-      // it('is defined', () => {
-      //   expect(styleParser.getLineSymbolizerFromOlSymbolizer).toBeDefined();
-      // });
+      it('is defined', () => {
+        expect(styleParser.getLineSymbolizerFromOlStyle).toBeDefined();
+      });
     });
 
     describe('#getFillSymbolizerFromOlSymbolizer', () => {
-      // it('is defined', () => {
-      //   expect(styleParser.getFillSymbolizerFromSldSymbolizer).toBeDefined();
-      // });
+      it('is defined', () => {
+        expect(styleParser.getFillSymbolizerFromOlStyle).toBeDefined();
+      });
     });
 
-    describe('#getTextSymbolizerFromOlSymbolizer', () => {
-      // it('is defined', () => {
-      //   expect(styleParser.getTextSymbolizerFromOlSymbolizer).toBeDefined();
-      // });
-    });
-
-    // describe('#getSymbolizerFromRule', () => {
+    // describe('#getTextSymbolizerFromOlSymbolizer', () => {
     //   it('is defined', () => {
-    //     expect(styleParser.getSymbolizerFromRule).toBeDefined();
+    //     expect(styleParser.getTextSymbolizerFromOlSymbolizer).toBeDefined();
     //   });
     // });
-
-    // describe('#getRulesFromSldObject', () => {
-    //   it('is defined', () => {
-    //     expect(styleParser.getRulesFromSldObject).toBeDefined();
-    //   });
-    // });
-
-    describe('#olObjectToGeoStylerStyle', () => {
-      // it('is defined', () => {
-      //   expect(styleParser.olObjectToGeoStylerStyle).toBeDefined();
-      // });
-    });
   });
 
   describe('#writeStyle', () => {
@@ -244,17 +238,11 @@ describe('SldStyleParser implements StyleParser', () => {
     //     });
     // });
 
-    // describe('#geoStylerStyleToOlObject', () => {
-    //   it('is defined', () => {
-    //     expect(styleParser.geoStylerStyleToOlObject).toBeDefined();
-    //   });
-    // });
-
-    // describe('#getSldRulesFromRules', () => {
-    //   it('is defined', () => {
-    //     expect(styleParser.getSldRulesFromRules).toBeDefined();
-    //   });
-    // });
+    describe('#getRulesFromOlStyle', () => {
+      it('is defined', () => {
+        expect(styleParser.getRulesFromOlStyle).toBeDefined();
+      });
+    });
 
     describe('#getOlSymbolizerFromSymbolizer', () => {
       it('is defined', () => {
