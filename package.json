@@ -2,7 +2,7 @@
   "name": "geostyler-openlayers-parser",
   "version": "0.2.1",
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
-  "main": "build/dist/src/OlStyleParser.js",
+  "main": "build/dist/OlStyleParser.js",
   "files": [
     "build",
     "index.d.ts"
@@ -30,7 +30,7 @@
     "openlayers": "4.6.5"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "prebuild": "npm run test",
     "pretest": "npm run lint",
     "prepublishOnly": "npm run build",
