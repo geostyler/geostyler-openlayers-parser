@@ -56,11 +56,12 @@ class OlStyleUtil {
 
       return '#' + colorArr.map((x, idx) => {
         const hex = x.toString(16);
-        // skip opeacity of available
+        // skip opacity of available
         if (idx < 3) {
           // return hex;
           return hex.length === 1 ? '0' + hex : hex;
         }
+        return '';
       }).join('');
     } else {
       return;

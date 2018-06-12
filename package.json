@@ -27,20 +27,22 @@
     "@types/lodash": "4.14.108",
     "geostyler-style": "0.2.0",
     "lodash": "4.17.10",
-    "openlayers": "^4.6.5"
+    "openlayers": "4.6.5"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "prebuild": "npm run test",
     "pretest": "npm run lint",
+    "prepublishOnly": "npm run build",
     "test": "jest",
-    "lint": "tslint --project tsconfig.json --config tslint.json",
+    "lint": "tslint --project tsconfig.json --config tslint.json && tsc --noEmit --project tsconfig.build.json",
     "release": "np --no-yarn"
   },
   "devDependencies": {
     "@types/jest": "22.2.3",
     "@types/node": "10.0.9",
-    "@types/ol": "^4.6.1",
-    "canvas-prebuilt": "^1.6.5-prerelease.1",
+    "@types/ol": "4.6.1",
+    "canvas-prebuilt": "1.6.5-prerelease.1",
     "coveralls": "3.0.1",
     "jest": "22.4.3",
     "np": "2.20.1",
