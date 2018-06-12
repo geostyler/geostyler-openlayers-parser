@@ -24,6 +24,11 @@ import { isNumber } from 'util';
 class OlStyleParser implements StyleParser {
 
   /**
+   * The name of the OlStyleParser.
+   */
+  public static title = 'OpenLayers Style Parser';
+
+  /**
    * Get the GeoStyler-Style PointSymbolizer from an OpenLayers Style object.
    *
    * @param {object} olStyle The OpenLayers Style object
