@@ -357,7 +357,7 @@ class OlStyleParser implements StyleParser {
 
       const text = new ol.style.Text({
         font: OlStyleUtil.getTextFont(symbolizer),
-        text: feature.get(symbolizer.field || ''),
+        text: feature.get(symbolizer.field || '') + '',
         fill: new ol.style.Fill({
           color: (symbolizer.color && symbolizer.opacity) ?
             OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
