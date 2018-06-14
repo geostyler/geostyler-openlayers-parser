@@ -64,7 +64,8 @@ class OlStyleParser implements StyleParser {
       kind: 'Line',
       color: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) as string : undefined,
       opacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
-      width: olStrokeStyle ? olStrokeStyle.getWidth() : undefined
+      width: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
+      dasharray: olStrokeStyle ? olStrokeStyle.getLineDash() : undefined
     };
   }
 
@@ -345,7 +346,8 @@ class OlStyleParser implements StyleParser {
       stroke: new ol.style.Stroke({
         color: (symbolizer.color && symbolizer.opacity) ?
           OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color,
-        width: symbolizer.width
+        width: symbolizer.width,
+        lineDash: symbolizer.dasharray
       })
     });
   }
