@@ -178,7 +178,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers LineSymbolizer', () => {
-      expect.assertions(4);
+      expect.assertions(5);
       return styleParser.writeStyle(line_simpleline)
         .then((olStyles: ol.style.Style[]) => {
           expect(olStyles).toBeDefined();
@@ -189,6 +189,7 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olStroke).toBeDefined();
           expect(olStroke.getColor()).toEqual(expecSymb.color);
           expect(olStroke.getWidth()).toEqual(expecSymb.width);
+          expect(olStroke.getLineDash()).toEqual(expecSymb.dasharray);
         });
     });
     it('can write a OpenLayers PolygonSymbolizer', () => {

@@ -9,7 +9,8 @@ const lineSimpleLine: Style = {
       symbolizer: {
         kind: 'Line',
         color: '#000000',
-        width: 3
+        width: 3,
+        dasharray: [1, 2, 3, 4]
       }
     }
   ]
