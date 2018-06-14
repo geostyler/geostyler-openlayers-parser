@@ -316,7 +316,7 @@ class OlStyleParser implements StyleParser {
   }
 
   /**
-   * Get the OL Style object  from an GeoStyler-Style CircleSymbolizer.
+   * Get the OL Style object  from an GeoStyler-Style IconSymbolizer.
    *
    * @param {IconSymbolizer} symbolizer  A GeoStyler-Style IconSymbolizer.
    * @return {object} The OL Style object
@@ -326,7 +326,6 @@ class OlStyleParser implements StyleParser {
       image: new ol.style.Icon({
         src: symbolizer.image,
         crossOrigin: 'anonymous',
-        offset: symbolizer.offset,
         opacity: symbolizer.opacity,
         scale: symbolizer.size || 1,
         // Rotation in openlayers is radians while we use degree
