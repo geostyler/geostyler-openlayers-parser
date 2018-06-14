@@ -3,13 +3,22 @@ import * as ol from 'openlayers';
 import OlStyleParser from './OlStyleParser';
 
 import point_simplepoint from '../data/styles/point_simplepoint';
+import point_icon from '../data/styles/point_icon';
 import line_simpleline from '../data/styles/line_simpleline';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
+import ol_point_icon from '../data/olStyles/point_icon';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
-import { CircleSymbolizer, LineSymbolizer, FillSymbolizer, TextSymbolizer, Style } from 'geostyler-style';
+import {
+  CircleSymbolizer,
+  LineSymbolizer,
+  FillSymbolizer,
+  TextSymbolizer,
+  Style,
+  IconSymbolizer
+} from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 
@@ -148,6 +157,24 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olImage).toBeDefined();
           expect(olImage.getRadius()).toEqual(expecSymb.radius);
           expect(olImage.getFill().getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers IconSymbolizer', () => {
+      expect.assertions(6);
+      return styleParser.writeStyle(point_icon)
+        .then((olStyles: ol.style.Style[]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_icon.rules[0].symbolizer as IconSymbolizer;
+          const olImage: ol.style.Icon = olStyles[0].getImage() as ol.style.Icon;
+
+          expect(olImage.getSrc()).toEqual(expecSymb.image);
+          expect(olImage.getScale()).toEqual(expecSymb.size);
+          // Rotation in openlayers is radians while we use degree
+          expect(olImage.getRotation()).toEqual(expecSymb.rotate * Math.PI / 180);
+          expect(olImage.getOpacity()).toEqual(expecSymb.opacity);
+
+          expect(olImage).toBeDefined();
         });
     });
     it('can write a OpenLayers LineSymbolizer', () => {

@@ -9,7 +9,8 @@ import {
   FillSymbolizer,
   TextSymbolizer,
   StyleType,
-  PointSymbolizer
+  PointSymbolizer,
+  IconSymbolizer
 } from 'geostyler-style';
 import OlStyleUtil from './Util/OlStyleUtil';
 import { isNumber } from 'util';
@@ -251,10 +252,9 @@ class OlStyleParser implements StyleParser {
       case 'Circle':
         olSymbolizer = this.getOlPointSymbolizerFromCircleSymbolizer(symbolizer);
         break;
-      // case 'Icon':
-      //   // TODO Implement logic for IconSymbolizer parsing
-      //   // sldSymbolizer = this.getSldPointSymbolizerFromIconSymbolizer(symbolizer);
-      //   break;
+      case 'Icon':
+        olSymbolizer = this.getOlIconSymbolizerFromIconSymbolizer(symbolizer);
+        break;
       case 'Text':
         olSymbolizer = this.getOlTextSymbolizerFromTextSymbolizer(symbolizer);
         break;
@@ -311,6 +311,26 @@ class OlStyleParser implements StyleParser {
             OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
         }),
         stroke: stroke
+      })
+    });
+  }
+
+  /**
+   * Get the OL Style object  from an GeoStyler-Style CircleSymbolizer.
+   *
+   * @param {IconSymbolizer} symbolizer  A GeoStyler-Style IconSymbolizer.
+   * @return {object} The OL Style object
+   */
+  getOlIconSymbolizerFromIconSymbolizer(symbolizer: IconSymbolizer) {
+    return new ol.style.Style({
+      image: new ol.style.Icon({
+        src: symbolizer.image,
+        crossOrigin: 'anonymous',
+        offset: symbolizer.offset,
+        opacity: symbolizer.opacity,
+        scale: symbolizer.size || 1,
+        // Rotation in openlayers is radians while we use degree
+        rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
       })
     });
   }
