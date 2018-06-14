@@ -224,6 +224,32 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olTextOffsetY).toEqual(expectedOffsetY);
         });
     });
+    it('transforms labels values based on fields to string ', () => {
+      expect.assertions(4);
+      // change the field as base for the label text to a numeric one
+      const inSymb = point_styledlabel.rules[0].symbolizer as TextSymbolizer;
+      inSymb.field = 'id';
+      return styleParser.writeStyle(point_styledlabel)
+        .then((olStyles: ol.style.Style[] | ol.StyleFunction[]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_styledlabel.rules[0].symbolizer as TextSymbolizer;
+
+          const dummyFeat = new ol.Feature({
+            id: 1
+          });
+          const olStyleFn = olStyles[0] as ol.StyleFunction;
+          expect(olStyleFn).toBeDefined();
+          // execute the returned StyleFunction and get the underlying OL style object
+          const olStyle: ol.style.Style = olStyleFn(dummyFeat, 1) as ol.style.Style;
+
+          const olText = olStyle.getText();
+          const olTextContent = olText.getText();
+          expect(typeof olTextContent).toEqual('string');
+          expect(olTextContent).toEqual(dummyFeat.get('id') + '');
+
+        });
+    });
     // it('can write a OpenLayers style with a filter', () => {
     //   expect.assertions(2);
     //   return styleParser.writeStyle(point_simplepoint_filter)
