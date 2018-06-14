@@ -129,7 +129,9 @@ class OlStyleParser implements StyleParser {
    */
   getRulesFromOlStyle(olStyle: ol.style.Style): Rule[] {
     const symbolizer: Symbolizer = this.getSymbolizerFromOlStyle(olStyle);
+    const name = 'OL Style Rule';
     let rule = {
+      name,
       symbolizer
     };
     let rules: Rule[] = [rule];
@@ -166,9 +168,11 @@ class OlStyleParser implements StyleParser {
    * @return {Style} The GeoStyler-Style Style
    */
   olStyleToGeoStylerStyle(olStyle: ol.style.Style): Style {
+    const name = 'OL Style';
     const type = this.getStyleTypeFromOlStyle(olStyle);
     const rules = this.getRulesFromOlStyle(olStyle);
     return {
+      name,
       type,
       rules
     };
