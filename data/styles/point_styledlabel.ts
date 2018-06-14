@@ -2,8 +2,10 @@ import { Style } from 'geostyler-style';
 
 const pointStyledLabel: Style = {
   type: 'Point',
+  name: 'OL Style',
   rules: [
     {
+      name: 'OL Style Rule',
       symbolizer: {
         kind: 'Text',
         color: '#000000',
