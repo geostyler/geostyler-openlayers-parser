@@ -90,6 +90,30 @@ class OlStyleParser implements StyleParser {
   }
 
   /**
+   * Get the GeoStyler-Style TextSymbolizer from an OpenLayers Style object.
+   *
+   *
+   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @return {TextSymbolizer} The GeoStyler-Style TextSymbolizer
+   */
+  getTextSymbolizerFromOlStyle(olStyle: ol.style.Style): TextSymbolizer {
+    const olTextStyle = olStyle.getText() as ol.style.Text;
+    const olFillStyle = olTextStyle.getFill() as ol.style.Fill;
+    const offsetX = olTextStyle.getOffsetX();
+    const offsetY = olTextStyle.getOffsetY();
+    const font = olTextStyle.getFont();
+    const fontSize = parseInt(font.split('px')[0]);
+
+      return {
+        kind: 'Text',
+        color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
+        size: isFinite(fontSize) ? fontSize : undefined,
+        font: [font],
+        offset: offsetX && offsetY ? [offsetX, offsetY] : [0, 0]
+    };
+  }
+
+  /**
    * Get the GeoStyler-Style Symbolizer from an OpenLayers Style object.
    *
    * Currently only one symbolizer per rule is supported.
@@ -99,18 +123,19 @@ class OlStyleParser implements StyleParser {
    */
   getSymbolizerFromOlStyle(olStyle: ol.style.Style): Symbolizer {
     let symbolizer: Symbolizer = <Symbolizer> {};
-    const symbType = this.getStyleTypeFromOlStyle(olStyle);
+    const styleType = this.getStyleTypeFromOlStyle(olStyle);
 
-    switch (symbType) {
+    switch (styleType) {
       case 'Point':
-        symbolizer = this.getPointSymbolizerFromOlStyle(olStyle);
+        if (olStyle.getText()) {
+          symbolizer = this.getTextSymbolizerFromOlStyle(olStyle);
+        } else {
+          symbolizer = this.getPointSymbolizerFromOlStyle(olStyle);
+        }
         break;
       case 'Line':
         symbolizer = this.getLineSymbolizerFromOlStyle(olStyle);
         break;
-      // case 'TextSymbolizer':
-      //   symbolizer = this.getTextSymbolizerFromOlStyle(olStyle);
-      //   break;
       case 'Fill':
         symbolizer = this.getFillSymbolizerFromOlStyle(olStyle);
         break;
@@ -150,9 +175,9 @@ class OlStyleParser implements StyleParser {
   getStyleTypeFromOlStyle(olStyle: ol.style.Style): StyleType {
     let styleType: StyleType;
 
-    if (olStyle.getImage() instanceof ol.style.Image) {
+    if (olStyle.getImage() || olStyle.getText()) {
       styleType = 'Point';
-    } else if (olStyle.getFill() instanceof ol.style.Fill) {
+    } else if (olStyle.getFill() && olStyle.getFill()) {
       styleType = 'Fill';
     } else if (olStyle.getStroke() && !olStyle.getFill()) {
       styleType = 'Line';
