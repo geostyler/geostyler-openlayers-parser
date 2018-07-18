@@ -36,6 +36,7 @@
     "prepublishOnly": "npm run build",
     "test": "jest",
     "lint": "tslint --project tsconfig.json --config tslint.json && tsc --noEmit --project tsconfig.build.json",
+    "build:dist": "tsc -p ./ && copyfiles \"./src/**/*.css\" dist --up 1",
     "release": "np --no-yarn"
   },
   "devDependencies": {
@@ -48,6 +49,7 @@
     "np": "3.0.4",
     "ts-jest": "22.4.6",
     "tslint": "5.10.0",
+    "copyfiles": "2.0.0",
     "typescript": "2.9.2"
   },
   "jest": {
