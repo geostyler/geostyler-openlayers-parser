@@ -1,4 +1,11 @@
-import * as ol from 'openlayers';
+import OlStyle from 'ol/style/style';
+import OlStyleText from 'ol/style/text';
+import OlStyleFill from 'ol/style/fill';
+import OlStyleCircle from 'ol/style/circle';
+import OlStyleIcon from 'ol/style/icon';
+import OlFeature from 'ol/feature';
+import ol from 'ol';
+type OlStyleFunction = ol.StyleFunction;
 
 import OlStyleParser from './OlStyleParser';
 
@@ -8,7 +15,7 @@ import line_simpleline from '../data/styles/line_simpleline';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
-import ol_point_icon from '../data/olStyles/point_icon';
+// import ol_point_icon from '../data/olStyles/point_icon';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
 import {
@@ -21,7 +28,7 @@ import {
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
-import { style } from 'openlayers';
+// import { style } from 'openlayers';
 
 it('OlStyleParser is defined', () => {
   expect(OlStyleParser).toBeDefined();
@@ -153,13 +160,13 @@ describe('OlStyleParser implements StyleParser', () => {
           offsetX,
           offsetY,
           font,
-          fill: new ol.style.Fill(fillOpts)
+          fill: new OlStyleFill(fillOpts)
         };
 
         const styleOpts: ol.olx.style.StyleOptions = {
-          text: new ol.style.Text(textOpts)
+          text: new OlStyleText(textOpts)
         };
-        const testStyle: ol.style.Style = new ol.style.Style(styleOpts);
+        const testStyle: OlStyle = new OlStyle(styleOpts);
         const result = styleParser.getTextSymbolizerFromOlStyle(testStyle);
         expect(result).toBeDefined();
         expect(result.kind).toBe('Text');
@@ -184,13 +191,13 @@ describe('OlStyleParser implements StyleParser', () => {
           const textOpts: ol.olx.style.TextOptions = {
             text: 'Peter',
             font,
-            fill: new ol.style.Fill(fillOpts)
+            fill: new OlStyleFill(fillOpts)
           };
 
           const styleOpts: ol.olx.style.StyleOptions = {
-            text: new ol.style.Text(textOpts)
+            text: new OlStyleText(textOpts)
           };
-          const testStyle: ol.style.Style = new ol.style.Style(styleOpts);
+          const testStyle: OlStyle = new OlStyle(styleOpts);
           const result = styleParser.getTextSymbolizerFromOlStyle(testStyle);
           expect(result).toBeDefined();
           expect(result.kind).toBe('Text');
@@ -209,11 +216,11 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can write a OpenLayers PointSymbolizer', () => {
       expect.assertions(4);
       return styleParser.writeStyle(point_simplepoint)
-        .then((olStyles: ol.style.Style[]) => {
+        .then((olStyles: OlStyle[]) => {
           expect(olStyles).toBeDefined();
 
           const expecSymb = point_simplepoint.rules[0].symbolizer as CircleSymbolizer;
-          const olCircle: ol.style.Circle = olStyles[0].getImage() as ol.style.Circle;
+          const olCircle: OlStyleCircle = olStyles[0].getImage() as OlStyleCircle;
 
           expect(olCircle).toBeDefined();
           expect(olCircle.getRadius()).toEqual(expecSymb.radius);
@@ -223,16 +230,16 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can write a OpenLayers IconSymbolizer', () => {
       expect.assertions(6);
       return styleParser.writeStyle(point_icon)
-        .then((olStyles: ol.style.Style[]) => {
+        .then((olStyles: OlStyle[]) => {
           expect(olStyles).toBeDefined();
 
           const expecSymb = point_icon.rules[0].symbolizer as IconSymbolizer;
-          const olIcon: ol.style.Icon = olStyles[0].getImage() as ol.style.Icon;
+          const olIcon: OlStyleIcon = olStyles[0].getImage() as OlStyleIcon;
 
           expect(olIcon.getSrc()).toEqual(expecSymb.image);
           expect(olIcon.getScale()).toEqual(expecSymb.size);
           // Rotation in openlayers is radians while we use degree
-          expect(olIcon.getRotation()).toEqual(expecSymb.rotate * Math.PI / 180);
+          expect(olIcon.getRotation()).toEqual(expecSymb.rotate! * Math.PI / 180);
           expect(olIcon.getOpacity()).toEqual(expecSymb.opacity);
 
           expect(olIcon).toBeDefined();
@@ -241,7 +248,7 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can write a OpenLayers LineSymbolizer', () => {
       expect.assertions(5);
       return styleParser.writeStyle(line_simpleline)
-        .then((olStyles: ol.style.Style[]) => {
+        .then((olStyles: OlStyle[]) => {
           expect(olStyles).toBeDefined();
 
           const expecSymb = line_simpleline.rules[0].symbolizer as LineSymbolizer;
@@ -256,7 +263,7 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can write a OpenLayers PolygonSymbolizer', () => {
       expect.assertions(5);
       return styleParser.writeStyle(polygon_transparentpolygon)
-        .then((olStyles: ol.style.Style[]) => {
+        .then((olStyles: OlStyle[]) => {
           expect(olStyles).toBeDefined();
 
           const expecSymb = polygon_transparentpolygon.rules[0].symbolizer as FillSymbolizer;
@@ -275,18 +282,18 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can write a OpenLayers TextSymbolizer', () => {
       expect.assertions(11);
       return styleParser.writeStyle(point_styledlabel)
-        .then((olStyles: ol.style.Style[] | ol.StyleFunction[]) => {
+        .then((olStyles: OlStyle[] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
 
           const expecSymb = point_styledlabel.rules[0].symbolizer as TextSymbolizer;
 
-          const dummyFeat = new ol.Feature({
+          const dummyFeat = new OlFeature({
             name: 'GeoStyler'
           });
-          const olStyleFn = olStyles[0] as ol.StyleFunction;
+          const olStyleFn = olStyles[0] as OlStyleFunction;
           expect(olStyleFn).toBeDefined();
           // execute the returned StyleFunction and get the underlying OL style object
-          const olStyle: ol.style.Style = olStyleFn(dummyFeat, 1) as ol.style.Style;
+          const olStyle: OlStyle = olStyleFn(dummyFeat, 1) as OlStyle;
 
           const olText = olStyle.getText();
           expect(olText).toBeDefined();
@@ -319,18 +326,18 @@ describe('OlStyleParser implements StyleParser', () => {
       const inSymb = point_styledlabel.rules[0].symbolizer as TextSymbolizer;
       inSymb.field = 'id';
       return styleParser.writeStyle(point_styledlabel)
-        .then((olStyles: ol.style.Style[] | ol.StyleFunction[]) => {
+        .then((olStyles: OlStyle[] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
 
           const expecSymb = point_styledlabel.rules[0].symbolizer as TextSymbolizer;
 
-          const dummyFeat = new ol.Feature({
+          const dummyFeat = new OlFeature({
             id: 1
           });
-          const olStyleFn = olStyles[0] as ol.StyleFunction;
+          const olStyleFn = olStyles[0] as OlStyleFunction;
           expect(olStyleFn).toBeDefined();
           // execute the returned StyleFunction and get the underlying OL style object
-          const olStyle: ol.style.Style = olStyleFn(dummyFeat, 1) as ol.style.Style;
+          const olStyle: OlStyle = olStyleFn(dummyFeat, 1) as OlStyle;
 
           const olText = olStyle.getText();
           const olTextContent = olText.getText();

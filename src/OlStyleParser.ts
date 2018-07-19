@@ -1,4 +1,3 @@
-import * as ol from 'openlayers';
 import {
   Style,
   StyleParser,
@@ -12,6 +11,15 @@ import {
   PointSymbolizer,
   IconSymbolizer
 } from 'geostyler-style';
+
+import OlStyle from 'ol/style/style';
+import OlStyleImage from 'ol/style/image';
+import OlStyleFill from 'ol/style/fill';
+import OlStyleStroke from 'ol/style/stroke';
+import OlStyleText from 'ol/style/text';
+import OlStyleCircle from 'ol/style/circle';
+import OlStyleIcon from 'ol/style/icon';
+
 import OlStyleUtil from './Util/OlStyleUtil';
 import { isNumber } from 'util';
 
@@ -35,8 +43,8 @@ class OlStyleParser implements StyleParser {
    * @param {object} olStyle The OpenLayers Style object
    * @return {PointSymbolizer} The GeoStyler-Style PointSymbolizer
    */
-  getPointSymbolizerFromOlStyle(olStyle: ol.style.Style): PointSymbolizer {
-    const olCircleStyle = olStyle.getImage() as ol.style.Circle;
+  getPointSymbolizerFromOlStyle(olStyle: OlStyle): PointSymbolizer {
+    const olCircleStyle = olStyle.getImage() as OlStyleCircle;
     const olFillStyle = olCircleStyle.getFill();
     const olStrokeStyle = olCircleStyle.getStroke();
 
@@ -57,8 +65,8 @@ class OlStyleParser implements StyleParser {
    * @param {object} olStyle The OpenLayers Style object
    * @return {LineSymbolizer} The GeoStyler-Style LineSymbolizer
    */
-  getLineSymbolizerFromOlStyle(olStyle: ol.style.Style): LineSymbolizer {
-    const olStrokeStyle = olStyle.getStroke() as ol.style.Stroke;
+  getLineSymbolizerFromOlStyle(olStyle: OlStyle): LineSymbolizer {
+    const olStrokeStyle = olStyle.getStroke() as OlStyleStroke;
 
     return {
       kind: 'Line',
@@ -74,12 +82,12 @@ class OlStyleParser implements StyleParser {
    *
    * PolygonSymbolizer Stroke is just partially supported.
    *
-   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {FillSymbolizer} The GeoStyler-Style FillSymbolizer
    */
-  getFillSymbolizerFromOlStyle(olStyle: ol.style.Style): FillSymbolizer {
-    const olFillStyle = olStyle.getFill() as ol.style.Fill;
-    const olStrokeStyle = olStyle.getStroke() as ol.style.Stroke;
+  getFillSymbolizerFromOlStyle(olStyle: OlStyle): FillSymbolizer {
+    const olFillStyle = olStyle.getFill() as OlStyleFill;
+    const olStrokeStyle = olStyle.getStroke() as OlStyleStroke;
 
     return {
       kind: 'Fill',
@@ -123,10 +131,10 @@ class OlStyleParser implements StyleParser {
    *
    * Currently only one symbolizer per rule is supported.
    *
-   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {Symbolizer} The GeoStyler-Style Symbolizer
    */
-  getSymbolizerFromOlStyle(olStyle: ol.style.Style): Symbolizer {
+  getSymbolizerFromOlStyle(olStyle: OlStyle): Symbolizer {
     let symbolizer: Symbolizer = <Symbolizer> {};
     const styleType = this.getStyleTypeFromOlStyle(olStyle);
 
@@ -156,10 +164,10 @@ class OlStyleParser implements StyleParser {
    *
    * Currently only one symbolizer per rule is supported.
    *
-   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {Rule} The GeoStyler-Style Rule
    */
-  getRulesFromOlStyle(olStyle: ol.style.Style): Rule[] {
+  getRulesFromOlStyle(olStyle: OlStyle): Rule[] {
     const symbolizer: Symbolizer = this.getSymbolizerFromOlStyle(olStyle);
     const name = 'OL Style Rule';
     let rule = {
@@ -174,15 +182,15 @@ class OlStyleParser implements StyleParser {
   /**
    * Get the GeoStyler-Style Symbolizer from an OpenLayers Style object.
    *
-   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {Symbolizer} The GeoStyler-Style Symbolizer
    */
-  getStyleTypeFromOlStyle(olStyle: ol.style.Style): StyleType {
+  getStyleTypeFromOlStyle(olStyle: OlStyle): StyleType {
     let styleType: StyleType;
 
-    if (olStyle.getImage() || olStyle.getText()) {
+    if (olStyle.getImage() instanceof OlStyleImage) {
       styleType = 'Point';
-    } else if (olStyle.getFill() && olStyle.getFill()) {
+    } else if (olStyle.getFill() instanceof OlStyleFill) {
       styleType = 'Fill';
     } else if (olStyle.getStroke() && !olStyle.getFill()) {
       styleType = 'Line';
@@ -199,7 +207,7 @@ class OlStyleParser implements StyleParser {
    * @param {object} olStyle The OpenLayers Style object
    * @return {Style} The GeoStyler-Style Style
    */
-  olStyleToGeoStylerStyle(olStyle: ol.style.Style): Style {
+  olStyleToGeoStylerStyle(olStyle: OlStyle): Style {
     const name = 'OL Style';
     const type = this.getStyleTypeFromOlStyle(olStyle);
     const rules = this.getRulesFromOlStyle(olStyle);
@@ -218,7 +226,7 @@ class OlStyleParser implements StyleParser {
    * @param {string} olStyle An OpenLayers style instance
    * @return {Promise} The Promise resolving with the GeoStyler-Style Style
    */
-  readStyle(olStyle: ol.style.Style): Promise<Style> {
+  readStyle(olStyle: OlStyle): Promise<Style> {
     return new Promise<Style>((resolve, reject) => {
       try {
 
@@ -239,7 +247,7 @@ class OlStyleParser implements StyleParser {
    * @param {Style} geoStylerStyle A GeoStyler-Style Style.
    * @return {Promise} The Promise resolving with an OpenLayers style instance.
    */
-  writeStyle(geoStylerStyle: Style): Promise<ol.style.Style[]> {
+  writeStyle(geoStylerStyle: Style): Promise<OlStyle[]> {
     return new Promise<any>((resolve, reject) => {
       try {
 
@@ -256,7 +264,7 @@ class OlStyleParser implements StyleParser {
    * Get the OpenLayers Style object from an GeoStyler-Style Style
    *
    * @param {Style} geoStylerStyle A GeoStyler-Style Style.
-   * @return {ol.style.Style} An OpenLayers style instance
+   * @return {OlStyle} An OpenLayers style instance
    */
   geoStylerStyleToOlStyle(geoStylerStyle: Style): any {
 
@@ -278,7 +286,7 @@ class OlStyleParser implements StyleParser {
    * @return {object} The OpenLayers Style object or a StyleFunction
    */
   getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer): any {
-    let olSymbolizer: ol.style.Style | ol.StyleFunction;
+    let olSymbolizer: OlStyle | ol.StyleFunction;
     switch (symbolizer.kind) {
       case 'Circle':
         olSymbolizer = this.getOlPointSymbolizerFromCircleSymbolizer(symbolizer);
@@ -298,15 +306,15 @@ class OlStyleParser implements StyleParser {
       default:
         // Return the OL default style since the TS type binding does not allow
         // us to set olSymbolizer to undefined
-        var fill = new ol.style.Fill({
+        var fill = new OlStyleFill({
           color: 'rgba(255,255,255,0.4)'
         });
-        var stroke = new ol.style.Stroke({
+        var stroke = new OlStyleStroke({
           color: '#3399CC',
           width: 1.25
         });
-        olSymbolizer = new ol.style.Style({
-          image: new ol.style.Circle({
+        olSymbolizer = new OlStyle({
+          image: new OlStyleCircle({
             fill: fill,
             stroke: stroke,
             radius: 5
@@ -325,19 +333,19 @@ class OlStyleParser implements StyleParser {
    * @param {CircleSymbolizer} circleSymbolizer A GeoStyler-Style CircleSymbolizer.
    * @return {object} The OL Style object
    */
-  getOlPointSymbolizerFromCircleSymbolizer(symbolizer: CircleSymbolizer): ol.style.Style {
+  getOlPointSymbolizerFromCircleSymbolizer(symbolizer: CircleSymbolizer): OlStyle {
     let stroke;
     if (symbolizer.strokeColor) {
-      stroke = new ol.style.Stroke({
+      stroke = new OlStyleStroke({
         color: symbolizer.strokeColor,
         width: symbolizer.strokeWidth
       });
     }
 
-    return new ol.style.Style({
-      image: new ol.style.Circle({
+    return new OlStyle({
+      image: new OlStyleCircle({
         radius: symbolizer.radius || 5,
-        fill: new ol.style.Fill({
+        fill: new OlStyleFill({
           color: (symbolizer.color && symbolizer.opacity) ?
             OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
         }),
@@ -353,8 +361,8 @@ class OlStyleParser implements StyleParser {
    * @return {object} The OL Style object
    */
   getOlIconSymbolizerFromIconSymbolizer(symbolizer: IconSymbolizer) {
-    return new ol.style.Style({
-      image: new ol.style.Icon({
+    return new OlStyle({
+      image: new OlStyleIcon({
         src: symbolizer.image,
         crossOrigin: 'anonymous',
         opacity: symbolizer.opacity,
@@ -372,8 +380,8 @@ class OlStyleParser implements StyleParser {
    * @return {object} The OL Style object
    */
   getOlLineSymbolizerFromLineSymbolizer(symbolizer: LineSymbolizer) {
-    return new ol.style.Style({
-      stroke: new ol.style.Stroke({
+    return new OlStyle({
+      stroke: new OlStyleStroke({
         color: (symbolizer.color && symbolizer.opacity) ?
           OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color,
         width: symbolizer.width,
@@ -389,11 +397,11 @@ class OlStyleParser implements StyleParser {
    * @return {object} The OL Style object
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer) {
-    return new ol.style.Style({
-      stroke: new ol.style.Stroke({
+    return new OlStyle({
+      stroke: new OlStyleStroke({
         color: symbolizer.outlineColor
       }),
-      fill: new ol.style.Fill({
+      fill: new OlStyleFill({
         color: (symbolizer.color && symbolizer.opacity) ?
           OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
       })
@@ -410,14 +418,14 @@ class OlStyleParser implements StyleParser {
 
     const olPointStyledLabelFn = (feature: ol.Feature, res: number) => {
 
-      const text = new ol.style.Text({
+      const text = new OlStyleText({
         font: OlStyleUtil.getTextFont(symbolizer),
         text: feature.get(symbolizer.field || '') + '',
-        fill: new ol.style.Fill({
+        fill: new OlStyleFill({
           color: (symbolizer.color && symbolizer.opacity) ?
             OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new OlStyleStroke({
           color: (symbolizer.color && symbolizer.opacity) ?
             OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
         }),
@@ -428,7 +436,7 @@ class OlStyleParser implements StyleParser {
         // textBaseline: symbolizer.anchor
       });
 
-      const style = new ol.style.Style({
+      const style = new OlStyle({
         text: text
       });
 
