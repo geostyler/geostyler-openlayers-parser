@@ -102,7 +102,12 @@ class OlStyleParser implements StyleParser {
     const offsetX = olTextStyle.getOffsetX();
     const offsetY = olTextStyle.getOffsetY();
     const font = olTextStyle.getFont();
-    const fontSize = parseInt(font.split('px')[0], 10);
+
+    // font-size is always the first part of font-size/line-height
+    const fontStyleWeightSize: string = font.split('px')[0].trim();
+    const fontSizePart: string[] = fontStyleWeightSize.split(' ');
+    // The last element contains font size
+    const fontSize = parseInt(fontSizePart[fontSizePart.length - 1], 10);
 
     return {
       kind: 'Text',

@@ -168,6 +168,37 @@ describe('OlStyleParser implements StyleParser', () => {
         expect(result.font).toEqual([font]);
         expect(result.offset).toEqual([offsetX, offsetY]);
       });
+
+      it('generates correct TextSymbolizer for sophisticated fonst styles', () => {
+        const font1 = 'bold 5px arial, sans-serif';
+        const font2 = 'italic bold 12px/30px Georgia, serif';
+        const font3 = '15px/18px "Neue Helvetica", Helvetica, sans-serif';
+
+        const expectedFontSizes = [5, 12, 15];
+
+        const fillOpts: ol.olx.style.FillOptions = {
+          color: '#FFFF00'
+        };
+
+        [font1, font2, font3].forEach((font: string, idx: number) => {
+          const textOpts: ol.olx.style.TextOptions = {
+            text: 'Peter',
+            font,
+            fill: new ol.style.Fill(fillOpts)
+          };
+
+          const styleOpts: ol.olx.style.StyleOptions = {
+            text: new ol.style.Text(textOpts)
+          };
+          const testStyle: ol.style.Style = new ol.style.Style(styleOpts);
+          const result = styleParser.getTextSymbolizerFromOlStyle(testStyle);
+          expect(result).toBeDefined();
+          expect(result.kind).toBe('Text');
+          expect(result.color).toBe('#FFFF00');
+          expect(result.size).toBe(expectedFontSizes[idx]);
+          expect(result.font).toEqual([font]);
+        });
+      });
     });
   });
 
