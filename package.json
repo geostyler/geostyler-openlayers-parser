@@ -25,7 +25,7 @@
   "homepage": "https://github.com/terrestris/geostyler-openlayers-parser#readme",
   "dependencies": {
     "geostyler-style": "0.7.0",
-    "jest-preset-typescript": "^1.0.1",
+    "jest-preset-typescript": "1.0.1",
     "ol": "4.6.5"
   },
   "scripts": {
@@ -41,9 +41,9 @@
     "@types/jest": "23.1.0",
     "@types/node": "10.3.3",
     "@types/ol": "4.6.2",
-    "babel-core": "^6.26.3",
-    "babel-jest": "^23.4.0",
-    "babel-preset-env": "^1.7.0",
+    "babel-core": "6.26.3",
+    "babel-jest": "23.4.0",
+    "babel-preset-env": "1.7.0",
     "canvas-prebuilt": "1.6.5-prerelease.1",
     "coveralls": "3.0.1",
     "jest": "23.0.1",
