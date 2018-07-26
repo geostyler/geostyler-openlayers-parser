@@ -1,7 +1,8 @@
-import * as ol from 'openlayers';
+import OlStyle from 'ol/style/style';
+import OlStyleStroke from 'ol/style/stroke';
 
-const olSimpleLine = new ol.style.Style({
-  stroke: new ol.style.Stroke({
+const olSimpleLine = new OlStyle({
+  stroke: new OlStyleStroke({
     color: '#000000',
     width: 3,
     lineDash: [1, 2, 3, 4]

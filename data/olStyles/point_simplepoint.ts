@@ -1,9 +1,11 @@
-import * as ol from 'openlayers';
+import OlStyle from 'ol/style/style';
+import OlStyleCircle from 'ol/style/circle';
+import OlStyleFill from 'ol/style/fill';
 
-const olSimplePoint = new ol.style.Style({
-  image: new ol.style.Circle({
+const olSimplePoint = new OlStyle({
+  image: new OlStyleCircle({
     radius: 6,
-    fill: new ol.style.Fill({
+    fill: new OlStyleFill({
       color: '#FF0000'
     })
   })

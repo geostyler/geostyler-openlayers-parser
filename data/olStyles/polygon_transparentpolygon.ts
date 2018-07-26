@@ -1,10 +1,12 @@
-import * as ol from 'openlayers';
+import OlStyle from 'ol/style/style';
+import OlStyleStroke from 'ol/style/stroke';
+import OlStyleFill from 'ol/style/fill';
 
-const olPolygonTransparentPolygon = new ol.style.Style({
-  stroke: new ol.style.Stroke({
+const olPolygonTransparentPolygon = new OlStyle({
+  stroke: new OlStyleStroke({
     color: '#FFFFFF'
   }),
-  fill: new ol.style.Fill({
+  fill: new OlStyleFill({
     color: 'rgba(0,0,128,0.5)'
   })
 });
