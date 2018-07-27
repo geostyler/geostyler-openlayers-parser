@@ -73,6 +73,8 @@ class OlStyleParser implements StyleParser {
       color: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) as string : undefined,
       opacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
       width: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
+      cap: olStrokeStyle ? <LineSymbolizer['cap']> olStrokeStyle.getLineCap() : 'butt',
+      join: olStrokeStyle ? <LineSymbolizer['join']> olStrokeStyle.getLineJoin() : 'miter',
       dasharray: olStrokeStyle ? olStrokeStyle.getLineDash() : undefined
     };
   }
@@ -387,6 +389,8 @@ class OlStyleParser implements StyleParser {
         color: (symbolizer.color && symbolizer.opacity) ?
           OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color,
         width: symbolizer.width,
+        lineCap: symbolizer.cap,
+        lineJoin: symbolizer.join,
         lineDash: symbolizer.dasharray
       })
     });
