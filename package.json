@@ -46,13 +46,14 @@
     "babel-preset-env": "1.7.0",
     "canvas-prebuilt": "1.6.5-prerelease.1",
     "coveralls": "3.0.1",
-    "jest": "23.0.1",
+    "jest": "23.4.2",
     "np": "3.0.4",
     "ts-jest": "22.4.6",
     "tslint": "5.10.0",
     "typescript": "2.9.2"
   },
   "jest": {
+    "testURL": "http://localhost/",
     "globals": {
       "ts-jest": {
         "useBabelrc": true

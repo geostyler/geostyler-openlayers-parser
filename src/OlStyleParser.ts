@@ -75,7 +75,8 @@ class OlStyleParser implements StyleParser {
       width: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
       cap: olStrokeStyle ? <LineSymbolizer['cap']> olStrokeStyle.getLineCap() : 'butt',
       join: olStrokeStyle ? <LineSymbolizer['join']> olStrokeStyle.getLineJoin() : 'miter',
-      dasharray: olStrokeStyle ? olStrokeStyle.getLineDash() : undefined
+      dasharray: olStrokeStyle ? olStrokeStyle.getLineDash() : undefined,
+      dashOffset: olStrokeStyle ? olStrokeStyle.getLineDashOffset() : undefined
     };
   }
 
@@ -391,7 +392,8 @@ class OlStyleParser implements StyleParser {
         width: symbolizer.width,
         lineCap: symbolizer.cap,
         lineJoin: symbolizer.join,
-        lineDash: symbolizer.dasharray
+        lineDash: symbolizer.dasharray,
+        lineDashOffset: symbolizer.dashOffset
       })
     });
   }

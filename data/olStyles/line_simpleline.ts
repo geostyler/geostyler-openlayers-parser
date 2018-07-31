@@ -7,7 +7,8 @@ const olSimpleLine = new OlStyle({
     width: 3,
     lineDash: [1, 2, 3, 4],
     lineCap: 'round',
-    lineJoin: 'miter'
+    lineJoin: 'miter',
+    lineDashOffset: 5
   })
 });
 
