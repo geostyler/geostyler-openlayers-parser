@@ -1,6 +1,6 @@
 import { Style } from 'geostyler-style';
 
-const pointSimplePoint: Style = {
+const multi_twoSymbolizersSimplepoint: Style = {
   name: 'OL Style',
   rules: [
     {
@@ -9,9 +9,14 @@ const pointSimplePoint: Style = {
         kind: 'Circle',
         color: '#FF0000',
         radius: 6
+      },
+      {
+        kind: 'Circle',
+        color: '#FF1111',
+        radius: 4
       }]
     }
   ]
 };
 
-export default pointSimplePoint;
+export default multi_twoSymbolizersSimplepoint;
