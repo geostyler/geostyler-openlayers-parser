@@ -101,12 +101,12 @@ class OlStyleParser implements StyleParser {
    * Get the GeoStyler-Style TextSymbolizer from an OpenLayers Style object.
    *
    *
-   * @param {ol.style.Style} olStyle The OpenLayers Style object
+   * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {TextSymbolizer} The GeoStyler-Style TextSymbolizer
    */
-  getTextSymbolizerFromOlStyle(olStyle: ol.style.Style): TextSymbolizer {
-    const olTextStyle = olStyle.getText() as ol.style.Text;
-    const olFillStyle = olTextStyle.getFill() as ol.style.Fill;
+  getTextSymbolizerFromOlStyle(olStyle: OlStyle): TextSymbolizer {
+    const olTextStyle = olStyle.getText() as OlStyleText;
+    const olFillStyle = olTextStyle.getFill() as OlStyleFill;
     const offsetX = olTextStyle.getOffsetX();
     const offsetY = olTextStyle.getOffsetY();
     const font = olTextStyle.getFont();
@@ -189,6 +189,8 @@ class OlStyleParser implements StyleParser {
     let styleType: StyleType;
 
     if (olStyle.getImage() instanceof OlStyleImage) {
+      styleType = 'Point';
+    } else if (olStyle.getText() instanceof OlStyleText) {
       styleType = 'Point';
     } else if (olStyle.getFill() instanceof OlStyleFill) {
       styleType = 'Fill';
