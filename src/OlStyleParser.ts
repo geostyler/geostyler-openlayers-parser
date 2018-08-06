@@ -190,6 +190,8 @@ class OlStyleParser implements StyleParser {
 
     if (olStyle.getImage() instanceof OlStyleImage) {
       styleType = 'Point';
+    } else if (olStyle.getText() instanceof OlStyleText) {
+      styleType = 'Point';
     } else if (olStyle.getFill() instanceof OlStyleFill) {
       styleType = 'Fill';
     } else if (olStyle.getStroke() && !olStyle.getFill()) {
