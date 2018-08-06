@@ -12,18 +12,16 @@ import OlStyleParser from './OlStyleParser';
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_icon from '../data/styles/point_icon';
 import line_simpleline from '../data/styles/line_simpleline';
-import multi_simplelineSimplepoint from '../data/styles/multi_simplelineSimplepoint';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
-import multi_twoSymbolizersSimplepoint from '../data/styles/multi_twoSymbolizersSimplepoint';
+import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
 // import ol_point_icon from '../data/olStyles/point_icon';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
-import ol_multi_simplelineSimplepoint from '../data/olStyles/multi_simplelineSimplepoint';
 import ol_multi_twoRulesSimplepoint from '../data/olStyles/multi_twoRulesSimplepoint';
-import ol_multi_twoSymbolizersSimplepoint from '../data/olStyles/multi_twoSymbolizersSimplepoint';
+import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimpleline';
 import {
   CircleSymbolizer,
   LineSymbolizer,
@@ -85,10 +83,10 @@ describe('OlStyleParser implements StyleParser', () => {
     });
     it('can read two OpenLayers Styles in one Rule', () => {
       expect.assertions(2);
-      return styleParser.readStyle([ol_multi_twoSymbolizersSimplepoint])
+      return styleParser.readStyle([ol_multi_simplefillSimpleline])
         .then((geoStylerStyle: Style) => {
           expect(geoStylerStyle).toBeDefined();
-          expect(geoStylerStyle).toEqual(multi_twoSymbolizersSimplepoint);
+          expect(geoStylerStyle).toEqual(multi_simplefillSimpleline)
         });
     });
     // it('can read a OpenLayers TextSymbolizer', () => {
@@ -342,25 +340,57 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olTextOffsetY).toEqual(expectedOffsetY);
         });
     });
+    // it('can write an OpenLayers Style from multiple symbolizers in one Rule', () => {
+    //   expect.assertions(7);
+    //   return styleParser.writeStyle(multi_simplelineLabel)
+    //     .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
+    //       expect(olStyles).toBeDefined();
+
+    //       const expecSymbLine = multi_simplelineLabel.rules[0].symbolizer[0] as LineSymbolizer;
+    //       const expecSymbLabel = multi_simplelineLabel.rules[0].symbolizer[1] as TextSymbolizer;
+
+    //       const olStroke = olStyles[0][0].getStroke();
+    //       expect(olStroke).toBeDefined();
+    //       expect(olStroke.getColor()).toEqual(expecSymbLine.color);
+    //       expect(olStroke.getWidth()).toEqual(expecSymbLine.width);
+    //       expect(olStroke.getLineDash()).toEqual(expecSymbLine.dasharray);
+
+    //       const dummyFeat = new OlFeature({
+    //         name: 'GeoStyler'
+    //       });
+    //       const olStyleFn = olStyles[0][1] as OlStyleFunction;
+    //       expect(olStyleFn).toBeDefined();
+    //       // execute the returned StyleFunction and get the underlying OL style object
+    //       const olLabel: OlStyle = olStyleFn(dummyFeat, 1) as OlStyle;
+
+    //       const olText = olLabel.getText();
+    //       expect(olText).toBeDefined();
+
+    //       // const olLabel = olStyles[0][1] as OlStyleCircle;
+    //       // expect(olCircle).toBeDefined();
+    //       // expect(olCircle.getRadius()).toEqual(expecSymbCircle.radius);
+    //       // expect(olCircle.getFill().getColor()).toEqual(expecSymbCircle.color);          
+    //     });
+    // });
     it('can write an OpenLayers Style from multiple symbolizers in one Rule', () => {
-      expect.assertions(8);
-      return styleParser.writeStyle(multi_simplelineSimplepoint)
-        .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
+      expect.assertions(6);
+      return styleParser.writeStyle(multi_simplefillSimpleline)
+        .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymbLine = multi_simplelineSimplepoint.rules[0].symbolizer[0] as LineSymbolizer;
-          const expecSymbCircle = multi_simplelineSimplepoint.rules[0].symbolizer[1] as CircleSymbolizer;
+          const expecFill = multi_simplefillSimpleline.rules[0].symbolizer[0] as FillSymbolizer;
+          const expecLine = multi_simplefillSimpleline.rules[0].symbolizer[1] as LineSymbolizer;
 
-          const olStroke = olStyles[0][0].getStroke();
-          expect(olStroke).toBeDefined();
-          expect(olStroke.getColor()).toEqual(expecSymbLine.color);
-          expect(olStroke.getWidth()).toEqual(expecSymbLine.width);
-          expect(olStroke.getLineDash()).toEqual(expecSymbLine.dasharray);
+          const olFill = olStyles[0][0].getFill();
+          expect(olFill).toBeDefined();
 
-          const olCircle = olStyles[0][1].getImage() as OlStyleCircle;
-          expect(olCircle).toBeDefined();
-          expect(olCircle.getRadius()).toEqual(expecSymbCircle.radius);
-          expect(olCircle.getFill().getColor()).toEqual(expecSymbCircle.color);          
+          expect(olFill.getColor()).toEqual(expecFill.color);
+
+          const olLine = olStyles[0][1].getStroke();
+          expect(olLine).toBeDefined();
+
+          expect(olLine.getColor()).toEqual(expecLine.color);
+          expect(olLine.getWidth()).toEqual(expecLine.width);
         });
     });
     it('can write an OpenLayers Style from symbolizers in multiple Rules', () => {

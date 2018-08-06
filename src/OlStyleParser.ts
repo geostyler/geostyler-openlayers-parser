@@ -7,7 +7,7 @@ import {
   LineSymbolizer,
   FillSymbolizer,
   TextSymbolizer,
-  BasicStyleType,
+  StyleType,
   PointSymbolizer,
   IconSymbolizer
 } from 'geostyler-style';
@@ -139,7 +139,7 @@ class OlStyleParser implements StyleParser {
     const symbolizers: Symbolizer[] = [];
     olStyles.forEach((olStyle: OlStyle) => {
       let symbolizer: Symbolizer;
-      const styleType: BasicStyleType = this.getStyleTypeFromOlStyle(olStyle);
+      const styleType: StyleType = this.getStyleTypeFromOlStyle(olStyle);
       switch (styleType) {
         case 'Point':
           if (olStyle.getText()) {
@@ -188,8 +188,8 @@ class OlStyleParser implements StyleParser {
    * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {Symbolizer} The GeoStyler-Style Symbolizer
    */
-  getStyleTypeFromOlStyle(olStyle: OlStyle): BasicStyleType {
-    let styleType: BasicStyleType;
+  getStyleTypeFromOlStyle(olStyle: OlStyle): StyleType {
+    let styleType: StyleType;
 
     if (olStyle.getImage() instanceof OlStyleImage) {
       styleType = 'Point';
@@ -214,11 +214,9 @@ class OlStyleParser implements StyleParser {
    */
   olStyleToGeoStylerStyle(olStyle: OlStyle[][]): Style {
     const name = 'OL Style';
-    // const type = this.getStyleTypeFromOlStyle(olStyle);
     const rules = this.getRulesFromOlStyle(olStyle);
     return {
       name,
-      // type,
       rules
     };
   }
@@ -426,9 +424,8 @@ class OlStyleParser implements StyleParser {
    * @return {object} The OL StyleFunction
    */
   getOlTextSymbolizerFromTextSymbolizer(symbolizer: TextSymbolizer): ol.StyleFunction {
-
     const olPointStyledLabelFn = (feature: ol.Feature, res: number) => {
-
+      
       const text = new OlStyleText({
         font: OlStyleUtil.getTextFont(symbolizer),
         text: feature.get(symbolizer.field || '') + '',
