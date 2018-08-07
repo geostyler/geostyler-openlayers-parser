@@ -75,6 +75,7 @@
     "testRegex": "/src/.*\\.spec.(ts)$",
     "collectCoverageFrom": [
       "src/*.{ts,js}"
-    ]
+    ],
+    "testURL": "http://localhost/"
   }
 }
