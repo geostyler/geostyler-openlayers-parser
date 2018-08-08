@@ -3,6 +3,7 @@ import OlStyleText from 'ol/style/text';
 import OlStyleFill from 'ol/style/fill';
 import OlStyleCircle from 'ol/style/circle';
 import OlStyleIcon from 'ol/style/icon';
+import OlStyleRegularshape from 'ol/style/regularshape';
 import OlFeature from 'ol/feature';
 import ol from 'ol';
 type OlStyleFunction = ol.StyleFunction;
@@ -11,13 +12,15 @@ import OlStyleParser from './OlStyleParser';
 
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_icon from '../data/styles/point_icon';
+import point_simplesquare from '../data/styles/point_simplesquare';
 import line_simpleline from '../data/styles/line_simpleline';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
-// import ol_point_icon from '../data/olStyles/point_icon';
+import ol_point_icon from '../data/olStyles/point_icon';
+import ol_point_simplesquare from '../data/olStyles/point_simplesquare';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
 import ol_multi_twoRulesSimplepoint from '../data/olStyles/multi_twoRulesSimplepoint';
@@ -28,7 +31,8 @@ import {
   FillSymbolizer,
   TextSymbolizer,
   Style,
-  IconSymbolizer
+  IconSymbolizer,
+  SquareSymbolizer
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
@@ -55,6 +59,22 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((geoStylerStyle: Style) => {
           expect(geoStylerStyle).toBeDefined();
           expect(geoStylerStyle).toEqual(point_simplepoint);
+        });
+    });
+    it('can read a OpenLayers IconSymbolizer', () => {
+      expect.assertions(2);
+      return styleParser.readStyle(ol_point_icon)
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_icon);
+        });
+    })
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName Square', () => {
+      expect.assertions(2);
+      return styleParser.readStyle(ol_point_simplesquare)
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_simplesquare);
         });
     });
     it('can read a OpenLayers LineSymbolizer', () => {
@@ -265,6 +285,26 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olIcon).toBeDefined();
         });
     });
+    it('can write a OpenLayers RegularShape square', () => {
+      expect.assertions(8);
+      return styleParser.writeStyle(point_simplesquare)
+        .then((olStyles: OlStyle[]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simplesquare.rules[0].symbolizer as SquareSymbolizer;
+          const olSquare: OlStyleRegularshape = olStyles[0].getImage() as OlStyleRegularshape;
+          expect(olSquare).toBeDefined();
+
+          expect(olSquare.getPoints()).toEqual(expecSymb.points);
+          expect(olSquare.getRadius()).toEqual(expecSymb.radius);
+          expect(olSquare.getAngle()).toEqual(expecSymb.angle * Math.PI / 180);
+          expect(olSquare.getRotation()).toEqual(expecSymb.rotation * Math.PI / 180);
+
+          const olSquareFill: OlStyleFill = olSquare.getFill();
+          expect(olSquareFill).toBeDefined();
+          expect(olSquareFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
     it('can write a OpenLayers LineSymbolizer', () => {
       expect.assertions(5);
       return styleParser.writeStyle(line_simpleline)
@@ -453,7 +493,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
     describe('#getOlPointSymbolizerFromCircleSymbolizer', () => {
       it('is defined', () => {
-        expect(styleParser.getOlPointSymbolizerFromCircleSymbolizer).toBeDefined();
+        expect(styleParser.getOlPointSymbolizerFromMarkSymbolizer).toBeDefined();
       });
     });
 

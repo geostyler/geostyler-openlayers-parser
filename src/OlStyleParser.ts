@@ -3,13 +3,20 @@ import {
   StyleParser,
   Rule,
   Symbolizer,
-  CircleSymbolizer,
+  BaseMarkSymbolizer,
+  MarkSymbolizer,
   LineSymbolizer,
   FillSymbolizer,
   TextSymbolizer,
   StyleType,
   PointSymbolizer,
-  IconSymbolizer
+  IconSymbolizer,
+  TriangleSymbolizer,
+  StarSymbolizer,
+  CircleSymbolizer,
+  SquareSymbolizer,
+  CrossSymbolizer,
+  XSymbolizer
 } from 'geostyler-style';
 
 import OlStyle from 'ol/style/style';
@@ -19,6 +26,7 @@ import OlStyleStroke from 'ol/style/stroke';
 import OlStyleText from 'ol/style/text';
 import OlStyleCircle from 'ol/style/circle';
 import OlStyleIcon from 'ol/style/icon';
+import OlStyleRegularshape from 'ol/style/regularshape';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 import { isNumber } from 'util';
@@ -44,19 +52,115 @@ class OlStyleParser implements StyleParser {
    * @return {PointSymbolizer} The GeoStyler-Style PointSymbolizer
    */
   getPointSymbolizerFromOlStyle(olStyle: OlStyle): PointSymbolizer {
-    const olCircleStyle = olStyle.getImage() as OlStyleCircle;
-    const olFillStyle = olCircleStyle.getFill();
-    const olStrokeStyle = olCircleStyle.getStroke();
+    let pointSymbolizer: PointSymbolizer;
+    if (olStyle.getImage() instanceof OlStyleCircle) {
+      // circle
+      const olCircleStyle = olStyle.getImage() as OlStyleCircle;
+      const olFillStyle = olCircleStyle.getFill();
+      const olStrokeStyle = olCircleStyle.getStroke();
+      const circleSymbolizer: CircleSymbolizer = {
+        kind: 'Mark',
+        wellKnownName: 'Circle',
+        color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
+        opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
+        radius: (olCircleStyle.getRadius() !== 0) ? olCircleStyle.getRadius() : 5,
+        strokeColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined,
+        strokeOpacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
+        strokeWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined
+      };
+      pointSymbolizer = circleSymbolizer;
+    } else if (olStyle.getImage() instanceof OlStyleRegularshape) {
+      // square, triangle, star, cross or x
+      let markSymbolizer: MarkSymbolizer = {} as MarkSymbolizer;
+      const olRegularStyle = olStyle.getImage() as OlStyleRegularshape;
+      const olFillStyle = olRegularStyle.getFill();
+      const olStrokeStyle = olRegularStyle.getStroke();
+      const points = olRegularStyle.getPoints();
+      const radius = olRegularStyle.getRadius();
+      const radius2 = olRegularStyle.getRadius2();
 
-    return {
-      kind: 'Circle',
-      color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
-      opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
-      radius: isNumber(olCircleStyle.getRadius()) ? olCircleStyle.getRadius() : 5,
-      strokeColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined,
-      strokeOpacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
-      strokeWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined
-    };
+      let baseMarkSymbolizer: BaseMarkSymbolizer = {
+        kind: 'Mark',
+        color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
+        opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
+        strokeColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined,
+        strokeOpacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
+        strokeWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
+        // Rotation in openlayers is radians while we use degree
+        rotation: olRegularStyle.getRotation() / Math.PI * 180,
+        points: points
+      } as MarkSymbolizer;
+
+      switch (baseMarkSymbolizer.points) {
+        case 3:
+          // triangle
+          const triangleSymbolizer: TriangleSymbolizer = {
+            wellKnownName: 'Triangle',
+            radius: isNumber(radius) ? radius : 5,
+            angle: 0
+          } as TriangleSymbolizer;
+          markSymbolizer = {...baseMarkSymbolizer, ...triangleSymbolizer}
+          break;
+        case 4:
+          if (isNumber(radius2)) {
+            // cross or x
+            if (olRegularStyle.getAngle() === 0) {
+              // cross
+              const crossSymbolizer: CrossSymbolizer = {
+                wellKnownName: 'Cross',
+                radius1: (radius !== 0) ? radius : 5,
+                radius2: 0,
+                angle: 0
+              } as CrossSymbolizer;
+              markSymbolizer = {...baseMarkSymbolizer, ...crossSymbolizer};
+            } else {
+              // x
+              const xSymbolizer: XSymbolizer = {
+                wellKnownName: 'X',
+                radius1: (radius !== 0) ? radius: 5,
+                radius2: 0,
+                angle: 45
+              } as XSymbolizer;
+              markSymbolizer = {...baseMarkSymbolizer, ...xSymbolizer};
+            }
+          } else {
+            // square
+            const squareSymbolizer: SquareSymbolizer = {
+              wellKnownName: 'Square',
+              radius: (radius !== 0) ? radius : 5,
+              angle: 45
+            } as SquareSymbolizer;
+            markSymbolizer = {...baseMarkSymbolizer, ...squareSymbolizer};
+          }
+          break;
+        case 5:
+          // star
+          const starSymbolizer: StarSymbolizer = {
+            wellKnownName: 'Star',
+            radius1: isNumber(radius) ? radius : 5,
+            radius2: isNumber(radius2) ? radius2 : (5 / 2.5),
+            angle: 0
+          } as StarSymbolizer;
+          markSymbolizer = {...baseMarkSymbolizer, ...starSymbolizer};
+          break;
+        default:
+          throw new Error(`Could not parse OlStyle. Only 3, 4 or 5 point regular shapes are allowed`);
+      }
+      pointSymbolizer = markSymbolizer;
+    } else {
+      // icon
+      const olIconStyle: OlStyleIcon = olStyle.getImage() as OlStyleIcon;
+      let iconSymbolizer: IconSymbolizer = {
+        kind: 'Icon',
+        image: olIconStyle.getSrc() ? olIconStyle.getSrc() : undefined,
+        opacity: olIconStyle.getOpacity(),
+        size: (olIconStyle.getScale() !== 0) ? olIconStyle.getScale() : 5,
+        // Rotation in openlayers is radians while we use degree
+        rotate: olIconStyle.getRotation() / Math.PI * 180
+      };
+      pointSymbolizer = iconSymbolizer;
+    }
+    return pointSymbolizer;
   }
 
   /**
@@ -294,8 +398,8 @@ class OlStyleParser implements StyleParser {
   getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer): any {
     let olSymbolizer: OlStyle | ol.StyleFunction;
     switch (symbolizer.kind) {
-      case 'Circle':
-        olSymbolizer = this.getOlPointSymbolizerFromCircleSymbolizer(symbolizer);
+      case 'Mark':
+        olSymbolizer = this.getOlPointSymbolizerFromMarkSymbolizer(symbolizer);
         break;
       case 'Icon':
         olSymbolizer = this.getOlIconSymbolizerFromIconSymbolizer(symbolizer);
@@ -334,30 +438,97 @@ class OlStyleParser implements StyleParser {
   }
 
   /**
-   * Get the OL Style object  from an GeoStyler-Style CircleSymbolizer.
+   * Get the OL Style object  from an GeoStyler-Style MarkSymbolizer.
    *
-   * @param {CircleSymbolizer} circleSymbolizer A GeoStyler-Style CircleSymbolizer.
+   * @param {MarkSymbolizer} markSymbolizer A GeoStyler-Style MarkSymbolizer.
    * @return {object} The OL Style object
    */
-  getOlPointSymbolizerFromCircleSymbolizer(symbolizer: CircleSymbolizer): OlStyle {
+  getOlPointSymbolizerFromMarkSymbolizer(markSymbolizer: MarkSymbolizer): OlStyle {
     let stroke;
-    if (symbolizer.strokeColor) {
+    if (markSymbolizer.strokeColor) {
       stroke = new OlStyleStroke({
-        color: symbolizer.strokeColor,
-        width: symbolizer.strokeWidth
+        color: markSymbolizer.strokeColor,
+        width: markSymbolizer.strokeWidth
       });
     }
-
-    return new OlStyle({
-      image: new OlStyleCircle({
-        radius: symbolizer.radius || 5,
-        fill: new OlStyleFill({
-          color: (symbolizer.color && symbolizer.opacity) ?
-            OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
-        }),
-        stroke: stroke
-      })
+    const fill = new OlStyleFill({
+      color: (markSymbolizer.color && markSymbolizer.opacity) ?
+        OlStyleUtil.getRgbaColor(markSymbolizer.color, markSymbolizer.opacity) : markSymbolizer.color
     });
+
+    let olStyle: OlStyle;
+    let shapeOpts: any = {
+      fill: fill,
+      stroke: stroke,
+      opacity: markSymbolizer.opacity || 1
+    };
+    
+    switch (markSymbolizer.wellKnownName) {
+      case 'Circle':
+        shapeOpts.radius = markSymbolizer.radius || 5;
+        olStyle = new OlStyle({
+          image: new OlStyleCircle(shapeOpts)
+        });
+        break;
+      case 'Square':
+        shapeOpts.points = 4;
+        shapeOpts.radius = markSymbolizer.radius || 5;
+        shapeOpts.angle = Math.PI / 4;
+        // Rotation in openlayers is radians while we use degree
+        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
+        olStyle = new OlStyle({
+          image: new OlStyleRegularshape(shapeOpts)
+        });
+        break;
+      case 'Triangle':
+        shapeOpts.points = 3;
+        shapeOpts.radius = markSymbolizer.radius || 5;
+        shapeOpts.angle = 0;
+        // Rotation in openlayers is radians while we use degree
+        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
+        olStyle = new OlStyle({
+          image: new OlStyleRegularshape(shapeOpts)
+        });
+        break;
+      case 'Star':
+        shapeOpts.points = 5;
+        shapeOpts.radius1 = markSymbolizer.radius1 || 5;
+        shapeOpts.radius2 = markSymbolizer.radius2 || (5 / 2.5);
+        shapeOpts.angle = 0;
+        // Rotation in openlayers is radians while we use degree
+        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
+        olStyle = new OlStyle({
+          image: new OlStyleRegularshape(shapeOpts)
+        });
+        break;
+      case 'Cross':
+        shapeOpts.points = 4;
+        shapeOpts.radius1 = markSymbolizer.radius1 || 5;
+        shapeOpts.radius2 = 0;
+        shapeOpts.angle = 0;
+        // Rotation in openlayers is radians while we use degree
+        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
+        olStyle = new OlStyle({
+          image: new OlStyleRegularshape(shapeOpts)
+        });
+        break;
+      case 'X':
+        shapeOpts.points = 4;
+        shapeOpts.radius1 = markSymbolizer.radius1 || 5;
+        shapeOpts.radius2 = 0;
+        shapeOpts.angle = Math.PI / 4;
+        // Rotation in openlayers is radians while we use degree
+        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
+        olStyle = new OlStyle({
+          image: new OlStyleRegularshape(shapeOpts)
+        });
+        break;
+      default:
+        throw new Error(`MarkSymbolizer cannot be parsed. Only "Circle", "Square", 
+        "Triangle", "Star", "Cross" or "X" are supported as WellKnownName.`);
+    }
+
+    return olStyle;
   }
 
   /**
