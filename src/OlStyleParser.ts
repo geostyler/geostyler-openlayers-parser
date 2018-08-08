@@ -99,7 +99,7 @@ class OlStyleParser implements StyleParser {
             radius: isNumber(radius) ? radius : 5,
             angle: 0
           } as TriangleSymbolizer;
-          markSymbolizer = {...baseMarkSymbolizer, ...triangleSymbolizer}
+          markSymbolizer = {...baseMarkSymbolizer, ...triangleSymbolizer};
           break;
         case 4:
           if (isNumber(radius2)) {
@@ -117,7 +117,7 @@ class OlStyleParser implements StyleParser {
               // x
               const xSymbolizer: XSymbolizer = {
                 wellKnownName: 'X',
-                radius1: (radius !== 0) ? radius: 5,
+                radius1: (radius !== 0) ? radius : 5,
                 radius2: 0,
                 angle: 45
               } as XSymbolizer;
