@@ -10,7 +10,10 @@ const lineSimpleLine: Style = {
         kind: 'Line',
         color: '#000000',
         width: 3,
-        dasharray: [1, 2, 3, 4]
+        dasharray: [1, 2, 3, 4],
+        cap: 'round',
+        join: 'miter',
+        dashOffset: 5
       }
     }
   ]
