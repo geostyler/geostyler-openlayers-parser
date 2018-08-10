@@ -86,8 +86,9 @@ class OlStyleParser implements StyleParser {
         strokeColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined,
         strokeOpacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
         strokeWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
+        radius: (radius !== 0) ? radius : 5,
         // Rotation in openlayers is radians while we use degree
-        rotation: olRegularStyle.getRotation() / Math.PI * 180,
+        rotate: olRegularStyle.getRotation() / Math.PI * 180,
         points: points
       } as MarkSymbolizer;
 
@@ -108,7 +109,6 @@ class OlStyleParser implements StyleParser {
               // cross
               const crossSymbolizer: CrossSymbolizer = {
                 wellKnownName: 'Cross',
-                radius1: (radius !== 0) ? radius : 5,
                 radius2: 0,
                 angle: 0
               } as CrossSymbolizer;
@@ -117,7 +117,6 @@ class OlStyleParser implements StyleParser {
               // x
               const xSymbolizer: XSymbolizer = {
                 wellKnownName: 'X',
-                radius1: (radius !== 0) ? radius : 5,
                 radius2: 0,
                 angle: 45
               } as XSymbolizer;
@@ -127,7 +126,6 @@ class OlStyleParser implements StyleParser {
             // square
             const squareSymbolizer: SquareSymbolizer = {
               wellKnownName: 'Square',
-              radius: (radius !== 0) ? radius : 5,
               angle: 45
             } as SquareSymbolizer;
             markSymbolizer = {...baseMarkSymbolizer, ...squareSymbolizer};
@@ -137,7 +135,6 @@ class OlStyleParser implements StyleParser {
           // star
           const starSymbolizer: StarSymbolizer = {
             wellKnownName: 'Star',
-            radius1: isNumber(radius) ? radius : 5,
             radius2: isNumber(radius2) ? radius2 : (5 / 2.5),
             angle: 0
           } as StarSymbolizer;
@@ -447,10 +444,13 @@ class OlStyleParser implements StyleParser {
     let stroke;
     if (markSymbolizer.strokeColor) {
       stroke = new OlStyleStroke({
-        color: markSymbolizer.strokeColor,
-        width: markSymbolizer.strokeWidth
+        color: (markSymbolizer.strokeColor && (markSymbolizer.strokeOpacity !== undefined)) ? 
+        OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) : 
+        markSymbolizer.strokeColor,
+        width: markSymbolizer.strokeWidth,
       });
     }
+
     const fill = new OlStyleFill({
       color: (markSymbolizer.color && markSymbolizer.opacity) ?
         OlStyleUtil.getRgbaColor(markSymbolizer.color, markSymbolizer.opacity) : markSymbolizer.color
@@ -459,66 +459,57 @@ class OlStyleParser implements StyleParser {
     let olStyle: OlStyle;
     let shapeOpts: any = {
       fill: fill,
-      stroke: stroke,
-      opacity: markSymbolizer.opacity || 1
+      opacity: markSymbolizer.opacity || 1,
+      radius: markSymbolizer.radius || 5,
+      rotation: markSymbolizer.rotate ? markSymbolizer.rotate * Math.PI / 180 : undefined,
+      stroke: stroke
     };
     
     switch (markSymbolizer.wellKnownName) {
       case 'Circle':
-        shapeOpts.radius = markSymbolizer.radius || 5;
         olStyle = new OlStyle({
           image: new OlStyleCircle(shapeOpts)
         });
         break;
       case 'Square':
         shapeOpts.points = 4;
-        shapeOpts.radius = markSymbolizer.radius || 5;
-        shapeOpts.angle = Math.PI / 4;
+        shapeOpts.angle = 45 * Math.PI / 180;
         // Rotation in openlayers is radians while we use degree
-        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });
         break;
       case 'Triangle':
         shapeOpts.points = 3;
-        shapeOpts.radius = markSymbolizer.radius || 5;
         shapeOpts.angle = 0;
         // Rotation in openlayers is radians while we use degree
-        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });
         break;
       case 'Star':
         shapeOpts.points = 5;
-        shapeOpts.radius1 = markSymbolizer.radius1 || 5;
-        shapeOpts.radius2 = markSymbolizer.radius2 || (5 / 2.5);
+        shapeOpts.radius2 = markSymbolizer.radius2 || (shapeOpts.radius / 2.5);
         shapeOpts.angle = 0;
         // Rotation in openlayers is radians while we use degree
-        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });
         break;
       case 'Cross':
         shapeOpts.points = 4;
-        shapeOpts.radius1 = markSymbolizer.radius1 || 5;
         shapeOpts.radius2 = 0;
         shapeOpts.angle = 0;
         // Rotation in openlayers is radians while we use degree
-        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });
         break;
       case 'X':
         shapeOpts.points = 4;
-        shapeOpts.radius1 = markSymbolizer.radius1 || 5;
         shapeOpts.radius2 = 0;
-        shapeOpts.angle = Math.PI / 4;
+        shapeOpts.angle = 45 * Math.PI / 180;
         // Rotation in openlayers is radians while we use degree
-        shapeOpts.rotation = markSymbolizer.rotation ? markSymbolizer.rotation * Math.PI / 180 : undefined;
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });

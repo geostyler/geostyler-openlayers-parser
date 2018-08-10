@@ -15,7 +15,7 @@ const pointSimpleSquare: Style = {
         radius: 6,
         points: 4,
         angle: 45,
-        rotation: 0
+        rotate: 0
       }
     }
   ]

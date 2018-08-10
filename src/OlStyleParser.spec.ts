@@ -298,7 +298,7 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olSquare.getPoints()).toEqual(expecSymb.points);
           expect(olSquare.getRadius()).toEqual(expecSymb.radius);
           expect(olSquare.getAngle()).toEqual(expecSymb.angle * Math.PI / 180);
-          expect(olSquare.getRotation()).toEqual(expecSymb.rotation * Math.PI / 180);
+          expect(olSquare.getRotation()).toEqual(expecSymb.rotate * Math.PI / 180);
 
           const olSquareFill: OlStyleFill = olSquare.getFill();
           expect(olSquareFill).toBeDefined();
