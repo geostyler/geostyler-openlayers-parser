@@ -425,7 +425,7 @@ class OlStyleParser implements StyleParser {
    */
   getOlTextSymbolizerFromTextSymbolizer(symbolizer: TextSymbolizer): ol.StyleFunction {
     const olPointStyledLabelFn = (feature: ol.Feature, res: number) => {
-      
+
       const text = new OlStyleText({
         font: OlStyleUtil.getTextFont(symbolizer),
         text: feature.get(symbolizer.field || '') + '',

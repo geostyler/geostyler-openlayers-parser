@@ -15,7 +15,7 @@ const olSimpleLine = new OlStyle({
 const olStyledLabel = new OlStyle({
   text: new OlStyleText({
     font: 'normal 12px',
-    text: 'GeoStyler', // feature.get('name'),
+    text: 'GeoStyler',
     fill: new OlStyleFill({
       color: '#000000'
     }),
