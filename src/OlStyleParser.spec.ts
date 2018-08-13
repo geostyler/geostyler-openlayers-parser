@@ -340,38 +340,6 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olTextOffsetY).toEqual(expectedOffsetY);
         });
     });
-    // it('can write an OpenLayers Style from multiple symbolizers in one Rule', () => {
-    //   expect.assertions(7);
-    //   return styleParser.writeStyle(multi_simplelineLabel)
-    //     .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
-    //       expect(olStyles).toBeDefined();
-
-    //       const expecSymbLine = multi_simplelineLabel.rules[0].symbolizer[0] as LineSymbolizer;
-    //       const expecSymbLabel = multi_simplelineLabel.rules[0].symbolizer[1] as TextSymbolizer;
-
-    //       const olStroke = olStyles[0][0].getStroke();
-    //       expect(olStroke).toBeDefined();
-    //       expect(olStroke.getColor()).toEqual(expecSymbLine.color);
-    //       expect(olStroke.getWidth()).toEqual(expecSymbLine.width);
-    //       expect(olStroke.getLineDash()).toEqual(expecSymbLine.dasharray);
-
-    //       const dummyFeat = new OlFeature({
-    //         name: 'GeoStyler'
-    //       });
-    //       const olStyleFn = olStyles[0][1] as OlStyleFunction;
-    //       expect(olStyleFn).toBeDefined();
-    //       // execute the returned StyleFunction and get the underlying OL style object
-    //       const olLabel: OlStyle = olStyleFn(dummyFeat, 1) as OlStyle;
-
-    //       const olText = olLabel.getText();
-    //       expect(olText).toBeDefined();
-
-    //       // const olLabel = olStyles[0][1] as OlStyleCircle;
-    //       // expect(olCircle).toBeDefined();
-    //       // expect(olCircle.getRadius()).toEqual(expecSymbCircle.radius);
-    //       // expect(olCircle.getFill().getColor()).toEqual(expecSymbCircle.color);          
-    //     });
-    // });
     it('can write an OpenLayers Style from multiple symbolizers in one Rule', () => {
       expect.assertions(6);
       return styleParser.writeStyle(multi_simplefillSimpleline)
