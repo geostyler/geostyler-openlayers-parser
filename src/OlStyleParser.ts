@@ -442,7 +442,7 @@ class OlStyleParser implements StyleParser {
    */
   getOlPointSymbolizerFromMarkSymbolizer(markSymbolizer: MarkSymbolizer): OlStyle {
     let stroke;
-    if (markSymbolizer.strokeColor) {
+    if (markSymbolizer.strokeColor || markSymbolizer.strokeWidth) {
       stroke = new OlStyleStroke({
         color: (markSymbolizer.strokeColor && (markSymbolizer.strokeOpacity !== undefined)) ? 
         OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) : 
@@ -500,6 +500,13 @@ class OlStyleParser implements StyleParser {
         shapeOpts.points = 4;
         shapeOpts.radius2 = 0;
         shapeOpts.angle = 0;
+        // openlayers does not seem to set a default stroke color,
+        // which is needed for regularshapes with radius2 = 0
+        if (shapeOpts.stroke === undefined) {
+          shapeOpts.stroke = new OlStyleStroke({
+            color: '000000'
+          });
+        }
         // Rotation in openlayers is radians while we use degree
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
@@ -509,6 +516,13 @@ class OlStyleParser implements StyleParser {
         shapeOpts.points = 4;
         shapeOpts.radius2 = 0;
         shapeOpts.angle = 45 * Math.PI / 180;
+        // openlayers does not seem to set a default stroke color,
+        // which is needed for regularshapes with radius2 = 0
+        if (shapeOpts.stroke === undefined) {
+          shapeOpts.stroke = new OlStyleStroke({
+            color: '000000'
+          });
+        }
         // Rotation in openlayers is radians while we use degree
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
