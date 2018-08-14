@@ -1,6 +1,6 @@
 import { Style } from 'geostyler-style';
 
-const multi_simplefillSimpleline: Style = {
+const multiSimplefillSimpleline: Style = {
   name: 'OL Style',
   rules: [
     {
@@ -10,7 +10,7 @@ const multi_simplefillSimpleline: Style = {
         color: '#FF0000',
         opacity: undefined,
         outlineColor: undefined
-      },{
+      }, {
         kind: 'Line',
         color: '#FF0000',
         width: 5,
@@ -21,4 +21,4 @@ const multi_simplefillSimpleline: Style = {
   ]
 };
 
-export default multi_simplefillSimpleline;
+export default multiSimplefillSimpleline;

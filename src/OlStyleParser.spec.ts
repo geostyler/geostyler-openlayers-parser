@@ -63,15 +63,15 @@ describe('OlStyleParser implements StyleParser', () => {
     });
     it('can read a OpenLayers IconSymbolizer', () => {
       expect.assertions(2);
-      return styleParser.readStyle(ol_point_icon)
+      return styleParser.readStyle([[ol_point_icon]])
         .then((geoStylerStyle: Style) => {
           expect(geoStylerStyle).toBeDefined();
           expect(geoStylerStyle).toEqual(point_icon);
         });
-    })
+    });
     it('can read a OpenLayers MarkSymbolizer as WellKnownName Square', () => {
       expect.assertions(2);
-      return styleParser.readStyle(ol_point_simplesquare)
+      return styleParser.readStyle([[ol_point_simplesquare]])
         .then((geoStylerStyle: Style) => {
           expect(geoStylerStyle).toBeDefined();
           expect(geoStylerStyle).toEqual(point_simplesquare);
@@ -106,7 +106,7 @@ describe('OlStyleParser implements StyleParser', () => {
       return styleParser.readStyle([ol_multi_simplefillSimpleline])
         .then((geoStylerStyle: Style) => {
           expect(geoStylerStyle).toBeDefined();
-          expect(geoStylerStyle).toEqual(multi_simplefillSimpleline)
+          expect(geoStylerStyle).toEqual(multi_simplefillSimpleline);
         });
     });
     // it('can read a OpenLayers TextSymbolizer', () => {
@@ -288,11 +288,11 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can write a OpenLayers RegularShape square', () => {
       expect.assertions(8);
       return styleParser.writeStyle(point_simplesquare)
-        .then((olStyles: OlStyle[]) => {
+        .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplesquare.rules[0].symbolizer as SquareSymbolizer;
-          const olSquare: OlStyleRegularshape = olStyles[0].getImage() as OlStyleRegularshape;
+          const expecSymb = point_simplesquare.rules[0].symbolizer[0] as SquareSymbolizer;
+          const olSquare: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olSquare).toBeDefined();
 
           expect(olSquare.getPoints()).toEqual(expecSymb.points);

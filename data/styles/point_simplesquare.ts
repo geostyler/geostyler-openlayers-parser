@@ -3,12 +3,11 @@ import OlStyleRegularshape from 'ol/style/regularshape';
 import { Style } from 'geostyler-style';
 
 const pointSimpleSquare: Style = {
-  type: 'Point',
   name: 'OL Style',
   rules: [
     {
-      name: 'OL Style Rule',
-      symbolizer: {
+      name: 'OL Style Rule 0',
+      symbolizer: [{
         kind: 'Mark',
         wellKnownName: 'Square',
         color: '#FF0000',
@@ -16,7 +15,7 @@ const pointSimpleSquare: Style = {
         points: 4,
         angle: 45,
         rotate: 0
-      }
+      }]
     }
   ]
 };

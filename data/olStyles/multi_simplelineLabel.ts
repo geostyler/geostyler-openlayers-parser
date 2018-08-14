@@ -1,6 +1,5 @@
 import OlStyle from 'ol/style/style';
 import OlStyleStroke from 'ol/style/stroke';
-import OlStyleCircle from 'ol/style/circle';
 import OlStyleFill from 'ol/style/fill';
 import OlStyleText from 'ol/style/text';
 
