@@ -366,7 +366,7 @@ class OlStyleParser implements StyleParser {
    * @param {IconSymbolizer} symbolizer  A GeoStyler-Style IconSymbolizer.
    * @return {object} The OL Style object
    */
-  getOlIconSymbolizerFromIconSymbolizer(symbolizer: IconSymbolizer) {
+  getOlIconSymbolizerFromIconSymbolizer(symbolizer: IconSymbolizer): OlStyle {
     return new OlStyle({
       image: new OlStyleIcon({
         src: symbolizer.image,
