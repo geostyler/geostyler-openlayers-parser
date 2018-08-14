@@ -1,7 +1,6 @@
 import { Style } from 'geostyler-style';
 
 const pointSimplePoint: Style = {
-  type: 'Point',
   name: 'OL Style',
   rules: [
     {
@@ -16,13 +15,13 @@ const pointSimplePoint: Style = {
         min: 10000,
         max: 20000
       },
-      symbolizer: {
+      symbolizer: [{
         kind: 'Circle',
         color: '#FF0000',
         radius: 6,
         strokeColor: '#000000',
         strokeWidth: 2
-      }
+      }]
     }
   ]
 };
