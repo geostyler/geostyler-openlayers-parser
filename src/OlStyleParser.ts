@@ -442,7 +442,7 @@ class OlStyleParser implements StyleParser {
    */
   getOlPointSymbolizerFromMarkSymbolizer(markSymbolizer: MarkSymbolizer): OlStyle {
     let stroke;
-    if (markSymbolizer.strokeColor || markSymbolizer.strokeWidth) {
+    if (markSymbolizer.strokeColor || markSymbolizer.strokeWidth !== undefined) {
       stroke = new OlStyleStroke({
         color: (markSymbolizer.strokeColor && (markSymbolizer.strokeOpacity !== undefined)) ? 
         OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) : 
@@ -452,7 +452,7 @@ class OlStyleParser implements StyleParser {
     }
 
     const fill = new OlStyleFill({
-      color: (markSymbolizer.color && markSymbolizer.opacity) ?
+      color: (markSymbolizer.color && markSymbolizer.opacity !== undefined) ?
         OlStyleUtil.getRgbaColor(markSymbolizer.color, markSymbolizer.opacity) : markSymbolizer.color
     });
 
