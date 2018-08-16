@@ -1,6 +1,6 @@
 import { Style } from 'geostyler-style';
 
-const multi_simplelineLabel: Style = {
+const multiSimplelineLabel: Style = {
   name: 'OL Style',
   rules: [
     {
@@ -23,4 +23,4 @@ const multi_simplelineLabel: Style = {
   ]
 };
 
-export default multi_simplelineLabel;
+export default multiSimplelineLabel;

@@ -1,12 +1,13 @@
 import { Style } from 'geostyler-style';
 
-const multi_twoRulesSimplepoint: Style = {
+const multiTwoRulesSimplepoint: Style = {
   name: 'OL Style',
   rules: [
     {
       name: 'OL Style Rule 0',
       symbolizer: [{
-        kind: 'Circle',
+        kind: 'Mark',
+        wellKnownName: 'Circle',
         color: '#FF0000',
         radius: 6
       }]
@@ -14,7 +15,8 @@ const multi_twoRulesSimplepoint: Style = {
     {
       name: 'OL Style Rule 1',
       symbolizer: [{
-        kind: 'Circle',
+        kind: 'Mark',
+        wellKnownName: 'Circle',
         color: '#FF1111',
         radius: 4
       }]
@@ -22,4 +24,4 @@ const multi_twoRulesSimplepoint: Style = {
   ]
 };
 
-export default multi_twoRulesSimplepoint;
+export default multiTwoRulesSimplepoint;

@@ -1,18 +1,22 @@
 import { Style } from 'geostyler-style';
 
-const pointSimplePoint: Style = {
+const pointSimpleStar: Style = {
   name: 'OL Style',
   rules: [
     {
       name: 'OL Style Rule 0',
       symbolizer: [{
         kind: 'Mark',
-        wellKnownName: 'Circle',
+        wellKnownName: 'Star',
         color: '#FF0000',
-        radius: 6
+        radius: 6,
+        points: 5,
+        radius2: 2,
+        angle: 0,
+        rotate: 0
       }]
     }
   ]
 };
 
-export default pointSimplePoint;
+export default pointSimpleStar;
