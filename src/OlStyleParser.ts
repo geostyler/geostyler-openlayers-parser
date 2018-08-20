@@ -234,9 +234,9 @@ class OlStyleParser implements StyleParser {
    * Get the GeoStyler-Style Symbolizer from an OpenLayers Style object.
    *
    * @param {OlStyle} olStyle The OpenLayers Style object
-   * @return {Symbolizer} The GeoStyler-Style Symbolizer
+   * @return {Symbolizer[]} The GeoStyler-Style Symbolizer array
    */
-  getSymbolizerFromOlStyle(olStyles: OlStyle[]): Symbolizer[] {
+  getSymbolizersFromOlStyle(olStyles: OlStyle[]): Symbolizer[] {
     const symbolizers: Symbolizer[] = [];
     olStyles.forEach((olStyle: OlStyle) => {
       let symbolizer: Symbolizer;
@@ -273,10 +273,10 @@ class OlStyleParser implements StyleParser {
   getRulesFromOlStyle(olStyles: OlStyle[][]): Rule[] {
     let rules: Rule[] = [];
     olStyles.forEach((olRule: OlStyle[], idx: number) => {
-      const symbolizer: Symbolizer[] = this.getSymbolizerFromOlStyle(olRule);
+      const symbolizers: Symbolizer[] = this.getSymbolizersFromOlStyle(olRule);
       const name = 'OL Style Rule ' + idx;
       rules.push({
-        name, symbolizer
+        name, symbolizers
       });
     });
 
@@ -377,7 +377,7 @@ class OlStyleParser implements StyleParser {
     let symbArr: any[] = [];
     rules.forEach((rule: Rule) => {
       const ruleSymbs: any[] = [];
-      rule.symbolizer.forEach((symb: Symbolizer) => {
+      rule.symbolizers.forEach((symb: Symbolizer) => {
         ruleSymbs.push(this.getOlSymbolizerFromSymbolizer(symb));
       });
       symbArr.push(ruleSymbs);

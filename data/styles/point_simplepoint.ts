@@ -5,7 +5,7 @@ const pointSimplePoint: Style = {
   rules: [
     {
       name: 'OL Style Rule 0',
-      symbolizer: [{
+      symbolizers: [{
         kind: 'Mark',
         wellKnownName: 'Circle',
         color: '#FF0000',

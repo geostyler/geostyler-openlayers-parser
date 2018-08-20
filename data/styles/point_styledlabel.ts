@@ -5,7 +5,7 @@ const pointStyledLabel: Style = {
   rules: [
     {
       name: 'OL Style Rule',
-      symbolizer: [{
+      symbolizers: [{
         kind: 'Text',
         color: '#000000',
         field: 'name',
