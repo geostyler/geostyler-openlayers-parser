@@ -324,10 +324,12 @@ class OlStyleParser implements StyleParser {
 
   /**
    * The readStyle implementation of the GeoStyler-Style StyleParser interface.
-   * It reads an OpenLayers style instance and returns a Promise.
+   * It reads a nested array of OpenLayers style instances and returns a Promise.
+   * Each element in the first dimension of the OlStyle array defines a rule, each element
+   * in the second dimension defines a symbolizer within that rule.
    * The Promise itself resolves with a GeoStyler-Style Style.
    *
-   * @param {string} olStyle An OpenLayers style instance
+   * @param {OlStyle[][]} olStyle A nested array of OpenLayers style instances
    * @return {Promise} The Promise resolving with the GeoStyler-Style Style
    */
   readStyle(olStyle: OlStyle[][]): Promise<Style> {
@@ -346,10 +348,12 @@ class OlStyleParser implements StyleParser {
   /**
    * The writeStyle implementation of the GeoStyler-Style StyleParser interface.
    * It reads a GeoStyler-Style Style and returns a Promise.
-   * The Promise itself resolves with an OpenLayers style object.
+   * The Promise itself resolves with a nested array of OpenLayers style objects.
+   * Each element in the first dimension of the OlStyle array defines a rule, each element
+   * in the second dimension defines a symbolizer within that rule.
    *
    * @param {Style} geoStylerStyle A GeoStyler-Style Style.
-   * @return {Promise} The Promise resolving with an OpenLayers style instance.
+   * @return {Promise} The Promise resolving with a nested array of OpenLayers style instance.
    */
   writeStyle(geoStylerStyle: Style): Promise<OlStyle[][]> {
     return new Promise<any>((resolve, reject) => {
