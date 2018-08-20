@@ -1,11 +1,17 @@
 import { Style } from 'geostyler-style';
 
-const pointStyledLabel: Style = {
+const multiSimplelineLabel: Style = {
   name: 'OL Style',
   rules: [
     {
-      name: 'OL Style Rule',
+      name: 'OL Style Rule 0',
       symbolizers: [{
+        kind: 'Line',
+        color: '#000000',
+        width: 3,
+        dasharray: [1, 2, 3, 4]
+      },
+      {
         kind: 'Text',
         color: '#000000',
         field: 'name',
@@ -17,4 +23,4 @@ const pointStyledLabel: Style = {
   ]
 };
 
-export default pointStyledLabel;
+export default multiSimplelineLabel;
