@@ -5,7 +5,7 @@ const lineSimpleLine: Style = {
   rules: [
     {
       name: 'OL Style Rule 0',
-      symbolizer: [{
+      symbolizers: [{
         kind: 'Line',
         color: '#000000',
         width: 3,

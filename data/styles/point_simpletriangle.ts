@@ -5,7 +5,7 @@ const pointSimpleTriangle: Style = {
   rules: [
     {
       name: 'OL Style Rule 0',
-      symbolizer: [{
+      symbolizers: [{
         kind: 'Mark',
         wellKnownName: 'Triangle',
         color: '#FF0000',

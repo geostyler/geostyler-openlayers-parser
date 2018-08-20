@@ -5,7 +5,7 @@ const multiSimplefillSimpleline: Style = {
   rules: [
     {
       name: 'OL Style Rule 0',
-      symbolizer: [{
+      symbolizers: [{
         kind: 'Fill',
         color: '#FF0000',
         opacity: undefined,

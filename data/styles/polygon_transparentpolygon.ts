@@ -5,7 +5,7 @@ const polygonTransparentPolygon: Style = {
   rules: [
     {
       name: 'OL Style Rule 0',
-      symbolizer: [{
+      symbolizers: [{
         kind: 'Fill',
         color: '#000080',
         opacity: 0.5,

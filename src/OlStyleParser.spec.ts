@@ -185,9 +185,9 @@ describe('OlStyleParser implements StyleParser', () => {
       });
     });
 
-    describe('#getSymbolizerFromOlStyle', () => {
+    describe('#getSymbolizersFromOlStyle', () => {
       it('is defined', () => {
-        expect(styleParser.getSymbolizerFromOlStyle).toBeDefined();
+        expect(styleParser.getSymbolizersFromOlStyle).toBeDefined();
       });
     });
 
@@ -304,7 +304,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplepoint.rules[0].symbolizer[0] as CircleSymbolizer;
+          const expecSymb = point_simplepoint.rules[0].symbolizers[0] as CircleSymbolizer;
           const olCircle: OlStyleCircle = olStyles[0][0].getImage() as OlStyleCircle;
 
           expect(olCircle).toBeDefined();
@@ -318,7 +318,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_icon.rules[0].symbolizer[0] as IconSymbolizer;
+          const expecSymb = point_icon.rules[0].symbolizers[0] as IconSymbolizer;
           const olIcon: OlStyleIcon = olStyles[0][0].getImage() as OlStyleIcon;
 
           expect(olIcon.getSrc()).toEqual(expecSymb.image);
@@ -336,7 +336,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplesquare.rules[0].symbolizer[0] as SquareSymbolizer;
+          const expecSymb = point_simplesquare.rules[0].symbolizers[0] as SquareSymbolizer;
           const olSquare: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olSquare).toBeDefined();
 
@@ -356,7 +356,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplestar.rules[0].symbolizer[0] as StarSymbolizer;
+          const expecSymb = point_simplestar.rules[0].symbolizers[0] as StarSymbolizer;
           const olStar: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olStar).toBeDefined();
 
@@ -377,7 +377,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simpletriangle.rules[0].symbolizer[0] as TriangleSymbolizer;
+          const expecSymb = point_simpletriangle.rules[0].symbolizers[0] as TriangleSymbolizer;
           const olTriangle: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olTriangle).toBeDefined();
 
@@ -397,7 +397,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplecross.rules[0].symbolizer[0] as CrossSymbolizer;
+          const expecSymb = point_simplecross.rules[0].symbolizers[0] as CrossSymbolizer;
           const olCross: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olCross).toBeDefined();
 
@@ -418,7 +418,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplex.rules[0].symbolizer[0] as XSymbolizer;
+          const expecSymb = point_simplex.rules[0].symbolizers[0] as XSymbolizer;
           const olX: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olX).toBeDefined();
 
@@ -439,7 +439,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = line_simpleline.rules[0].symbolizer[0] as LineSymbolizer;
+          const expecSymb = line_simpleline.rules[0].symbolizers[0] as LineSymbolizer;
           const olStroke = olStyles[0][0].getStroke();
 
           expect(olStroke).toBeDefined();
@@ -454,7 +454,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = polygon_transparentpolygon.rules[0].symbolizer[0] as FillSymbolizer;
+          const expecSymb = polygon_transparentpolygon.rules[0].symbolizers[0] as FillSymbolizer;
           const olStroke = olStyles[0][0].getStroke();
 
           expect(olStroke).toBeDefined();
@@ -473,7 +473,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_styledlabel.rules[0].symbolizer[0] as TextSymbolizer;
+          const expecSymb = point_styledlabel.rules[0].symbolizers[0] as TextSymbolizer;
 
           const dummyFeat = new OlFeature({
             name: 'GeoStyler'
@@ -514,8 +514,8 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecFill = multi_simplefillSimpleline.rules[0].symbolizer[0] as FillSymbolizer;
-          const expecLine = multi_simplefillSimpleline.rules[0].symbolizer[1] as LineSymbolizer;
+          const expecFill = multi_simplefillSimpleline.rules[0].symbolizers[0] as FillSymbolizer;
+          const expecLine = multi_simplefillSimpleline.rules[0].symbolizers[1] as LineSymbolizer;
 
           const olFill = olStyles[0][0].getFill();
           expect(olFill).toBeDefined();
@@ -535,8 +535,8 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb1 = multi_twoRulesSimplepoint.rules[0].symbolizer[0] as CircleSymbolizer;
-          const expecSymb2 = multi_twoRulesSimplepoint.rules[1].symbolizer[0] as CircleSymbolizer;
+          const expecSymb1 = multi_twoRulesSimplepoint.rules[0].symbolizers[0] as CircleSymbolizer;
+          const expecSymb2 = multi_twoRulesSimplepoint.rules[1].symbolizers[0] as CircleSymbolizer;
           
           const olCircle1 = olStyles[0][0].getImage() as OlStyleCircle;
           expect(olCircle1).toBeDefined();
@@ -552,13 +552,13 @@ describe('OlStyleParser implements StyleParser', () => {
     it('transforms labels values based on fields to string ', () => {
       expect.assertions(4);
       // change the field as base for the label text to a numeric one
-      const inSymb = point_styledlabel.rules[0].symbolizer[0] as TextSymbolizer;
+      const inSymb = point_styledlabel.rules[0].symbolizers[0] as TextSymbolizer;
       inSymb.field = 'id';
       return styleParser.writeStyle(point_styledlabel)
         .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_styledlabel.rules[0].symbolizer[0] as TextSymbolizer;
+          const expecSymb = point_styledlabel.rules[0].symbolizers[0] as TextSymbolizer;
 
           const dummyFeat = new OlFeature({
             id: 1
