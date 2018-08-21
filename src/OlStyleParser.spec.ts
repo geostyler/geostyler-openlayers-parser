@@ -236,6 +236,7 @@ describe('OlStyleParser implements StyleParser', () => {
         const offsetX = 1909;
         const offsetY = 19.09;
         const font = '19px font-name';
+        const rotation = Math.PI / 4;
 
         const fillOpts: ol.olx.style.FillOptions = {
           color: '#FFFF00'
@@ -245,7 +246,8 @@ describe('OlStyleParser implements StyleParser', () => {
           offsetX,
           offsetY,
           font,
-          fill: new OlStyleFill(fillOpts)
+          fill: new OlStyleFill(fillOpts),
+          rotation
         };
 
         const styleOpts: ol.olx.style.StyleOptions = {
@@ -259,6 +261,7 @@ describe('OlStyleParser implements StyleParser', () => {
         expect(result.size).toBe(19);
         expect(result.font).toEqual([font]);
         expect(result.offset).toEqual([offsetX, offsetY]);
+        expect(result.rotate).toEqual(rotation / Math.PI * 180);
       });
 
       it('generates correct TextSymbolizer for sophisticated fonst styles', () => {
@@ -468,7 +471,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers TextSymbolizer', () => {
-      expect.assertions(11);
+      expect.assertions(13);
       return styleParser.writeStyle(point_styledlabel)
         .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
@@ -488,7 +491,8 @@ describe('OlStyleParser implements StyleParser', () => {
 
           const olTextStroke = olText.getStroke();
           expect(olTextStroke).toBeDefined();
-          expect(olTextStroke.getColor()).toEqual(expecSymb.color);
+          expect(olTextStroke.getColor()).toEqual(expecSymb.haloColor);
+          expect(olTextStroke.getWidth()).toEqual(expecSymb.haloWidth);
 
           const olTextFill = olText.getFill();
           expect(olTextFill).toBeDefined();
@@ -499,6 +503,9 @@ describe('OlStyleParser implements StyleParser', () => {
 
           const olTextContent = olText.getText();
           expect(olTextContent).toEqual(dummyFeat.get('name'));
+
+          const olTextRotation = olText.getRotation();
+          expect(olTextRotation).toEqual(expecSymb.rotate * Math.PI / 180);
 
           const olTextOffsetX = olText.getOffsetX();
           const olTextOffsetY = olText.getOffsetY();
