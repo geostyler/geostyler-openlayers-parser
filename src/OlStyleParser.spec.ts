@@ -236,6 +236,7 @@ describe('OlStyleParser implements StyleParser', () => {
         const offsetX = 1909;
         const offsetY = 19.09;
         const font = '19px font-name';
+        const rotation = Math.PI / 4;
 
         const fillOpts: ol.olx.style.FillOptions = {
           color: '#FFFF00'
@@ -245,7 +246,8 @@ describe('OlStyleParser implements StyleParser', () => {
           offsetX,
           offsetY,
           font,
-          fill: new OlStyleFill(fillOpts)
+          fill: new OlStyleFill(fillOpts),
+          rotation
         };
 
         const styleOpts: ol.olx.style.StyleOptions = {
@@ -256,9 +258,12 @@ describe('OlStyleParser implements StyleParser', () => {
         expect(result).toBeDefined();
         expect(result.kind).toBe('Text');
         expect(result.color).toBe('#FFFF00');
-        expect(result.size).toBe(19);
+        expect(result.size).toBeCloseTo(19);
         expect(result.font).toEqual([font]);
-        expect(result.offset).toEqual([offsetX, offsetY]);
+        expect(result.offset).toHaveLength(2);
+        expect(result.offset[0]).toBeCloseTo(offsetX);
+        expect(result.offset[1]).toBeCloseTo(offsetY);
+        expect(result.rotate).toBeCloseTo(rotation / Math.PI * 180);
       });
 
       it('generates correct TextSymbolizer for sophisticated fonst styles', () => {
@@ -308,7 +313,7 @@ describe('OlStyleParser implements StyleParser', () => {
           const olCircle: OlStyleCircle = olStyles[0][0].getImage() as OlStyleCircle;
 
           expect(olCircle).toBeDefined();
-          expect(olCircle.getRadius()).toEqual(expecSymb.radius);
+          expect(olCircle.getRadius()).toBeCloseTo(expecSymb.radius);
           expect(olCircle.getFill().getColor()).toEqual(expecSymb.color);
         });
     });
@@ -322,10 +327,10 @@ describe('OlStyleParser implements StyleParser', () => {
           const olIcon: OlStyleIcon = olStyles[0][0].getImage() as OlStyleIcon;
 
           expect(olIcon.getSrc()).toEqual(expecSymb.image);
-          expect(olIcon.getScale()).toEqual(expecSymb.size);
+          expect(olIcon.getScale()).toBeCloseTo(expecSymb.size);
           // Rotation in openlayers is radians while we use degree
-          expect(olIcon.getRotation()).toEqual(expecSymb.rotate! * Math.PI / 180);
-          expect(olIcon.getOpacity()).toEqual(expecSymb.opacity);
+          expect(olIcon.getRotation()).toBeCloseTo(expecSymb.rotate! * Math.PI / 180);
+          expect(olIcon.getOpacity()).toBeCloseTo(expecSymb.opacity);
 
           expect(olIcon).toBeDefined();
         });
@@ -340,10 +345,10 @@ describe('OlStyleParser implements StyleParser', () => {
           const olSquare: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olSquare).toBeDefined();
 
-          expect(olSquare.getPoints()).toEqual(expecSymb.points);
-          expect(olSquare.getRadius()).toEqual(expecSymb.radius);
-          expect(olSquare.getAngle()).toEqual(expecSymb.angle * Math.PI / 180);
-          expect(olSquare.getRotation()).toEqual(expecSymb.rotate * Math.PI / 180);
+          expect(olSquare.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olSquare.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olSquare.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olSquare.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olSquareFill: OlStyleFill = olSquare.getFill();
           expect(olSquareFill).toBeDefined();
@@ -360,11 +365,11 @@ describe('OlStyleParser implements StyleParser', () => {
           const olStar: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olStar).toBeDefined();
 
-          expect(olStar.getPoints()).toEqual(expecSymb.points);
-          expect(olStar.getRadius()).toEqual(expecSymb.radius);
-          expect(olStar.getRadius2()).toEqual(expecSymb.radius2);
-          expect(olStar.getAngle()).toEqual(expecSymb.angle * Math.PI / 180);
-          expect(olStar.getRotation()).toEqual(expecSymb.rotate * Math.PI / 180);
+          expect(olStar.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olStar.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olStar.getRadius2()).toBeCloseTo(expecSymb.radius2);
+          expect(olStar.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olStar.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olStarFill: OlStyleFill = olStar.getFill();
           expect(olStarFill).toBeDefined();
@@ -381,10 +386,10 @@ describe('OlStyleParser implements StyleParser', () => {
           const olTriangle: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olTriangle).toBeDefined();
 
-          expect(olTriangle.getPoints()).toEqual(expecSymb.points);
-          expect(olTriangle.getRadius()).toEqual(expecSymb.radius);
-          expect(olTriangle.getAngle()).toEqual(expecSymb.angle * Math.PI / 180);
-          expect(olTriangle.getRotation()).toEqual(expecSymb.rotate * Math.PI / 180);
+          expect(olTriangle.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olTriangle.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olTriangle.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olTriangle.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olTriangleFill: OlStyleFill = olTriangle.getFill();
           expect(olTriangleFill).toBeDefined();
@@ -401,11 +406,11 @@ describe('OlStyleParser implements StyleParser', () => {
           const olCross: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olCross).toBeDefined();
 
-          expect(olCross.getPoints()).toEqual(expecSymb.points);
-          expect(olCross.getRadius()).toEqual(expecSymb.radius);
-          expect(olCross.getRadius2()).toEqual(expecSymb.radius2);
-          expect(olCross.getAngle()).toEqual(expecSymb.angle * Math.PI / 180);
-          expect(olCross.getRotation()).toEqual(expecSymb.rotate * Math.PI / 180);
+          expect(olCross.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olCross.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olCross.getRadius2()).toBeCloseTo(expecSymb.radius2);
+          expect(olCross.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olCross.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olCrossFill: OlStyleFill = olCross.getFill();
           expect(olCrossFill).toBeDefined();
@@ -422,11 +427,11 @@ describe('OlStyleParser implements StyleParser', () => {
           const olX: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olX).toBeDefined();
 
-          expect(olX.getPoints()).toEqual(expecSymb.points);
-          expect(olX.getRadius()).toEqual(expecSymb.radius);
-          expect(olX.getRadius2()).toEqual(expecSymb.radius2);
-          expect(olX.getAngle()).toEqual(expecSymb.angle * Math.PI / 180);
-          expect(olX.getRotation()).toEqual(expecSymb.rotate * Math.PI / 180);
+          expect(olX.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olX.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olX.getRadius2()).toBeCloseTo(expecSymb.radius2);
+          expect(olX.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olX.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olXFill: OlStyleFill = olX.getFill();
           expect(olXFill).toBeDefined();
@@ -444,7 +449,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
           expect(olStroke).toBeDefined();
           expect(olStroke.getColor()).toEqual(expecSymb.color);
-          expect(olStroke.getWidth()).toEqual(expecSymb.width);
+          expect(olStroke.getWidth()).toBeCloseTo(expecSymb.width);
           expect(olStroke.getLineDash()).toEqual(expecSymb.dasharray);
         });
     });
@@ -468,7 +473,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers TextSymbolizer', () => {
-      expect.assertions(11);
+      expect.assertions(13);
       return styleParser.writeStyle(point_styledlabel)
         .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
@@ -488,7 +493,8 @@ describe('OlStyleParser implements StyleParser', () => {
 
           const olTextStroke = olText.getStroke();
           expect(olTextStroke).toBeDefined();
-          expect(olTextStroke.getColor()).toEqual(expecSymb.color);
+          expect(olTextStroke.getColor()).toEqual(expecSymb.haloColor);
+          expect(olTextStroke.getWidth()).toBeCloseTo(expecSymb.haloWidth);
 
           const olTextFill = olText.getFill();
           expect(olTextFill).toBeDefined();
@@ -500,12 +506,15 @@ describe('OlStyleParser implements StyleParser', () => {
           const olTextContent = olText.getText();
           expect(olTextContent).toEqual(dummyFeat.get('name'));
 
+          const olTextRotation = olText.getRotation();
+          expect(olTextRotation).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
           const olTextOffsetX = olText.getOffsetX();
           const olTextOffsetY = olText.getOffsetY();
           const expectedOffsetX = expecSymb.offset ? expecSymb.offset[0] : null;
           const expectedOffsetY = expecSymb.offset ? expecSymb.offset[1] : null;
-          expect(olTextOffsetX).toEqual(expectedOffsetX);
-          expect(olTextOffsetY).toEqual(expectedOffsetY);
+          expect(olTextOffsetX).toBeCloseTo(expectedOffsetX);
+          expect(olTextOffsetY).toBeCloseTo(expectedOffsetY);
         });
     });
     it('can write an OpenLayers Style from multiple symbolizers in one Rule', () => {
@@ -526,7 +535,7 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olLine).toBeDefined();
 
           expect(olLine.getColor()).toEqual(expecLine.color);
-          expect(olLine.getWidth()).toEqual(expecLine.width);
+          expect(olLine.getWidth()).toBeCloseTo(expecLine.width);
         });
     });
     it('can write an OpenLayers Style from symbolizers in multiple Rules', () => {
@@ -540,12 +549,12 @@ describe('OlStyleParser implements StyleParser', () => {
           
           const olCircle1 = olStyles[0][0].getImage() as OlStyleCircle;
           expect(olCircle1).toBeDefined();
-          expect(olCircle1.getRadius()).toEqual(expecSymb1.radius);
+          expect(olCircle1.getRadius()).toBeCloseTo(expecSymb1.radius);
           expect(olCircle1.getFill().getColor()).toEqual(expecSymb1.color);
 
           const olCircle2 = olStyles[1][0].getImage() as OlStyleCircle;
           expect(olCircle2).toBeDefined();
-          expect(olCircle2.getRadius()).toEqual(expecSymb2.radius);
+          expect(olCircle2.getRadius()).toBeCloseTo(expecSymb2.radius);
           expect(olCircle2.getFill().getColor()).toEqual(expecSymb2.color);
         });
     });
