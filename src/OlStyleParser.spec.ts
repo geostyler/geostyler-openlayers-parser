@@ -12,6 +12,7 @@ import OlStyleParser from './OlStyleParser';
 
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_icon from '../data/styles/point_icon';
+import point_iconFormat from '../data/styles/point_iconFormat';
 import point_simplesquare from '../data/styles/point_simplesquare';
 import point_simplestar from '../data/styles/point_simplestar';
 import point_simpletriangle from '../data/styles/point_simpletriangle';
@@ -24,6 +25,7 @@ import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygo
 import point_styledlabel from '../data/styles/point_styledlabel';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
 import ol_point_icon from '../data/olStyles/point_icon';
+import ol_point_iconFormat from '../data/olStyles/point_iconFormat';
 import ol_point_simplesquare from '../data/olStyles/point_simplesquare';
 import ol_point_simplestar from '../data/olStyles/point_simplestar';
 import ol_point_simpletriangle from '../data/olStyles/point_simpletriangle';
@@ -80,6 +82,14 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((geoStylerStyle: Style) => {
           expect(geoStylerStyle).toBeDefined();
           expect(geoStylerStyle).toEqual(point_icon);
+        });
+    });
+    it('can read a OpenLayers IconSymbolizer with Format', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_iconFormat]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_iconFormat);
         });
     });
     it('can read a OpenLayers MarkSymbolizer as WellKnownName Square', () => {
@@ -327,6 +337,25 @@ describe('OlStyleParser implements StyleParser', () => {
           const olIcon: OlStyleIcon = olStyles[0][0].getImage() as OlStyleIcon;
 
           expect(olIcon.getSrc()).toEqual(expecSymb.image);
+          expect(olIcon.getScale()).toBeCloseTo(expecSymb.size);
+          // Rotation in openlayers is radians while we use degree
+          expect(olIcon.getRotation()).toBeCloseTo(expecSymb.rotate! * Math.PI / 180);
+          expect(olIcon.getOpacity()).toBeCloseTo(expecSymb.opacity);
+
+          expect(olIcon).toBeDefined();
+        });
+    });
+    it('can write a OpenLayers IconSymbolizer with Format', () => {
+      expect.assertions(7);
+      return styleParser.writeStyle(point_iconFormat)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_iconFormat.rules[0].symbolizers[0] as IconSymbolizer;
+          const olIcon: OlStyleIcon = olStyles[0][0].getImage() as OlStyleIcon;
+
+          expect(olIcon.getSrc()).toEqual(expecSymb.image);
+          expect(`image/${olIcon.getSrc().split('.').pop()}+xml`).toEqual('image/svg+xml');
           expect(olIcon.getScale()).toBeCloseTo(expecSymb.size);
           // Rotation in openlayers is radians while we use degree
           expect(olIcon.getRotation()).toBeCloseTo(expecSymb.rotate! * Math.PI / 180);

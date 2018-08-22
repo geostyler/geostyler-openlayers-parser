@@ -16,7 +16,8 @@ import {
   CircleSymbolizer,
   SquareSymbolizer,
   CrossSymbolizer,
-  XSymbolizer
+  XSymbolizer,
+  IconMime
 } from 'geostyler-style';
 
 import OlStyle from 'ol/style/style';
@@ -147,9 +148,25 @@ class OlStyleParser implements StyleParser {
     } else {
       // icon
       const olIconStyle: OlStyleIcon = olStyle.getImage() as OlStyleIcon;
+      const imgSrc: string = olIconStyle.getSrc();
+      const imgExt = imgSrc.split('.').pop();
+      let format: IconMime | undefined;
+      switch (imgExt) {
+        case 'png':
+        case 'jpeg':
+        case 'gif':
+          format = `image/${imgExt}` as IconMime;
+          break;
+        case 'svg':
+          format = 'image/svg+xml';
+          break;
+        default:
+          break;
+      }
       let iconSymbolizer: IconSymbolizer = {
         kind: 'Icon',
-        image: olIconStyle.getSrc() ? olIconStyle.getSrc() : undefined,
+        image: imgSrc ? imgSrc : undefined,
+        format: format ? format : undefined,
         opacity: olIconStyle.getOpacity(),
         size: (olIconStyle.getScale() !== 0) ? olIconStyle.getScale() : 5,
         // Rotation in openlayers is radians while we use degree
