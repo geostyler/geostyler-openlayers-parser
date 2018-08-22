@@ -12,10 +12,12 @@ const olPointStyledLabel = (feature: ol.Feature, res: number) => {
       color: '#000000'
     }),
     stroke: new OlStyleStroke({
-      color: '#000000'
+      color: '#000000',
+      width: 5
     }),
     offsetX: 0,
-    offsetY: 5
+    offsetY: 5,
+    rotation: Math.PI / 4
   }); 
 };
 

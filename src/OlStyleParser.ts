@@ -211,9 +211,11 @@ class OlStyleParser implements StyleParser {
   getTextSymbolizerFromOlStyle(olStyle: OlStyle): TextSymbolizer {
     const olTextStyle = olStyle.getText() as OlStyleText;
     const olFillStyle = olTextStyle.getFill() as OlStyleFill;
+    const olStrokeStyle = olTextStyle.getStroke() as OlStyleStroke;
     const offsetX = olTextStyle.getOffsetX();
     const offsetY = olTextStyle.getOffsetY();
     const font = olTextStyle.getFont();
+    const rotation = olTextStyle.getRotation();
 
     // font-size is always the first part of font-size/line-height
     const fontStyleWeightSize: string = font.split('px')[0].trim();
@@ -226,7 +228,10 @@ class OlStyleParser implements StyleParser {
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       size: isFinite(fontSize) ? fontSize : undefined,
       font: [font],
-      offset: offsetX && offsetY ? [offsetX, offsetY] : [0, 0]
+      offset: offsetX && offsetY ? [offsetX, offsetY] : [0, 0],
+      haloColor: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,
+      haloWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
+      rotate: (rotation !== undefined) ? rotation / Math.PI * 180 : undefined
     };
   }
 
@@ -614,11 +619,13 @@ class OlStyleParser implements StyleParser {
             OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
         }),
         stroke: new OlStyleStroke({
-          color: (symbolizer.color && symbolizer.opacity) ?
-            OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
+          color: (symbolizer.haloColor && symbolizer.opacity) ?
+            OlStyleUtil.getRgbaColor(symbolizer.haloColor, symbolizer.opacity) : symbolizer.haloColor,
+          width: symbolizer.haloWidth ? symbolizer.haloWidth : 0
         }),
         offsetX: symbolizer.offset ? symbolizer.offset[0] : 0,
         offsetY: symbolizer.offset ? symbolizer.offset[1] : 0,
+        rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
         // TODO check why props match
         // textAlign: symbolizer.pitchAlignment,
         // textBaseline: symbolizer.anchor
