@@ -10,8 +10,6 @@ const pointSimpleTriangle: Style = {
         wellKnownName: 'Triangle',
         color: '#FF0000',
         radius: 6,
-        points: 3,
-        angle: 0,
         rotate: 0
       }]
     }

@@ -17,6 +17,15 @@ import point_simplestar from '../data/styles/point_simplestar';
 import point_simpletriangle from '../data/styles/point_simpletriangle';
 import point_simplecross from '../data/styles/point_simplecross';
 import point_simplex from '../data/styles/point_simplex';
+import point_simpleslash from '../data/styles/point_simpleslash';
+import point_simplebackslash from '../data/styles/point_simplebackslash';
+import point_simplevertline from '../data/styles/point_simplevertline';
+import point_simplehorline from '../data/styles/point_simplehorline';
+import point_simplecarrow from '../data/styles/point_simplecarrow';
+import point_simpleoarrow from '../data/styles/point_simpleoarrow';
+import point_simpledot from '../data/styles/point_simpledot';
+import point_simpleplus from '../data/styles/point_simpleplus';
+import point_simpletimes from '../data/styles/point_simpletimes';
 import line_simpleline from '../data/styles/line_simpleline';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
@@ -29,27 +38,29 @@ import ol_point_simplestar from '../data/olStyles/point_simplestar';
 import ol_point_simpletriangle from '../data/olStyles/point_simpletriangle';
 import ol_point_simplecross from '../data/olStyles/point_simplecross';
 import ol_point_simplex from '../data/olStyles/point_simplex';
+import ol_point_simpleslash from '../data/olStyles/point_simpleslash';
+import ol_point_simplebackslash from '../data/olStyles/point_simplebackslash';
+import ol_point_simplevertline from '../data/olStyles/point_simplevertline';
+import ol_point_simplehorline from '../data/olStyles/point_simplehorline';
+import ol_point_simplecarrow from '../data/olStyles/point_simplecarrow';
+import ol_point_simpleoarrow from '../data/olStyles/point_simpleoarrow';
+import ol_point_simpledot from '../data/olStyles/point_simpledot';
+import ol_point_simpleplus from '../data/olStyles/point_simpleplus';
+import ol_point_simpletimes from '../data/olStyles/point_simpletimes';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
 import ol_multi_twoRulesSimplepoint from '../data/olStyles/multi_twoRulesSimplepoint';
 import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimpleline';
 import {
-  CircleSymbolizer,
   LineSymbolizer,
   FillSymbolizer,
   TextSymbolizer,
   Style,
   IconSymbolizer,
-  SquareSymbolizer,
-  StarSymbolizer,
-  TriangleSymbolizer,
-  CrossSymbolizer,
-  XSymbolizer
+  MarkSymbolizer
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
-import olSimpleSquare from '../data/olStyles/point_simplesquare';
-// import { style } from 'openlayers';
 
 it('OlStyleParser is defined', () => {
   expect(OlStyleParser).toBeDefined();
@@ -119,6 +130,86 @@ describe('OlStyleParser implements StyleParser', () => {
       return styleParser.readStyle([[ol_point_simplex]])
         .then((geoStylerStyle: Style) => {
           expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_simplex);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://slash', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simpleslash]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_simpleslash);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://backslash', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simplebackslash]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_simplebackslash);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://vertline', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simplevertline]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_simplevertline);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://horline', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simplehorline]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_simplehorline);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://carrow', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simplecarrow]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_simplecarrow);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://oarrow', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simpleoarrow]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          // using point_simplecarrow here since reading OlStyle cannot distinguish
+          // between carrow and oarrow
+          expect(geoStylerStyle).toEqual(point_simplecarrow);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://dot', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simpledot]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          // using point_simplepoint here since reading OlStyle cannot distinguish
+          // between circle and dot
+          expect(geoStylerStyle).toEqual(point_simplepoint);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://plus', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simpleplus]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          // using point_simplecross here since reading OlStyle cannot distinguish
+          // between cross and plus
+          expect(geoStylerStyle).toEqual(point_simplecross);
+        });
+    });
+    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://times', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_simpletimes]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          // using point_simplex here since reading OlStyle cannot distinguish
+          // between x and times
           expect(geoStylerStyle).toEqual(point_simplex);
         });
     });
@@ -309,7 +400,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplepoint.rules[0].symbolizers[0] as CircleSymbolizer;
+          const expecSymb = point_simplepoint.rules[0].symbolizers[0] as MarkSymbolizer;
           const olCircle: OlStyleCircle = olStyles[0][0].getImage() as OlStyleCircle;
 
           expect(olCircle).toBeDefined();
@@ -341,13 +432,13 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplesquare.rules[0].symbolizers[0] as SquareSymbolizer;
+          const expecSymb = point_simplesquare.rules[0].symbolizers[0] as MarkSymbolizer;
           const olSquare: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olSquare).toBeDefined();
 
-          expect(olSquare.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olSquare.getPoints()).toBeCloseTo(4);
           expect(olSquare.getRadius()).toBeCloseTo(expecSymb.radius);
-          expect(olSquare.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olSquare.getAngle()).toBeCloseTo(45 * Math.PI / 180);
           expect(olSquare.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olSquareFill: OlStyleFill = olSquare.getFill();
@@ -361,14 +452,14 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplestar.rules[0].symbolizers[0] as StarSymbolizer;
+          const expecSymb = point_simplestar.rules[0].symbolizers[0] as MarkSymbolizer;
           const olStar: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olStar).toBeDefined();
 
-          expect(olStar.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olStar.getPoints()).toBeCloseTo(5);
           expect(olStar.getRadius()).toBeCloseTo(expecSymb.radius);
-          expect(olStar.getRadius2()).toBeCloseTo(expecSymb.radius2);
-          expect(olStar.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olStar.getRadius2()).toBeCloseTo(expecSymb.radius / 2.5);
+          expect(olStar.getAngle()).toBeCloseTo(0);
           expect(olStar.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olStarFill: OlStyleFill = olStar.getFill();
@@ -382,13 +473,13 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simpletriangle.rules[0].symbolizers[0] as TriangleSymbolizer;
+          const expecSymb = point_simpletriangle.rules[0].symbolizers[0] as MarkSymbolizer;
           const olTriangle: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olTriangle).toBeDefined();
 
-          expect(olTriangle.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olTriangle.getPoints()).toBeCloseTo(3);
           expect(olTriangle.getRadius()).toBeCloseTo(expecSymb.radius);
-          expect(olTriangle.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olTriangle.getAngle()).toBeCloseTo(0);
           expect(olTriangle.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olTriangleFill: OlStyleFill = olTriangle.getFill();
@@ -402,14 +493,14 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplecross.rules[0].symbolizers[0] as CrossSymbolizer;
+          const expecSymb = point_simplecross.rules[0].symbolizers[0] as MarkSymbolizer;
           const olCross: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olCross).toBeDefined();
 
-          expect(olCross.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olCross.getPoints()).toBeCloseTo(4);
           expect(olCross.getRadius()).toBeCloseTo(expecSymb.radius);
-          expect(olCross.getRadius2()).toBeCloseTo(expecSymb.radius2);
-          expect(olCross.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olCross.getRadius2()).toBeCloseTo(0);
+          expect(olCross.getAngle()).toBeCloseTo(0);
           expect(olCross.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olCrossFill: OlStyleFill = olCross.getFill();
@@ -423,19 +514,195 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb = point_simplex.rules[0].symbolizers[0] as XSymbolizer;
+          const expecSymb = point_simplex.rules[0].symbolizers[0] as MarkSymbolizer;
           const olX: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
           expect(olX).toBeDefined();
 
-          expect(olX.getPoints()).toBeCloseTo(expecSymb.points);
+          expect(olX.getPoints()).toBeCloseTo(4);
           expect(olX.getRadius()).toBeCloseTo(expecSymb.radius);
-          expect(olX.getRadius2()).toBeCloseTo(expecSymb.radius2);
-          expect(olX.getAngle()).toBeCloseTo(expecSymb.angle * Math.PI / 180);
+          expect(olX.getRadius2()).toBeCloseTo(0);
+          expect(olX.getAngle()).toBeCloseTo(45 * Math.PI / 180);
           expect(olX.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
           const olXFill: OlStyleFill = olX.getFill();
           expect(olXFill).toBeDefined();
           expect(olXFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://slash', () => {
+      expect.assertions(8);
+      return styleParser.writeStyle(point_simpleslash)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simpleslash.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olSlash: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
+          expect(olSlash).toBeDefined();
+
+          expect(olSlash.getPoints()).toBeCloseTo(2);
+          expect(olSlash.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olSlash.getAngle()).toBeCloseTo(Math.PI / 4);
+          expect(olSlash.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
+          const olSlashFill: OlStyleFill = olSlash.getFill();
+          expect(olSlashFill).toBeDefined();
+          expect(olSlashFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://backslash', () => {
+      expect.assertions(8);
+      return styleParser.writeStyle(point_simplebackslash)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simplebackslash.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olBackSlash: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
+          expect(olBackSlash).toBeDefined();
+
+          expect(olBackSlash.getPoints()).toBeCloseTo(2);
+          expect(olBackSlash.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olBackSlash.getAngle()).toBeCloseTo(2 * Math.PI - (Math.PI / 4));
+          expect(olBackSlash.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
+          const olBackSlashFill: OlStyleFill = olBackSlash.getFill();
+          expect(olBackSlashFill).toBeDefined();
+          expect(olBackSlashFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://vertline', () => {
+      expect.assertions(8);
+      return styleParser.writeStyle(point_simplevertline)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simplevertline.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olVertline: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
+          expect(olVertline).toBeDefined();
+
+          expect(olVertline.getPoints()).toBeCloseTo(2);
+          expect(olVertline.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olVertline.getAngle()).toBeCloseTo(0, 0);
+          expect(olVertline.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
+          const olVertlineFill: OlStyleFill = olVertline.getFill();
+          expect(olVertlineFill).toBeDefined();
+          expect(olVertlineFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://horline', () => {
+      expect.assertions(8);
+      return styleParser.writeStyle(point_simplehorline)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simplehorline.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olHorline: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
+          expect(olHorline).toBeDefined();
+
+          expect(olHorline.getPoints()).toBeCloseTo(2);
+          expect(olHorline.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olHorline.getAngle()).toBeCloseTo(Math.PI / 2);
+          expect(olHorline.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
+          const olHorlineFill: OlStyleFill = olHorline.getFill();
+          expect(olHorlineFill).toBeDefined();
+          expect(olHorlineFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://carrow', () => {
+      expect.assertions(8);
+      return styleParser.writeStyle(point_simplecarrow)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simplecarrow.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olCarrow: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
+          expect(olCarrow).toBeDefined();
+
+          expect(olCarrow.getPoints()).toBeCloseTo(3);
+          expect(olCarrow.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olCarrow.getAngle()).toBeCloseTo(Math.PI / 2);
+          expect(olCarrow.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
+          const olCarrowFill: OlStyleFill = olCarrow.getFill();
+          expect(olCarrowFill).toBeDefined();
+          expect(olCarrowFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://oarrow', () => {
+      expect.assertions(8);
+      return styleParser.writeStyle(point_simpleoarrow)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simpleoarrow.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olOarrow: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
+          expect(olOarrow).toBeDefined();
+
+          expect(olOarrow.getPoints()).toBeCloseTo(3);
+          expect(olOarrow.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olOarrow.getAngle()).toBeCloseTo(Math.PI / 2);
+          expect(olOarrow.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
+          const olOarrowFill: OlStyleFill = olOarrow.getFill();
+          expect(olOarrowFill).toBeDefined();
+          expect(olOarrowFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://dot', () => {
+      expect.assertions(4);
+      return styleParser.writeStyle(point_simpledot)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simpledot.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olDot: OlStyleCircle = olStyles[0][0].getImage() as OlStyleCircle;
+
+          expect(olDot).toBeDefined();
+          expect(olDot.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olDot.getFill().getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://plus', () => {
+      expect.assertions(9);
+      return styleParser.writeStyle(point_simpleplus)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simpleplus.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olPlus: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
+          expect(olPlus).toBeDefined();
+
+          expect(olPlus.getPoints()).toBeCloseTo(4);
+          expect(olPlus.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olPlus.getRadius2()).toBeCloseTo(0);
+          expect(olPlus.getAngle()).toBeCloseTo(0);
+          expect(olPlus.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
+          const olPlusFill: OlStyleFill = olPlus.getFill();
+          expect(olPlusFill).toBeDefined();
+          expect(olPlusFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers RegularShape shape://times', () => {
+      expect.assertions(9);
+      return styleParser.writeStyle(point_simpletimes)
+        .then((olStyles: OlStyle[][]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_simpletimes.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olTimes: OlStyleRegularshape = olStyles[0][0].getImage() as OlStyleRegularshape;
+          expect(olTimes).toBeDefined();
+
+          expect(olTimes.getPoints()).toBeCloseTo(4);
+          expect(olTimes.getRadius()).toBeCloseTo(expecSymb.radius);
+          expect(olTimes.getRadius2()).toBeCloseTo(0);
+          expect(olTimes.getAngle()).toBeCloseTo(45 * Math.PI / 180);
+          expect(olTimes.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+
+          const olTimesFill: OlStyleFill = olTimes.getFill();
+          expect(olTimesFill).toBeDefined();
+          expect(olTimesFill.getColor()).toEqual(expecSymb.color);
         });
     });
     it('can write a OpenLayers LineSymbolizer', () => {
@@ -544,8 +811,8 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
 
-          const expecSymb1 = multi_twoRulesSimplepoint.rules[0].symbolizers[0] as CircleSymbolizer;
-          const expecSymb2 = multi_twoRulesSimplepoint.rules[1].symbolizers[0] as CircleSymbolizer;
+          const expecSymb1 = multi_twoRulesSimplepoint.rules[0].symbolizers[0] as MarkSymbolizer;
+          const expecSymb2 = multi_twoRulesSimplepoint.rules[1].symbolizers[0] as MarkSymbolizer;
           
           const olCircle1 = olStyles[0][0].getImage() as OlStyleCircle;
           expect(olCircle1).toBeDefined();

@@ -10,9 +10,6 @@ const pointSimpleStar: Style = {
         wellKnownName: 'Star',
         color: '#FF0000',
         radius: 6,
-        points: 5,
-        radius2: 2,
-        angle: 0,
         rotate: 0
       }]
     }
