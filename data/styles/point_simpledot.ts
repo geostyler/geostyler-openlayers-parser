@@ -1,19 +1,18 @@
 import { Style } from 'geostyler-style';
 
-const pointSimpleCross: Style = {
+const pointSimpleDot: Style = {
   name: 'OL Style',
   rules: [
     {
       name: 'OL Style Rule 0',
       symbolizers: [{
         kind: 'Mark',
-        wellKnownName: 'Cross',
+        wellKnownName: 'shape://dot',
         color: '#FF0000',
-        radius: 6,
-        rotate: 0
+        radius: 6
       }]
     }
   ]
 };
 
-export default pointSimpleCross;
+export default pointSimpleDot;

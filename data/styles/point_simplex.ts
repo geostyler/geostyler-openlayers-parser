@@ -10,9 +10,6 @@ const pointSimpleX: Style = {
         wellKnownName: 'X',
         color: '#FF0000',
         radius: 6,
-        points: 4,
-        angle: 45,
-        radius2: 0,
         rotate: 0
       }]
     }
