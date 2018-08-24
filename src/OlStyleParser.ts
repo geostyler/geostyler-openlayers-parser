@@ -506,7 +506,7 @@ class OlStyleParser implements StyleParser {
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
           shapeOpts.stroke = new OlStyleStroke({
-            color: '000000'
+            color: '#000'
           });
         }
         olStyle = new OlStyle({
@@ -522,7 +522,7 @@ class OlStyleParser implements StyleParser {
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
           shapeOpts.stroke = new OlStyleStroke({
-            color: '000000'
+            color: '#000'
           });
         }
         olStyle = new OlStyle({
@@ -536,7 +536,7 @@ class OlStyleParser implements StyleParser {
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
           shapeOpts.stroke = new OlStyleStroke({
-            color: '000000'
+            color: '#000'
           });
         }
         olStyle = new OlStyle({
@@ -550,7 +550,7 @@ class OlStyleParser implements StyleParser {
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
           shapeOpts.stroke = new OlStyleStroke({
-            color: '000000'
+            color: '#000'
           });
         }
         olStyle = new OlStyle({
@@ -575,7 +575,7 @@ class OlStyleParser implements StyleParser {
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
           shapeOpts.stroke = new OlStyleStroke({
-            color: '000000'
+            color: '#000'
           });
         }
         olStyle = new OlStyle({
@@ -589,7 +589,7 @@ class OlStyleParser implements StyleParser {
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
           shapeOpts.stroke = new OlStyleStroke({
-            color: '000000'
+            color: '#000'
           });
         }
         olStyle = new OlStyle({
