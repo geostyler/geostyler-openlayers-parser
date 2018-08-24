@@ -506,7 +506,7 @@ class OlStyleParser implements StyleParser {
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
           shapeOpts.stroke = new OlStyleStroke({
-            color: '000000'
+            color: '#000'
           });
         }
         olStyle = new OlStyle({
@@ -522,7 +522,7 @@ class OlStyleParser implements StyleParser {
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
           shapeOpts.stroke = new OlStyleStroke({
-            color: '000000'
+            color: '#000'
           });
         }
         olStyle = new OlStyle({
@@ -532,6 +532,13 @@ class OlStyleParser implements StyleParser {
       case 'shape://backslash':
         shapeOpts.points = 2;
         shapeOpts.angle = 2 * Math.PI - (Math.PI / 4);
+        // openlayers does not seem to set a default stroke color,
+        // which is needed for regularshapes with radius2 = 0
+        if (shapeOpts.stroke === undefined) {
+          shapeOpts.stroke = new OlStyleStroke({
+            color: '#000'
+          });
+        }
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });
@@ -539,6 +546,13 @@ class OlStyleParser implements StyleParser {
       case 'shape://horline':
         shapeOpts.points = 2;
         shapeOpts.angle = Math.PI / 2;
+        // openlayers does not seem to set a default stroke color,
+        // which is needed for regularshapes with radius2 = 0
+        if (shapeOpts.stroke === undefined) {
+          shapeOpts.stroke = new OlStyleStroke({
+            color: '#000'
+          });
+        }
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });
@@ -557,6 +571,13 @@ class OlStyleParser implements StyleParser {
       case 'shape://slash':
         shapeOpts.points = 2;
         shapeOpts.angle = Math.PI / 4;
+        // openlayers does not seem to set a default stroke color,
+        // which is needed for regularshapes with radius2 = 0
+        if (shapeOpts.stroke === undefined) {
+          shapeOpts.stroke = new OlStyleStroke({
+            color: '#000'
+          });
+        }
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });
@@ -564,6 +585,13 @@ class OlStyleParser implements StyleParser {
       case 'shape://vertline':
         shapeOpts.points = 2;
         shapeOpts.angle = 0;
+        // openlayers does not seem to set a default stroke color,
+        // which is needed for regularshapes with radius2 = 0
+        if (shapeOpts.stroke === undefined) {
+          shapeOpts.stroke = new OlStyleStroke({
+            color: '#000'
+          });
+        }
         olStyle = new OlStyle({
           image: new OlStyleRegularshape(shapeOpts)
         });
