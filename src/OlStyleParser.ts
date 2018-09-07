@@ -191,7 +191,8 @@ class OlStyleParser implements StyleParser {
       kind: 'Fill',
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
-      outlineColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined
+      outlineColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined,
+      outlineWidth: olStrokeStyle ? olStrokeStyle.getWidth() as number : undefined
     };
   }
 
@@ -651,7 +652,8 @@ class OlStyleParser implements StyleParser {
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer) {
     return new OlStyle({
       stroke: new OlStyleStroke({
-        color: symbolizer.outlineColor
+        color: symbolizer.outlineColor,
+        width: symbolizer.outlineWidth
       }),
       fill: new OlStyleFill({
         color: (symbolizer.color && symbolizer.opacity) ?
