@@ -27,6 +27,7 @@ import point_simpledot from '../data/styles/point_simpledot';
 import point_simpleplus from '../data/styles/point_simpleplus';
 import point_simpletimes from '../data/styles/point_simpletimes';
 import line_simpleline from '../data/styles/line_simpleline';
+import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
@@ -51,6 +52,7 @@ import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
 import ol_multi_twoRulesSimplepoint from '../data/olStyles/multi_twoRulesSimplepoint';
 import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimpleline';
+import ol_point_styledLabel_static from '../data/olStyles/point_styledLabel_static';
 import {
   LineSymbolizer,
   FillSymbolizer,
@@ -245,15 +247,14 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(geoStylerStyle).toEqual(multi_simplefillSimpleline);
         });
     });
-    // it('can read a OpenLayers TextSymbolizer', () => {
-    //   expect.assertions(2);
-    //   const sld = fs.readFileSync( './data/slds/point_styledlabel.sld', 'utf8');
-    //   return styleParser.readStyle(sld)
-    //     .then((geoStylerStyle: Style) => {
-    //       expect(geoStylerStyle).toBeDefined();
-    //       expect(geoStylerStyle).toEqual(point_styledlabel);
-    //     });
-    // });
+    it('can read a OpenLayers TextSymbolizer with static text', () => {
+      expect.assertions(2);
+      return styleParser.readStyle([[ol_point_styledLabel_static]])
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_styledLabel_static);
+        });
+    });
     // it('can read a OpenLayers style with a filter', () => {
     //   expect.assertions(2);
     //   const sld = fs.readFileSync( './data/slds/point_simplepoint_filter.sld', 'utf8');
@@ -326,7 +327,8 @@ describe('OlStyleParser implements StyleParser', () => {
       it('generates correct TextSymbolizer for a corresponding OlStyle', () => {
         const offsetX = 1909;
         const offsetY = 19.09;
-        const font = '19px font-name';
+        const fontFamily = 'font-name';
+        const font = `19px ${fontFamily}`;
         const rotation = Math.PI / 4;
 
         const fillOpts: ol.olx.style.FillOptions = {
@@ -350,7 +352,7 @@ describe('OlStyleParser implements StyleParser', () => {
         expect(result.kind).toBe('Text');
         expect(result.color).toBe('#FFFF00');
         expect(result.size).toBeCloseTo(19);
-        expect(result.font).toEqual([font]);
+        expect(result.font).toEqual([fontFamily]);
         expect(result.offset).toHaveLength(2);
         expect(result.offset[0]).toBeCloseTo(offsetX);
         expect(result.offset[1]).toBeCloseTo(offsetY);
@@ -358,9 +360,14 @@ describe('OlStyleParser implements StyleParser', () => {
       });
 
       it('generates correct TextSymbolizer for sophisticated fonst styles', () => {
-        const font1 = 'bold 5px arial, sans-serif';
-        const font2 = 'italic bold 12px/30px Georgia, serif';
-        const font3 = '15px/18px "Neue Helvetica", Helvetica, sans-serif';
+        const fontFamily = [
+          ['arial', 'sans-serif'],
+          ['Georgia', 'serif'],
+          ['"Neue Helvetica"', 'Helvetica', 'sans-serif']
+        ];
+        const font1 = `bold 5px ${fontFamily[0].join(', ')}`;
+        const font2 = `italic bold 12px/30px ${fontFamily[1].join(', ')}`;
+        const font3 = `15px/18px ${fontFamily[2].join(', ')}`;
 
         const expectedFontSizes = [5, 12, 15];
 
@@ -384,7 +391,7 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(result.kind).toBe('Text');
           expect(result.color).toBe('#FFFF00');
           expect(result.size).toBe(expectedFontSizes[idx]);
-          expect(result.font).toEqual([font]);
+          expect(result.font).toEqual(fontFamily[idx]);
         });
       });
     });
@@ -784,6 +791,45 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olTextOffsetY).toBeCloseTo(expectedOffsetY);
         });
     });
+    it('can write an OpenLayers TextSymbolizer with static text', () => {
+      expect.assertions(13);
+      return styleParser.writeStyle(point_styledLabel_static)
+        .then((olStyles: OlStyle[][]|OlStyleFunction[]) => {
+          expect(olStyles).toBeDefined();
+
+          const expecSymb = point_styledLabel_static.rules[0].symbolizers[0] as TextSymbolizer;
+          const expecText = expecSymb.label;
+          const expecOffset = expecSymb.offset;
+          const expecRotation = expecSymb.rotate * Math.PI / 180;
+          // openlayers adds default font-style
+          const expecFont = `Normal ${expecSymb.size}px ${expecSymb.font.join(', ')}`;
+
+          const olStyle = olStyles[0][0] as OlStyle;
+          expect(olStyle).toBeDefined();
+          const olTextStyle = olStyle.getText();
+          expect(olTextStyle).toBeDefined();
+
+          const olText = olTextStyle.getText();
+          expect(olText).toBeDefined();
+          expect(olText).toEqual(expecText);
+
+          const olFont = olTextStyle.getFont();
+          expect(olFont).toBeDefined();
+          expect(olFont).toEqual(expecFont);
+
+          const olRotation = olTextStyle.getRotation();
+          expect(olRotation).toBeDefined();
+          expect(olRotation).toBeCloseTo(expecRotation);
+
+          const olOffsetX = olTextStyle.getOffsetX();
+          expect(olOffsetX).toBeDefined();
+          expect(olOffsetX).toBeCloseTo(expecOffset[0]);
+
+          const olOffsetY = olTextStyle.getOffsetY();
+          expect(olOffsetY).toBeDefined();
+          expect(olOffsetY).toBeCloseTo(expecOffset[1]);
+        });
+    });
     it('can write an OpenLayers Style from multiple symbolizers in one Rule', () => {
       expect.assertions(6);
       return styleParser.writeStyle(multi_simplefillSimpleline)
@@ -829,7 +875,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect.assertions(4);
       // change the field as base for the label text to a numeric one
       const inSymb = point_styledlabel.rules[0].symbolizers[0] as TextSymbolizer;
-      inSymb.field = 'id';
+      inSymb.label = '{{id}}';
       return styleParser.writeStyle(point_styledlabel)
         .then((olStyles: OlStyle[][] | OlStyleFunction[]) => {
           expect(olStyles).toBeDefined();
