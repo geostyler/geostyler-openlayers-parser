@@ -5,9 +5,7 @@ import OlStyle from 'ol/style/style';
 
 const olPointStyledLabel = new OlStyle({
   text: new OlStyleText({
-    // textAlign: align == '' ? undefined : align,
-    // textBaseline: baseline,
-    text: 'name', // feature.get('name'),
+    text: 'name',
     fill: new OlStyleFill({
       color: '#000000'
     }),

@@ -139,7 +139,7 @@ class OlStyleUtil {
       // Iterate over all regex match results and find the proper attribute
       // for the given placeholder, finally set the desired value to the hover.
       // field text
-      regExpRes.forEach((res) => {
+      regExpRes.forEach(res => {
         // We count every non matching candidate. If this count is equal to
         // the objects length, we assume that there is no match at all and
         // set the output value to the value of "noValueFoundText".
