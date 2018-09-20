@@ -4,11 +4,11 @@ const pointStyledLabel: Style = {
   name: 'OL Style',
   rules: [
     {
-      name: 'OL Style Rule',
+      name: 'OL Style Rule 0',
       symbolizers: [{
         kind: 'Text',
         color: '#000000',
-        label: '{{name}}',
+        label: 'name',
         font: ['Arial'],
         size: 12,
         offset: [0, 5],

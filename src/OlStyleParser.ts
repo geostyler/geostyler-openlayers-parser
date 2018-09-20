@@ -211,20 +211,36 @@ class OlStyleParser implements StyleParser {
     const offsetY = olTextStyle.getOffsetY();
     const font = olTextStyle.getFont();
     const rotation = olTextStyle.getRotation();
+    const text = olTextStyle.getText();
+    let fontStyleWeightSize: string;
+    let fontSizePart: string[];
+    let fontSize: number = Infinity;
+    let fontFamily: string[]|undefined = undefined;
 
-    // font-size is always the first part of font-size/line-height
-    const fontStyleWeightSize: string = font.split('px')[0].trim();
-    const fontSizePart: string[] = fontStyleWeightSize.split(' ');
-    // The last element contains font size
-    const fontSize = parseInt(fontSizePart[fontSizePart.length - 1], 10);
+    if (font) {
+      const fontSplit = font.split('px');
+      // font-size is always the first part of font-size/line-height
+      fontStyleWeightSize = fontSplit[0].trim();
+
+      fontSizePart = fontStyleWeightSize.split(' ');
+      // The last element contains font size
+      fontSize = parseInt(fontSizePart[fontSizePart.length - 1], 10);
+      let fontFamilyPart: string = fontSplit.length === 2 ?
+        fontSplit[1] : fontSplit[2];
+      fontFamily = fontFamilyPart.split(',').map((fn: string) => {
+        return fn.startsWith(' ') ? fn.slice(1) : fn;
+      });
+    }
 
     return {
       kind: 'Text',
+      label: text,
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       size: isFinite(fontSize) ? fontSize : undefined,
-      font: [font],
-      offset: offsetX && offsetY ? [offsetX, offsetY] : [0, 0],
-      haloColor: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,
+      font: fontFamily,
+      offset: (offsetX !== undefined) && (offsetY !== undefined) ? [offsetX, offsetY] : [0, 0],
+      haloColor: olStrokeStyle && olStrokeStyle.getColor() ?
+        OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,
       haloWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
       rotate: (rotation !== undefined) ? rotation / Math.PI * 180 : undefined
     };
@@ -668,37 +684,58 @@ class OlStyleParser implements StyleParser {
    * @param {TextSymbolizer} textSymbolizer A GeoStyler-Style TextSymbolizer.
    * @return {object} The OL StyleFunction
    */
-  getOlTextSymbolizerFromTextSymbolizer(symbolizer: TextSymbolizer): ol.StyleFunction {
-    const olPointStyledLabelFn = (feature: ol.Feature, res: number) => {
-
-      const text = new OlStyleText({
-        font: OlStyleUtil.getTextFont(symbolizer),
-        text: feature.get(symbolizer.field || '') + '',
-        fill: new OlStyleFill({
-          color: (symbolizer.color && symbolizer.opacity) ?
-            OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
-        }),
-        stroke: new OlStyleStroke({
-          color: (symbolizer.haloColor && symbolizer.opacity) ?
-            OlStyleUtil.getRgbaColor(symbolizer.haloColor, symbolizer.opacity) : symbolizer.haloColor,
-          width: symbolizer.haloWidth ? symbolizer.haloWidth : 0
-        }),
-        offsetX: symbolizer.offset ? symbolizer.offset[0] : 0,
-        offsetY: symbolizer.offset ? symbolizer.offset[1] : 0,
-        rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
-        // TODO check why props match
-        // textAlign: symbolizer.pitchAlignment,
-        // textBaseline: symbolizer.anchor
-      });
-
-      const style = new OlStyle({
-        text: text
-      });
-
-      return style;
+  getOlTextSymbolizerFromTextSymbolizer(symbolizer: TextSymbolizer): ol.StyleFunction|OlStyle {
+    const baseProps = {
+      font: OlStyleUtil.getTextFont(symbolizer),
+      fill: new OlStyleFill({
+        color: (symbolizer.color && symbolizer.opacity) ?
+          OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
+      }),
+      stroke: new OlStyleStroke({
+        color: (symbolizer.haloColor && symbolizer.opacity) ?
+          OlStyleUtil.getRgbaColor(symbolizer.haloColor, symbolizer.opacity) : symbolizer.haloColor,
+        width: symbolizer.haloWidth ? symbolizer.haloWidth : 0
+      }),
+      offsetX: symbolizer.offset ? symbolizer.offset[0] : 0,
+      offsetY: symbolizer.offset ? symbolizer.offset[1] : 0,
+      rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
+      // TODO check why props match
+      // textAlign: symbolizer.pitchAlignment,
+      // textBaseline: symbolizer.anchor
     };
 
-    return olPointStyledLabelFn;
+    // check if TextSymbolizer.label contains a placeholder
+    const prefix = '\\{\\{';
+    const suffix = '\\}\\}';
+    const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
+    const regExpRes = symbolizer.label ? symbolizer.label.match(regExp) : null;
+    if (regExpRes) {
+      // if it contains a placeholder
+      // return olStyleFunction
+      const olPointStyledLabelFn = (feature: ol.Feature, res: number) => {
+
+        const text = new OlStyleText({
+          text: OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.label as string, ''),
+          ...baseProps
+        });
+
+        const style = new OlStyle({
+          text: text
+        });
+
+        return style;
+      };
+      return olPointStyledLabelFn;
+    } else {
+      // if TextSymbolizer does not contain a placeholder
+      // return OlStyle
+      return new OlStyle({
+        text: new OlStyleText({
+          text: symbolizer.label,
+          ...baseProps
+        })
+      });
+    }
   }
 
 }
