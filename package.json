@@ -1,6 +1,6 @@
 {
   "name": "geostyler-openlayers-parser",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
   "main": "build/dist/OlStyleParser.js",
   "files": [
