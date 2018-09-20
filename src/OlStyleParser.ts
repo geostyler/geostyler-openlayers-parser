@@ -239,7 +239,8 @@ class OlStyleParser implements StyleParser {
       size: isFinite(fontSize) ? fontSize : undefined,
       font: fontFamily,
       offset: (offsetX !== undefined) && (offsetY !== undefined) ? [offsetX, offsetY] : [0, 0],
-      haloColor: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,
+      haloColor: olStrokeStyle && olStrokeStyle.getColor() ?
+        OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,
       haloWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
       rotate: (rotation !== undefined) ? rotation / Math.PI * 180 : undefined
     };
