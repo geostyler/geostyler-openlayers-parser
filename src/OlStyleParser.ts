@@ -31,7 +31,7 @@ import { isNumber } from 'util';
  * @class OlStyleParser
  * @implements StyleParser
  */
-class OlStyleParser implements StyleParser {
+export class OlStyleParser implements StyleParser {
 
   /**
    * The name of the OlStyleParser.
