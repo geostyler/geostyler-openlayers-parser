@@ -4,7 +4,7 @@ module.exports = {
   output: {
     filename: "olStyleParser.js",
     path: __dirname + "/browser",
-    library: "OlStyleParser"
+    library: "GeoStylerOpenlayersParser"
   },
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
