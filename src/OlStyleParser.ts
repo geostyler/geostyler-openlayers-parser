@@ -51,7 +51,7 @@ export class OlStyleParser implements StyleParser {
       this.OlStyleTextConstructor = ol.style.Text;
       this.OlStyleCircleConstructor = ol.style.Circle;
       this.OlStyleIconConstructor = ol.style.Icon;
-      this.OlStyleRegularshapeConstructor = ol.style.Regularshape;
+      this.OlStyleRegularshapeConstructor = ol.style.RegularShape;
     }
   }
 
