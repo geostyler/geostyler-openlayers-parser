@@ -27,7 +27,7 @@
   "dependencies": {
     "geostyler-style": "0.14.0",
     "jest-preset-typescript": "1.2.0",
-    "ol": "5.2.0"
+    "ol": "4.6.5"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && npm run build:browser",
