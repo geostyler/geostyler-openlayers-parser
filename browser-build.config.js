@@ -2,7 +2,7 @@ const webpack = require("webpack");
 require("@babel/polyfill");
 
 module.exports = {
-  entry: ['@babel/polyfill', './src/OlStyleParser.ts'],
+  entry: ["@babel/polyfill", "./src/OlStyleParser.ts"],
   output: {
     filename: "olStyleParser.js",
     path: __dirname + "/browser",
