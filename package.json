@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/terrestris/geostyler-openlayers-parser#readme",
   "dependencies": {
-    "geostyler-style": "0.14.0",
+    "geostyler-style": "0.14.1",
     "jest-preset-typescript": "1.2.0",
     "ol": "4.6.5"
   },
