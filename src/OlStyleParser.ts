@@ -23,6 +23,11 @@ import OlStyleRegularshape from 'ol/style/regularshape';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 import { isNumber } from 'util';
+const _get = require('lodash/get');
+
+export type OlParserStyleFct = ol.StyleFunction & {
+  __geoStylerStyle: Style
+};
 
 /**
  * This parser can be used with the GeoStyler.
@@ -41,6 +46,10 @@ export class OlStyleParser implements StyleParser {
   OlStyleCircleConstructor: any = OlStyleCircle;
   OlStyleIconConstructor: any = OlStyleIcon;
   OlStyleRegularshapeConstructor: any = OlStyleRegularshape;
+
+  isOlParserStyleFct = (x: any): x is OlParserStyleFct => {
+    return typeof x === 'function';
+  }
 
   constructor(ol?: any) {
     if (ol) {
@@ -308,17 +317,22 @@ export class OlStyleParser implements StyleParser {
    * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {Rule} The GeoStyler-Style Rule
    */
-  getRulesFromOlStyle(olStyles: OlStyle[][]): Rule[] {
-    let rules: Rule[] = [];
-    olStyles.forEach((olRule: OlStyle[], idx: number) => {
-      const symbolizers: Symbolizer[] = this.getSymbolizersFromOlStyle(olRule);
-      const name = 'OL Style Rule ' + idx;
-      rules.push({
-        name, symbolizers
-      });
-    });
+  getRuleFromOlStyle(olStyles: OlStyle|OlStyle[]): Rule {
+    let rule: Rule;
+    let symbolizers: Symbolizer[];
+    const name = 'OL Style Rule 0';
 
-    return rules;
+    if (Array.isArray(olStyles)) {
+      symbolizers = this.getSymbolizersFromOlStyle(olStyles);
+    } else {
+      symbolizers = this.getSymbolizersFromOlStyle([olStyles]);
+    }
+
+    rule = {
+      name, symbolizers
+    };
+
+    return rule;
   }
 
   /**
@@ -351,31 +365,33 @@ export class OlStyleParser implements StyleParser {
    * @param {object} olStyle The OpenLayers Style object
    * @return {Style} The GeoStyler-Style Style
    */
-  olStyleToGeoStylerStyle(olStyle: OlStyle[][]): Style {
+  olStyleToGeoStylerStyle(olStyle: OlStyle|OlStyle[]): Style {
     const name = 'OL Style';
-    const rules = this.getRulesFromOlStyle(olStyle);
+    const rule = this.getRuleFromOlStyle(olStyle);
     return {
       name,
-      rules
+      rules: [rule]
     };
   }
 
   /**
    * The readStyle implementation of the GeoStyler-Style StyleParser interface.
-   * It reads a nested array of OpenLayers style instances and returns a Promise.
-   * Each element in the first dimension of the OlStyle array defines a rule, each element
-   * in the second dimension defines a symbolizer within that rule.
+   * It reads an OpenLayers Style, an array of OpenLayers Styles or an olParserStyleFct and returns a Promise.
+   *
    * The Promise itself resolves with a GeoStyler-Style Style.
    *
-   * @param {OlStyle[][]} olStyle A nested array of OpenLayers style instances
+   * @param {OlStyle|OlStyle[]|OlParserStyleFct} olStyle The style to be parsed
    * @return {Promise} The Promise resolving with the GeoStyler-Style Style
    */
-  readStyle(olStyle: OlStyle[][]): Promise<Style> {
+  readStyle(olStyle: OlStyle|OlStyle[]|OlParserStyleFct): Promise<Style> {
     return new Promise<Style>((resolve, reject) => {
       try {
-
-        const geoStylerStyle: Style = this.olStyleToGeoStylerStyle(olStyle);
-        resolve(geoStylerStyle);
+        if (this.isOlParserStyleFct(olStyle)) {
+          resolve(olStyle.__geoStylerStyle);
+        } else {
+          const geoStylerStyle: Style = this.olStyleToGeoStylerStyle(olStyle);
+          resolve(geoStylerStyle);
+        }
 
       } catch (error) {
         reject(error);
@@ -386,19 +402,23 @@ export class OlStyleParser implements StyleParser {
   /**
    * The writeStyle implementation of the GeoStyler-Style StyleParser interface.
    * It reads a GeoStyler-Style Style and returns a Promise.
-   * The Promise itself resolves with a nested array of OpenLayers style objects.
-   * Each element in the first dimension of the OlStyle array defines a rule, each element
-   * in the second dimension defines a symbolizer within that rule.
+   * The Promise itself resolves one of three types
+   *
+   * 1. OlStyle if input Style consists of
+   *    one rule with one symbolizer, no filter, no scaleDenominator, no TextSymbolizer
+   * 2. OlStyle[] if input Style consists of
+   *    one rule with multiple symbolizers, no filter, no scaleDenominator, no TextSymbolizer
+   * 3. OlParserStyleFct for everything else
    *
    * @param {Style} geoStylerStyle A GeoStyler-Style Style.
-   * @return {Promise} The Promise resolving with a nested array of OpenLayers style instance.
+   * @return {Promise} The Promise resolving with one of above mentioned style types.
    */
-  writeStyle(geoStylerStyle: Style): Promise<OlStyle[][]> {
+  writeStyle(geoStylerStyle: Style): Promise<(OlStyle|OlStyle[]|OlParserStyleFct)> {
     return new Promise<any>((resolve, reject) => {
       try {
 
-        const olStyles = this.geoStylerStyleToOlStyle(geoStylerStyle);
-        resolve(olStyles);
+        const olStyle: (OlStyle|OlStyle[]|OlParserStyleFct) = this.getOlStyleTypeFromGeoStylerStyle(geoStylerStyle);
+        resolve(olStyle);
 
       } catch (error) {
         reject(error);
@@ -407,24 +427,107 @@ export class OlStyleParser implements StyleParser {
   }
 
   /**
+   * Decides which OlStyleType should be returned depending on given geoStylerStyle.
+   * Three OlStyleTypes are possible:
+   *
+   * 1. OlStyle if input Style consists of
+   *    one rule with one symbolizer, no filter, no scaleDenominator, no TextSymbolizer
+   * 2. OlStyle[] if input Style consists of
+   *    one rule with multiple symbolizers, no filter, no scaleDenominator, no TextSymbolizer
+   * 3. OlParserStyleFct for everything else
+   *
+   * @param {geoStylerStyle} A GeoStyler-Style Style
+   * @return {OlStyle|OlStyle[]|OlParserStyleFct}
+   */
+  getOlStyleTypeFromGeoStylerStyle(geoStylerStyle: Style): OlStyle|OlStyle[]|OlParserStyleFct {
+    const rules = geoStylerStyle.rules;
+    const nrRules = rules.length;
+    if (nrRules === 1) {
+      const hasFilter = _get(geoStylerStyle, 'rules[0].filter') !== undefined ? true : false;
+      const hasMinScale = _get(geoStylerStyle, 'rules[0].scaleDenominator.min') !== undefined ? true : false;
+      const hasMaxScale = _get(geoStylerStyle, 'rules[0].scaleDenominator.max') !== undefined ? true : false;
+      const hasScaleDenominator = hasMinScale || hasMaxScale ? true : false;
+      const nrSymbolizers = geoStylerStyle.rules[0].symbolizers.length;
+      const hasTextSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
+        return symbolizer.kind === 'Text';
+      });
+      if (!hasFilter && !hasScaleDenominator && !hasTextSymbolizer) {
+        if (nrSymbolizers === 1) {
+          return this.geoStylerStyleToOlStyle(geoStylerStyle);
+        } else {
+          return this.geoStylerStyleToOlStyleArray(geoStylerStyle);
+        }
+      } else {
+        return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
+      }
+    } else {
+      return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
+    }
+  }
+
+  /**
+   * Parses the first symbolizer of the first rule of a GeoStyler-Style Style.
+   *
+   * @param {geoStylerStyle} A GeoStyler-Style Style
+   * @return {OlStyle} An OpenLayers Style Object
+   */
+  geoStylerStyleToOlStyle(geoStylerStyle: Style): OlStyle {
+    const rule = geoStylerStyle.rules[0];
+    const symbolizer = rule.symbolizers[0];
+    const olSymbolizer: OlStyle = this.getOlSymbolizerFromSymbolizer(symbolizer);
+    return olSymbolizer;
+  }
+
+  /**
+   * Parses all symbolizers of the first rule of a GeoStyler-Style Style.
+   *
+   * @param {geoStylerStyle} A GeoStyler-Style Style
+   * @return {OlStyle[]} An array of OpenLayers Style Objects
+   */
+  geoStylerStyleToOlStyleArray(geoStylerStyle: Style): OlStyle[] {
+    const rule = geoStylerStyle.rules[0];
+    const olStyles: OlStyle[] = [];
+    rule.symbolizers.forEach((symbolizer: Symbolizer) => {
+      const olSymbolizer: OlStyle = this.getOlSymbolizerFromSymbolizer(symbolizer);
+      olStyles.push(olSymbolizer);
+    });
+    return olStyles;
+  }
+
+  /**
    * Get the OpenLayers Style object from an GeoStyler-Style Style
    *
    * @param {Style} geoStylerStyle A GeoStyler-Style Style.
-   * @return {OlStyle[][]} A nested array containing OpenLayers style instance(s)
+   * @return {OlParserStyleFct} An OlParserStyleFct
    */
-  geoStylerStyleToOlStyle(geoStylerStyle: Style): OlStyle[][] {
-
+  geoStylerStyleToOlParserStyleFct(geoStylerStyle: Style): OlParserStyleFct {
     const rules = geoStylerStyle.rules;
+    const olStyle: ol.StyleFunction = (feature: ol.Feature, resolution: number): OlStyle[] => {
+      // TODO
+      // handle scaleDenominators and Filters here
+      const styles: OlStyle[] = [];
+      rules.forEach((rule: Rule) => {
+        rule.symbolizers.forEach((symb: Symbolizer) => {
+          const olSymbolizer: OlStyle|ol.StyleFunction = this.getOlSymbolizerFromSymbolizer(symb);
 
-    let symbArr: any[] = [];
-    rules.forEach((rule: Rule) => {
-      const ruleSymbs: any[] = [];
-      rule.symbolizers.forEach((symb: Symbolizer) => {
-        ruleSymbs.push(this.getOlSymbolizerFromSymbolizer(symb));
+          // this.getOlTextSymbolizerFromTextSymbolizer returns
+          // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
+          // of OlStyles, not ol.StyleFunctions.
+          // So we have to check it and in case of an ol.StyleFunction call that function
+          // and add the returned style to const styles.
+          if (olSymbolizer instanceof OlStyle) {
+            styles.push(olSymbolizer);
+          } else {
+            const styleFromFct: OlStyle = olSymbolizer(feature, resolution) as OlStyle;
+            styles.push(styleFromFct);
+          }
+        });
       });
-      symbArr.push(ruleSymbs);
-    });
-    return symbArr;
+      return styles;
+    };
+    let olStyleFct: OlParserStyleFct = olStyle as OlParserStyleFct;
+    olStyleFct.__geoStylerStyle = geoStylerStyle;
+    return olStyleFct;
   }
 
   /**
