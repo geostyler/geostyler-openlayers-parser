@@ -454,9 +454,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
 
-          const testFeature = new OlFeature({
-            geometry: new OlGeomPoint([16, 48])
-          });
+          const testFeature = new OlFeature();
           const styles = olStyle(testFeature, 1);
           expect(styles).toHaveLength(1);
           const expecSymb = point_simplepoint.rules[0].symbolizers[0] as MarkSymbolizer;
@@ -473,9 +471,7 @@ describe('OlStyleParser implements StyleParser', () => {
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
 
-          const testFeature = new OlFeature({
-            geometry: new OlGeomPoint([16, 48])
-          });
+          const testFeature = new OlFeature();
           const styles = olStyle(testFeature, 1);
           expect(styles).toHaveLength(1);
           const expecSymb = point_icon.rules[0].symbolizers[0] as IconSymbolizer;
