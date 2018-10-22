@@ -29,6 +29,10 @@ export type OlParserStyleFct = ol.StyleFunction & {
   __geoStylerStyle: Style
 };
 
+export type OlParserStyleFct = ol.StyleFunction & {
+  __geoStylerStyle: Style
+};
+
 /**
  * This parser can be used with the GeoStyler.
  * It implements the GeoStyler-Style Parser interface to work with OpenLayers styles.
