@@ -21,6 +21,8 @@ import OlStyleCircle from 'ol/style/circle';
 import OlStyleIcon from 'ol/style/icon';
 import OlStyleRegularshape from 'ol/style/regularshape';
 
+const _get = require('lodash/get');
+
 import OlStyleUtil from './Util/OlStyleUtil';
 import { isNumber } from 'util';
 const _get = require('lodash/get');
@@ -508,24 +510,38 @@ export class OlStyleParser implements StyleParser {
     const rules = geoStylerStyle.rules;
     const olStyle: ol.StyleFunction = (feature: ol.Feature, resolution: number): OlStyle[] => {
       // TODO
-      // handle scaleDenominators and Filters here
+      // Filters here
       const styles: OlStyle[] = [];
+      const scale = OlStyleUtil.getScaleForResolution(resolution, 'm');
       rules.forEach((rule: Rule) => {
-        rule.symbolizers.forEach((symb: Symbolizer) => {
-          const olSymbolizer: OlStyle|ol.StyleFunction = this.getOlSymbolizerFromSymbolizer(symb);
+        const minScale = _get(rule, 'scaleDenominator.min');
+        const maxScale = _get(rule, 'scaleDenominator.max');
+        let isWithinScale = true;
+        if (minScale !== 'undefined' || maxScale !== 'undefined') {
+          if (minScale !== 'undefined' && scale < minScale) {
+            isWithinScale = false;
+          }
+          if (maxScale !== 'undefined' && scale >= maxScale) {
+            isWithinScale = false;
+          }
+        }
+        if (isWithinScale) {
+          rule.symbolizers.forEach((symb: Symbolizer) => {
+            const olSymbolizer: OlStyle|ol.StyleFunction = this.getOlSymbolizerFromSymbolizer(symb);
 
           // this.getOlTextSymbolizerFromTextSymbolizer returns
           // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
           // of OlStyles, not ol.StyleFunctions.
           // So we have to check it and in case of an ol.StyleFunction call that function
           // and add the returned style to const styles.
-          if (olSymbolizer instanceof OlStyle) {
-            styles.push(olSymbolizer);
-          } else {
-            const styleFromFct: OlStyle = olSymbolizer(feature, resolution) as OlStyle;
-            styles.push(styleFromFct);
-          }
-        });
+            if (olSymbolizer instanceof OlStyle) {
+              styles.push(olSymbolizer);
+            } else {
+              const styleFromFct: OlStyle = olSymbolizer(feature, resolution) as OlStyle;
+              styles.push(styleFromFct);
+            }
+          });
+        }
       });
       return styles;
     };
