@@ -185,6 +185,27 @@ class OlStyleUtil {
 
     return resolution * mpu * inchesPerMeter * dpi;
   }
+
+  /**
+   * Calculates the appropriate map resolution for a given scale in the given
+   * units.
+   *
+   * See: https://gis.stackexchange.com/questions/158435/
+   * how-to-get-current-scale-in-openlayers-3
+   *
+   * @method
+   * @param {Number} scale The input scale to calculate the appropriate
+   *                       resolution for.
+   * @param {String} units The units to use for calculation (m or degrees).
+   * @return {Number} The calculated resolution.
+   */
+  static getResolutionForScale (scale: number, units: string) {
+    let dpi = 25.4 / 0.28;
+    let mpu = OlProjection.METERS_PER_UNIT[units];
+    let inchesPerMeter = 39.37;
+
+    return scale / (mpu * inchesPerMeter * dpi);
+  }
 }
 
 export default OlStyleUtil;
