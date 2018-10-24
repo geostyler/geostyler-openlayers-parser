@@ -24,6 +24,7 @@ import OlStyleRegularshape from 'ol/style/regularshape';
 const _get = require('lodash/get');
 
 import OlStyleUtil from './Util/OlStyleUtil';
+import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
 import { isNumber } from 'util';
 const _get = require('lodash/get');
 
@@ -512,7 +513,7 @@ export class OlStyleParser implements StyleParser {
       // TODO
       // Filters here
       const styles: OlStyle[] = [];
-      const scale = OlStyleUtil.getScaleForResolution(resolution, 'm');
+      const scale = MapUtil.getScaleForResolution(resolution, 'm');
       rules.forEach((rule: Rule) => {
         const minScale = _get(rule, 'scaleDenominator.min');
         const maxScale = _get(rule, 'scaleDenominator.max');

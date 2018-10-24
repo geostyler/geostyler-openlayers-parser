@@ -66,6 +66,7 @@ import {
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
+import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
 
 it('OlStyleParser is defined', () => {
   expect(OlStyleParser).toBeDefined();
@@ -966,8 +967,8 @@ describe('OlStyleParser implements StyleParser', () => {
           const withinScale: number = scaleDenomLine.rules[0].scaleDenominator.min;
           const beyondScale: number = scaleDenomLine.rules[0].scaleDenominator.max;
 
-          const resolutionRuleOne = OlStyleUtil.getResolutionForScale(withinScale, 'm');
-          const resolutionRuleTwo = OlStyleUtil.getResolutionForScale(beyondScale, 'm');
+          const resolutionRuleOne = MapUtil.getResolutionForScale(withinScale, 'm');
+          const resolutionRuleTwo = MapUtil.getResolutionForScale(beyondScale, 'm');
 
           const dummyFeat = new OlFeature();
           const styleWithinScale = olStyle(dummyFeat, resolutionRuleOne);
@@ -987,9 +988,9 @@ describe('OlStyleParser implements StyleParser', () => {
           const scaleWithinSecond: number = scaleDenomLineCircle.rules[1].scaleDenominator.min;
           const scaleBeyond: number = scaleDenomLineCircle.rules[1].scaleDenominator.max;
 
-          const resolutionWithinFirst = OlStyleUtil.getResolutionForScale(scaleWithinFirst, 'm');
-          const resolutionWithinSecond = OlStyleUtil.getResolutionForScale(scaleWithinSecond, 'm');
-          const resolutionBeyond = OlStyleUtil.getResolutionForScale(scaleBeyond, 'm');
+          const resolutionWithinFirst = MapUtil.getResolutionForScale(scaleWithinFirst, 'm');
+          const resolutionWithinSecond = MapUtil.getResolutionForScale(scaleWithinSecond, 'm');
+          const resolutionBeyond = MapUtil.getResolutionForScale(scaleBeyond, 'm');
 
           const dummyFeat = new OlFeature();
           const styleWithinFirst = olStyle(dummyFeat, resolutionWithinFirst);
@@ -1026,9 +1027,9 @@ describe('OlStyleParser implements StyleParser', () => {
           const scaleOverlap: number = scaleDenomLineCircleOverlap.rules[1].scaleDenominator.min;
           const scaleOnlySecond: number = scaleDenomLineCircleOverlap.rules[1].scaleDenominator.max - 1;
 
-          const resolutionOnlyFirst = OlStyleUtil.getResolutionForScale(scaleOnlyFirst, 'm');
-          const resolutionOverlap = OlStyleUtil.getResolutionForScale(scaleOverlap, 'm');
-          const resolutionOnlySecond = OlStyleUtil.getResolutionForScale(scaleOnlySecond, 'm');
+          const resolutionOnlyFirst = MapUtil.getResolutionForScale(scaleOnlyFirst, 'm');
+          const resolutionOverlap = MapUtil.getResolutionForScale(scaleOverlap, 'm');
+          const resolutionOnlySecond = MapUtil.getResolutionForScale(scaleOnlySecond, 'm');
 
           const dummyFeat = new OlFeature();
           const styleOnlyFirst = olStyle(dummyFeat, resolutionOnlyFirst);

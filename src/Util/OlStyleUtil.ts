@@ -1,5 +1,4 @@
 import { TextSymbolizer } from 'geostyler-style';
-import OlProjection from 'ol/proj';
 
 /**
  * Offers some utility functions to work with OpenLayers Styles.
@@ -167,44 +166,6 @@ class OlStyleUtil {
     }
 
     return template;
-  }
-
-  /**
-   * Returns the appropriate scale for the given resolution and units.
-   *
-   * @method
-   * @param {Number} resolution The resolutions to calculate the scale for.
-   * @param {String} units The units the resolution is based on, typically
-   *                       either 'm' or 'degrees'.
-   * @return {Number} The appropriate scale.
-   */
-  static getScaleForResolution (resolution: number, units: string) {
-    var dpi = 25.4 / 0.28;
-    var mpu = OlProjection.METERS_PER_UNIT[units];
-    var inchesPerMeter = 39.37;
-
-    return resolution * mpu * inchesPerMeter * dpi;
-  }
-
-  /**
-   * Calculates the appropriate map resolution for a given scale in the given
-   * units.
-   *
-   * See: https://gis.stackexchange.com/questions/158435/
-   * how-to-get-current-scale-in-openlayers-3
-   *
-   * @method
-   * @param {Number} scale The input scale to calculate the appropriate
-   *                       resolution for.
-   * @param {String} units The units to use for calculation (m or degrees).
-   * @return {Number} The calculated resolution.
-   */
-  static getResolutionForScale (scale: number, units: string) {
-    let dpi = 25.4 / 0.28;
-    let mpu = OlProjection.METERS_PER_UNIT[units];
-    let inchesPerMeter = 39.37;
-
-    return scale / (mpu * inchesPerMeter * dpi);
   }
 }
 
