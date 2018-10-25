@@ -27,6 +27,7 @@
   "dependencies": {
     "geostyler-style": "0.14.1",
     "jest-preset-typescript": "1.2.0",
+    "lodash": "4.17.11",
     "ol": "4.6.5"
   },
   "scripts": {
@@ -55,7 +56,8 @@
     "ts-jest": "22.4.6",
     "tslint": "5.11.0",
     "typescript": "3.1.2",
-    "webpack": "4.22.0",
+    "uglifyjs-webpack-plugin": "1.1.2",
+    "webpack": "3.12.0",
     "webpack-cli": "3.1.2"
   },
   "jest": {
