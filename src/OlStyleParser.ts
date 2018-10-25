@@ -450,9 +450,9 @@ export class OlStyleParser implements StyleParser {
     const rules = geoStylerStyle.rules;
     const nrRules = rules.length;
     if (nrRules === 1) {
-      const hasFilter = _get(geoStylerStyle, 'rules[0].filter') !== undefined ? true : false;
-      const hasMinScale = _get(geoStylerStyle, 'rules[0].scaleDenominator.min') !== undefined ? true : false;
-      const hasMaxScale = _get(geoStylerStyle, 'rules[0].scaleDenominator.max') !== undefined ? true : false;
+      const hasFilter = typeof _get(geoStylerStyle, 'rules[0].filter') !== 'undefined' ? true : false;
+      const hasMinScale = typeof _get(geoStylerStyle, 'rules[0].scaleDenominator.min') !== 'undefined' ? true : false;
+      const hasMaxScale = typeof _get(geoStylerStyle, 'rules[0].scaleDenominator.max') !== 'undefined' ? true : false;
       const hasScaleDenominator = hasMinScale || hasMaxScale ? true : false;
       const nrSymbolizers = geoStylerStyle.rules[0].symbolizers.length;
       const hasTextSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
@@ -518,11 +518,11 @@ export class OlStyleParser implements StyleParser {
         const minScale = _get(rule, 'scaleDenominator.min');
         const maxScale = _get(rule, 'scaleDenominator.max');
         let isWithinScale = true;
-        if (minScale !== 'undefined' || maxScale !== 'undefined') {
-          if (minScale !== 'undefined' && scale < minScale) {
+        if (typeof minScale !== 'undefined' || typeof maxScale !== 'undefined') {
+          if (typeof minScale !== 'undefined' && scale < minScale) {
             isWithinScale = false;
           }
-          if (maxScale !== 'undefined' && scale >= maxScale) {
+          if (typeof maxScale !== 'undefined' && scale >= maxScale) {
             isWithinScale = false;
           }
         }
