@@ -452,14 +452,11 @@ describe('OlStyleParser implements StyleParser', () => {
       });
     });
     it('can write a OpenLayers PointSymbolizer', () => {
-      expect.assertions(5);
+      expect.assertions(4);
       return styleParser.writeStyle(point_simplepoint)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
 
-          const testFeature = new OlFeature();
-          const styles = olStyle(testFeature, 1);
-          expect(styles).toHaveLength(1);
           const expecSymb = point_simplepoint.rules[0].symbolizers[0] as MarkSymbolizer;
           const olCircle: OlStyleCircle = olStyle.getImage() as OlStyleCircle;
 
@@ -469,14 +466,11 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers IconSymbolizer', () => {
-      expect.assertions(7);
+      expect.assertions(6);
       return styleParser.writeStyle(point_icon)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
 
-          const testFeature = new OlFeature();
-          const styles = olStyle(testFeature, 1);
-          expect(styles).toHaveLength(1);
           const expecSymb = point_icon.rules[0].symbolizers[0] as IconSymbolizer;
           const olIcon: OlStyleIcon = olStyle.getImage() as OlStyleIcon;
 
@@ -490,7 +484,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape square', () => {
-      expect.assertions(9);
+      expect.assertions(8);
       return styleParser.writeStyle(point_simplesquare)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -510,7 +504,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape star', () => {
-      expect.assertions(10);
+      expect.assertions(9);
       return styleParser.writeStyle(point_simplestar)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -531,7 +525,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape triangle', () => {
-      expect.assertions(9);
+      expect.assertions(8);
       return styleParser.writeStyle(point_simpletriangle)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -551,7 +545,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape cross', () => {
-      expect.assertions(10);
+      expect.assertions(9);
       return styleParser.writeStyle(point_simplecross)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -572,7 +566,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape x', () => {
-      expect.assertions(10);
+      expect.assertions(9);
       return styleParser.writeStyle(point_simplex)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -593,7 +587,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://slash', () => {
-      expect.assertions(9);
+      expect.assertions(8);
       return styleParser.writeStyle(point_simpleslash)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -613,7 +607,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://backslash', () => {
-      expect.assertions(9);
+      expect.assertions(8);
       return styleParser.writeStyle(point_simplebackslash)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -633,7 +627,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://vertline', () => {
-      expect.assertions(9);
+      expect.assertions(8);
       return styleParser.writeStyle(point_simplevertline)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -653,7 +647,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://horline', () => {
-      expect.assertions(9);
+      expect.assertions(8);
       return styleParser.writeStyle(point_simplehorline)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -673,7 +667,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://carrow', () => {
-      expect.assertions(9);
+      expect.assertions(8);
       return styleParser.writeStyle(point_simplecarrow)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -693,7 +687,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://oarrow', () => {
-      expect.assertions(9);
+      expect.assertions(8);
       return styleParser.writeStyle(point_simpleoarrow)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -713,7 +707,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://dot', () => {
-      expect.assertions(5);
+      expect.assertions(4);
       return styleParser.writeStyle(point_simpledot)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -727,7 +721,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://plus', () => {
-      expect.assertions(10);
+      expect.assertions(9);
       return styleParser.writeStyle(point_simpleplus)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -748,7 +742,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers RegularShape shape://times', () => {
-      expect.assertions(10);
+      expect.assertions(9);
       return styleParser.writeStyle(point_simpletimes)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -769,7 +763,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers LineSymbolizer', () => {
-      expect.assertions(6);
+      expect.assertions(5);
       return styleParser.writeStyle(line_simpleline)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
@@ -784,7 +778,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers PolygonSymbolizer', () => {
-      expect.assertions(6);
+      expect.assertions(5);
       return styleParser.writeStyle(polygon_transparentpolygon)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
