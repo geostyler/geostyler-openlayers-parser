@@ -511,7 +511,7 @@ export class OlStyleParser implements StyleParser {
     const rules = geoStylerStyle.rules;
     const olStyle: ol.StyleFunction = (feature: ol.Feature, resolution: number): OlStyle[] => {
       // TODO
-      // Filters here
+      // Parse Filters here
       const styles: OlStyle[] = [];
       const scale = MapUtil.getScaleForResolution(resolution, 'm');
       rules.forEach((rule: Rule) => {
