@@ -1,4 +1,4 @@
-const webpack = require("webpack");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 require("@babel/polyfill");
 
 module.exports = {
@@ -23,6 +23,6 @@ module.exports = {
     ]
   },
   plugins: [
-    new webpack.optimize.UglifyJsPlugin(),
+    new UglifyJsPlugin(),
   ]
 };
