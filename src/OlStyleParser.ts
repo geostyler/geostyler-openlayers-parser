@@ -21,16 +21,10 @@ import OlStyleCircle from 'ol/style/circle';
 import OlStyleIcon from 'ol/style/icon';
 import OlStyleRegularshape from 'ol/style/regularshape';
 
-const _get = require('lodash/get');
-
 import OlStyleUtil from './Util/OlStyleUtil';
 import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
 import { isNumber } from 'util';
 const _get = require('lodash/get');
-
-export type OlParserStyleFct = ol.StyleFunction & {
-  __geoStylerStyle: Style
-};
 
 export type OlParserStyleFct = ol.StyleFunction & {
   __geoStylerStyle: Style
