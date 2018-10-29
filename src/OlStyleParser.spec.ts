@@ -29,6 +29,9 @@ import line_simpleline from '../data/styles/line_simpleline';
 import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
+import scaleDenomLine from '../data/styles/scaleDenom_line';
+import scaleDenomLineCircle from '../data/styles/scaleDenom_line_circle';
+import scaleDenomLineCircleOverlap from '../data/styles/scaleDenom_line_circle_overlap';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
@@ -58,10 +61,12 @@ import {
   TextSymbolizer,
   Style,
   IconSymbolizer,
-  MarkSymbolizer
+  MarkSymbolizer,
+  Symbolizer
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
+import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
 
 it('OlStyleParser is defined', () => {
   expect(OlStyleParser).toBeDefined();
@@ -945,6 +950,89 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(typeof olTextContent).toEqual('string');
           expect(olTextContent).toEqual(dummyFeat.get('id') + '');
 
+        });
+    });
+    it('returns style if scale is within scaleDenominators', () => {
+      expect.assertions(3);
+      return styleParser.writeStyle(scaleDenomLine)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const withinScale: number = scaleDenomLine.rules[0].scaleDenominator.min;
+          const beyondScale: number = scaleDenomLine.rules[0].scaleDenominator.max;
+
+          const resolutionRuleOne = MapUtil.getResolutionForScale(withinScale, 'm');
+          const resolutionRuleTwo = MapUtil.getResolutionForScale(beyondScale, 'm');
+
+          const dummyFeat = new OlFeature();
+          const styleWithinScale = olStyle(dummyFeat, resolutionRuleOne);
+          const styleBeyondScale = olStyle(dummyFeat, resolutionRuleTwo);
+
+          expect(styleWithinScale).toHaveLength(1);
+          expect(styleBeyondScale).toHaveLength(0);
+        });
+    });
+    it('returns right style based on scaleDenominators', () => {
+      expect.assertions(11);
+      return styleParser.writeStyle(scaleDenomLineCircle)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const scaleWithinFirst: number = scaleDenomLineCircle.rules[0].scaleDenominator.min;
+          const scaleWithinSecond: number = scaleDenomLineCircle.rules[1].scaleDenominator.min;
+          const scaleBeyond: number = scaleDenomLineCircle.rules[1].scaleDenominator.max;
+
+          const resolutionWithinFirst = MapUtil.getResolutionForScale(scaleWithinFirst, 'm');
+          const resolutionWithinSecond = MapUtil.getResolutionForScale(scaleWithinSecond, 'm');
+          const resolutionBeyond = MapUtil.getResolutionForScale(scaleBeyond, 'm');
+
+          const dummyFeat = new OlFeature();
+          const styleWithinFirst = olStyle(dummyFeat, resolutionWithinFirst);
+          const styleWithinSecond = olStyle(dummyFeat, resolutionWithinSecond);
+          const styleBeyond = olStyle(dummyFeat, resolutionBeyond);
+
+          expect(styleWithinFirst).toHaveLength(1);
+          expect(styleWithinSecond).toHaveLength(1);
+          expect(styleBeyond).toHaveLength(0);
+
+          const styleFirst: OlStyle = styleWithinFirst[0];
+          const expecFirst = scaleDenomLineCircle.rules[0].symbolizers[0] as LineSymbolizer;
+          const olStroke = styleFirst.getStroke();
+          expect(olStroke).toBeDefined();
+          expect(olStroke.getColor()).toEqual(expecFirst.color);
+          expect(olStroke.getWidth()).toBeCloseTo(expecFirst.width);
+          expect(olStroke.getLineDash()).toEqual(expecFirst.dasharray);
+
+          const styleSecond: OlStyle = styleWithinSecond[0];
+          const expecSecond = scaleDenomLineCircle.rules[1].symbolizers[0] as MarkSymbolizer;
+          const olCircle: OlStyleCircle = styleSecond.getImage() as OlStyleCircle;
+          expect(olCircle).toBeDefined();
+          expect(olCircle.getRadius()).toBeCloseTo(expecSecond.radius);
+          expect(olCircle.getFill().getColor()).toEqual(expecSecond.color);
+        });
+    });
+    it('returns styles of all rules that lie within scaleDenominator', () => {
+      expect.assertions(4);
+      return styleParser.writeStyle(scaleDenomLineCircleOverlap)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const scaleOnlyFirst: number = scaleDenomLineCircleOverlap.rules[0].scaleDenominator.min;
+          const scaleOverlap: number = scaleDenomLineCircleOverlap.rules[1].scaleDenominator.min;
+          const scaleOnlySecond: number = scaleDenomLineCircleOverlap.rules[1].scaleDenominator.max - 1;
+
+          const resolutionOnlyFirst = MapUtil.getResolutionForScale(scaleOnlyFirst, 'm');
+          const resolutionOverlap = MapUtil.getResolutionForScale(scaleOverlap, 'm');
+          const resolutionOnlySecond = MapUtil.getResolutionForScale(scaleOnlySecond, 'm');
+
+          const dummyFeat = new OlFeature();
+          const styleOnlyFirst = olStyle(dummyFeat, resolutionOnlyFirst);
+          const styleOverlap = olStyle(dummyFeat, resolutionOverlap);
+          const styleOnlySecond = olStyle(dummyFeat, resolutionOnlySecond);
+
+          expect(styleOnlyFirst).toHaveLength(1);
+          expect(styleOverlap).toHaveLength(2);
+          expect(styleOnlySecond).toHaveLength(1);
         });
     });
     // it('can write a OpenLayers style with a filter', () => {
