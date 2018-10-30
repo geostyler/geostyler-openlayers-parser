@@ -529,7 +529,7 @@ export class OlStyleParser implements StyleParser {
           // of OlStyles, not ol.StyleFunctions.
           // So we have to check it and in case of an ol.StyleFunction call that function
           // and add the returned style to const styles.
-            if (olSymbolizer instanceof OlStyle) {
+            if (typeof olSymbolizer !== 'function') {
               styles.push(olSymbolizer);
             } else {
               const styleFromFct: OlStyle = olSymbolizer(feature, resolution) as OlStyle;
