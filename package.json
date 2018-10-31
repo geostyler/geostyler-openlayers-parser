@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@babel/polyfill": "7.0.0",
-    "@types/jest": "23.3.8",
+    "@types/jest": "23.3.9",
     "@types/node": "10.12.1",
     "@types/ol": "4.6.2",
     "awesome-typescript-loader": "4.0.1",
