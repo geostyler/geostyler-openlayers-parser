@@ -29,7 +29,7 @@
     "geostyler-style": "0.14.1",
     "jest-preset-typescript": "1.2.0",
     "lodash": "4.17.11",
-    "ol": "4.6.5"
+    "ol": "5.3.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && npm run build:browser",
