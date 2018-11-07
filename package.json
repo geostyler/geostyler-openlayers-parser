@@ -27,7 +27,6 @@
   "dependencies": {
     "@terrestris/ol-util": "0.4.0",
     "geostyler-style": "0.14.1",
-    "jest-preset-typescript": "1.2.0",
     "lodash": "4.17.11",
     "ol": "4.6.5"
   },
@@ -53,6 +52,7 @@
     "canvas-prebuilt": "1.6.11",
     "coveralls": "3.0.2",
     "jest": "23.6.0",
+    "jest-preset-typescript": "1.2.0",
     "np": "3.0.4",
     "ts-jest": "22.4.6",
     "tslint": "5.11.0",
