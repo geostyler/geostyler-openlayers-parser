@@ -7,15 +7,15 @@ const filterNestedFilter: Style = {
       name: 'OL Style Rule 0',
       filter: [
         '&&',
+        ['==', 'state', 'germany'],
         [
-          '!=',
-          'Name',
-          'Bonn'
+          '||',
+          ['>=', 'population', 100000],
+          ['<', 'population', 200000]
         ],
         [
-          '>=',
-          'Population',
-          100000
+          '!',
+          ['==', 'name', 'Schalke']
         ]
       ],
       symbolizers: [{

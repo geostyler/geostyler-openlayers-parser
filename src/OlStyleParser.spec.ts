@@ -1067,8 +1067,9 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olStyle).toBeDefined();
 
           const matchFilterFeat = new OlFeature();
-          matchFilterFeat.set('Name', 'Koblenz');
-          matchFilterFeat.set('Population', 100000);
+          matchFilterFeat.set('state', 'germany');
+          matchFilterFeat.set('population', 100000);
+          matchFilterFeat.set('name', 'Dortmund');
           const matchStyle = olStyle(matchFilterFeat, MapUtil.getResolutionForScale(1, 'm'));
           expect(matchStyle).toBeDefined();
           const matchRadius = matchStyle[0].getImage().getRadius();
@@ -1076,8 +1077,9 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(matchRadius).toBeCloseTo(expecMatchSymbolizer.radius);
 
           const noMatchFilterFeat = new OlFeature();
-          noMatchFilterFeat.set('Name', 'Bonn');
-          noMatchFilterFeat.set('Population', 100000);
+          noMatchFilterFeat.set('state', 'germany');
+          noMatchFilterFeat.set('population', 100000);
+          noMatchFilterFeat.set('name', 'Schalke');
           const noMatchStyle = olStyle(noMatchFilterFeat, MapUtil.getResolutionForScale(1, 'm'));
           expect(noMatchStyle).toBeDefined();
           const noMatchRadius = noMatchStyle[0].getImage().getRadius();

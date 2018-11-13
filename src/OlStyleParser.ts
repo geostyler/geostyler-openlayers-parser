@@ -577,14 +577,24 @@ export class OlStyleParser implements StyleParser {
     if (isNestedFilter) {
       switch (filter[0]) {
         case '&&':
-          matchesFilter =
-            this.geoStylerFilterToOlParserFilter(feature, filter[1])
-            && this.geoStylerFilterToOlParserFilter(feature, filter[2]);
+          let intermediate = true;
+          let restFilter = filter.slice(1);
+          restFilter.forEach((f: Filter) => {
+            if (!this.geoStylerFilterToOlParserFilter(feature, f)) {
+              intermediate = false;
+            }
+          });
+          matchesFilter = intermediate;
           break;
         case '||':
-          matchesFilter =
-          this.geoStylerFilterToOlParserFilter(feature, filter[1])
-          || this.geoStylerFilterToOlParserFilter(feature, filter[2]);
+          intermediate = false;
+          restFilter = filter.slice(1);
+          restFilter.forEach((f: Filter) => {
+            if (this.geoStylerFilterToOlParserFilter(feature, f)) {
+              intermediate = true;
+            }
+          });
+          matchesFilter = intermediate;
           break;
         case '!':
           matchesFilter = !this.geoStylerFilterToOlParserFilter(feature, filter[1]);
