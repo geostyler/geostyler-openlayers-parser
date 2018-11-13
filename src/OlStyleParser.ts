@@ -9,7 +9,9 @@ import {
   TextSymbolizer,
   StyleType,
   PointSymbolizer,
-  IconSymbolizer
+  IconSymbolizer,
+  Filter,
+  Operator
 } from 'geostyler-style';
 
 import OlStyle from 'ol/style/style';
@@ -504,11 +506,10 @@ export class OlStyleParser implements StyleParser {
   geoStylerStyleToOlParserStyleFct(geoStylerStyle: Style): OlParserStyleFct {
     const rules = geoStylerStyle.rules;
     const olStyle: ol.StyleFunction = (feature: ol.Feature, resolution: number): OlStyle[] => {
-      // TODO
-      // Parse Filters here
       const styles: OlStyle[] = [];
       const scale = MapUtil.getScaleForResolution(resolution, 'm');
       rules.forEach((rule: Rule) => {
+        // handling scale denominator
         const minScale = _get(rule, 'scaleDenominator.min');
         const maxScale = _get(rule, 'scaleDenominator.max');
         let isWithinScale = true;
@@ -520,7 +521,16 @@ export class OlStyleParser implements StyleParser {
             isWithinScale = false;
           }
         }
-        if (isWithinScale) {
+
+        // handling filter
+        let matchesFilter: boolean = false;
+        if (!rule.filter) {
+          matchesFilter = true;
+        } else {
+          matchesFilter = this.geoStylerFilterToOlParserFilter(feature, rule.filter);
+        }
+
+        if (isWithinScale && matchesFilter) {
           rule.symbolizers.forEach((symb: Symbolizer) => {
             const olSymbolizer: OlStyle|ol.StyleFunction = this.getOlSymbolizerFromSymbolizer(symb);
 
@@ -543,6 +553,76 @@ export class OlStyleParser implements StyleParser {
     let olStyleFct: OlParserStyleFct = olStyle as OlParserStyleFct;
     olStyleFct.__geoStylerStyle = geoStylerStyle;
     return olStyleFct;
+  }
+
+  /**
+   * Checks if a feature matches given filter expression(s)
+   * @param feature ol.Feature
+   * @param filter Filter
+   * @return boolean true if feature matches filter expression
+   */
+  geoStylerFilterToOlParserFilter(feature: ol.Feature, filter: Filter): boolean {
+    const operatorMapping = {
+      '&&': true,
+      '||': true,
+      '!': true
+    };
+
+    let matchesFilter: boolean = true;
+    const operator: Operator = filter[0];
+    let isNestedFilter: boolean = false;
+    if (operatorMapping[operator]) {
+      isNestedFilter = true;
+    }
+    if (isNestedFilter) {
+      switch (filter[0]) {
+        case '&&':
+          matchesFilter =
+            this.geoStylerFilterToOlParserFilter(feature, filter[1])
+            && this.geoStylerFilterToOlParserFilter(feature, filter[2]);
+          break;
+        case '||':
+          matchesFilter =
+          this.geoStylerFilterToOlParserFilter(feature, filter[1])
+          || this.geoStylerFilterToOlParserFilter(feature, filter[2]);
+          break;
+        case '!':
+          matchesFilter = !this.geoStylerFilterToOlParserFilter(feature, filter[1]);
+          break;
+        default:
+          break;
+      }
+    } else {
+      const prop: any = feature.get(filter[1]);
+      switch (filter[0]) {
+        case '==':
+          matchesFilter = prop === filter[2];
+          break;
+        case '*=':
+          if (typeof filter[2] === 'string') {
+            matchesFilter = prop.includes(filter[2]);
+          }
+          break;
+        case '!=':
+          matchesFilter = prop !== filter[2];
+          break;
+        case '<':
+          matchesFilter = prop < filter[2];
+          break;
+        case '<=':
+          matchesFilter = prop <= filter[2];
+          break;
+        case '>':
+          matchesFilter = prop > filter[2];
+          break;
+        case '>=':
+          matchesFilter = prop >= filter[2];
+          break;
+        default:
+          break;
+      }
+    }
+    return matchesFilter;
   }
 
   /**

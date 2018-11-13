@@ -37,6 +37,7 @@
     "pretest": "npm run lint",
     "prepublishOnly": "npm run build",
     "test": "jest",
+    "test:watch": "jest --watchAll",
     "lint": "tslint --project tsconfig.json --config tslint.json && tsc --noEmit --project tsconfig.build.json",
     "release": "np --no-yarn && git push https://github.com/terrestris/geostyler-openlayers-parser.git master --tags"
   },

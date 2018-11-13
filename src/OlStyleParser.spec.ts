@@ -26,6 +26,8 @@ import point_simpledot from '../data/styles/point_simpledot';
 import point_simpleplus from '../data/styles/point_simpleplus';
 import point_simpletimes from '../data/styles/point_simpletimes';
 import line_simpleline from '../data/styles/line_simpleline';
+import filter_simplefilter from '../data/styles/filter_simpleFilter';
+import filter_nestedfilter from '../data/styles/filter_nestedFilter';
 import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
@@ -1035,19 +1037,54 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(styleOnlySecond).toHaveLength(1);
         });
     });
-    // it('can write a OpenLayers style with a filter', () => {
-    //   expect.assertions(2);
-    //   return styleParser.writeStyle(point_simplepoint_filter)
-    //     .then((sldString: string) => {
-    //       expect(sldString).toBeDefined();
-    //       // As string comparison between to XML-Strings is awkward and nonesens
-    //       // we read it again and compare the json input with the parser output
-    //       return styleParser.readStyle(sldString)
-    //         .then(readStyle => {
-    //           expect(readStyle).toEqual(point_simplepoint_filter);
-    //         });
-    //     });
-    // });
+    it('can write an OpenLayers style with a simple filter', () => {
+      expect.assertions(5);
+      return styleParser.writeStyle(filter_simplefilter)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const bonnFeat = new OlFeature();
+          bonnFeat.set('Name', 'Bonn');
+          const bonnStyle = olStyle(bonnFeat, MapUtil.getResolutionForScale(1, 'm'));
+          expect(bonnStyle).toBeDefined();
+          const bonnRadius = bonnStyle[0].getImage().getRadius();
+          const expecBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[0].symbolizers[0] as MarkSymbolizer;
+          expect(bonnRadius).toBeCloseTo(expecBonnSymbolizer.radius);
+
+          const notBonnFeat = new OlFeature();
+          notBonnFeat.set('Name', 'Koblenz');
+          const notBonnStyle = olStyle(notBonnFeat, MapUtil.getResolutionForScale(1, 'm'));
+          expect(notBonnStyle).toBeDefined();
+          const notBonnRadius = notBonnStyle[0].getImage().getRadius();
+          const expecNotBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[1].symbolizers[0] as MarkSymbolizer;
+          expect(notBonnRadius).toBeCloseTo(expecNotBonnSymbolizer.radius);
+        });
+    });
+    it('can write an OpenLayers style with a nested filter', () => {
+      expect.assertions(5);
+      return styleParser.writeStyle(filter_nestedfilter)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const matchFilterFeat = new OlFeature();
+          matchFilterFeat.set('Name', 'Koblenz');
+          matchFilterFeat.set('Population', 100000);
+          const matchStyle = olStyle(matchFilterFeat, MapUtil.getResolutionForScale(1, 'm'));
+          expect(matchStyle).toBeDefined();
+          const matchRadius = matchStyle[0].getImage().getRadius();
+          const expecMatchSymbolizer: MarkSymbolizer = filter_nestedfilter.rules[0].symbolizers[0] as MarkSymbolizer;
+          expect(matchRadius).toBeCloseTo(expecMatchSymbolizer.radius);
+
+          const noMatchFilterFeat = new OlFeature();
+          noMatchFilterFeat.set('Name', 'Bonn');
+          noMatchFilterFeat.set('Population', 100000);
+          const noMatchStyle = olStyle(noMatchFilterFeat, MapUtil.getResolutionForScale(1, 'm'));
+          expect(noMatchStyle).toBeDefined();
+          const noMatchRadius = noMatchStyle[0].getImage().getRadius();
+          const expecNoMatchSymbolizer: MarkSymbolizer = filter_nestedfilter.rules[1].symbolizers[0] as MarkSymbolizer;
+          expect(noMatchRadius).toBeCloseTo(expecNoMatchSymbolizer.radius);
+        });
+    });
 
     describe('#getOlStyleTypeFromGeoStylerStyle', () => {
       it('is defined', () => {
