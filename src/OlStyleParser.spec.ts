@@ -28,6 +28,7 @@ import point_simpletimes from '../data/styles/point_simpletimes';
 import line_simpleline from '../data/styles/line_simpleline';
 import filter_simplefilter from '../data/styles/filter_simpleFilter';
 import filter_nestedfilter from '../data/styles/filter_nestedFilter';
+import filter_invalidfilter from '../data/styles/filter_invalidFilter';
 import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
@@ -1045,7 +1046,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
           const bonnFeat = new OlFeature();
           bonnFeat.set('Name', 'Bonn');
-          const bonnStyle = olStyle(bonnFeat, MapUtil.getResolutionForScale(1, 'm'));
+          const bonnStyle = olStyle(bonnFeat, 1);
           expect(bonnStyle).toBeDefined();
           const bonnRadius = bonnStyle[0].getImage().getRadius();
           const expecBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[0].symbolizers[0] as MarkSymbolizer;
@@ -1053,7 +1054,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
           const notBonnFeat = new OlFeature();
           notBonnFeat.set('Name', 'Koblenz');
-          const notBonnStyle = olStyle(notBonnFeat, MapUtil.getResolutionForScale(1, 'm'));
+          const notBonnStyle = olStyle(notBonnFeat, 1);
           expect(notBonnStyle).toBeDefined();
           const notBonnRadius = notBonnStyle[0].getImage().getRadius();
           const expecNotBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[1].symbolizers[0] as MarkSymbolizer;
@@ -1061,7 +1062,7 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write an OpenLayers style with a nested filter', () => {
-      expect.assertions(5);
+      expect.assertions(7);
       return styleParser.writeStyle(filter_nestedfilter)
         .then((olStyle: OlParserStyleFct) => {
           expect(olStyle).toBeDefined();
@@ -1070,7 +1071,7 @@ describe('OlStyleParser implements StyleParser', () => {
           matchFilterFeat.set('state', 'germany');
           matchFilterFeat.set('population', 100000);
           matchFilterFeat.set('name', 'Dortmund');
-          const matchStyle = olStyle(matchFilterFeat, MapUtil.getResolutionForScale(1, 'm'));
+          const matchStyle = olStyle(matchFilterFeat, 1);
           expect(matchStyle).toBeDefined();
           const matchRadius = matchStyle[0].getImage().getRadius();
           const expecMatchSymbolizer: MarkSymbolizer = filter_nestedfilter.rules[0].symbolizers[0] as MarkSymbolizer;
@@ -1080,10 +1081,37 @@ describe('OlStyleParser implements StyleParser', () => {
           noMatchFilterFeat.set('state', 'germany');
           noMatchFilterFeat.set('population', 100000);
           noMatchFilterFeat.set('name', 'Schalke');
-          const noMatchStyle = olStyle(noMatchFilterFeat, MapUtil.getResolutionForScale(1, 'm'));
+          const noMatchStyle = olStyle(noMatchFilterFeat, 1);
           expect(noMatchStyle).toBeDefined();
           const noMatchRadius = noMatchStyle[0].getImage().getRadius();
           const expecNoMatchSymbolizer: MarkSymbolizer = filter_nestedfilter.rules[1].symbolizers[0] as MarkSymbolizer;
+          expect(noMatchRadius).toBeCloseTo(expecNoMatchSymbolizer.radius);
+
+          const noMatchFilterFeat2 = new OlFeature();
+          noMatchFilterFeat2.set('state', 'germany');
+          noMatchFilterFeat2.set('population', '100000');
+          noMatchFilterFeat2.set('name', 'Schalke');
+          const noMatchStyle2 = olStyle(noMatchFilterFeat2, 1);
+          expect(noMatchStyle2).toBeDefined();
+          const noMatchRadius2 = noMatchStyle2[0].getImage().getRadius();
+          const expecNoMatch2Symbolizer: MarkSymbolizer = filter_nestedfilter.rules[1].symbolizers[0] as MarkSymbolizer;
+          expect(noMatchRadius2).toBeCloseTo(expecNoMatch2Symbolizer.radius);
+        });
+    });
+    it('does neither match nor crash if filters are invalid', () => {
+      expect.assertions(3);
+      return styleParser.writeStyle(filter_invalidfilter)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const noMatchFilterFeat = new OlFeature();
+          noMatchFilterFeat.set('state', 'germany');
+          noMatchFilterFeat.set('population', 100000);
+          noMatchFilterFeat.set('name', 'Schalke');
+          const noMatchStyle = olStyle(noMatchFilterFeat, 1);
+          expect(noMatchStyle).toBeDefined();
+          const noMatchRadius = noMatchStyle[0].getImage().getRadius();
+          const expecNoMatchSymbolizer: MarkSymbolizer = filter_invalidfilter.rules[1].symbolizers[0] as MarkSymbolizer;
           expect(noMatchRadius).toBeCloseTo(expecNoMatchSymbolizer.radius);
         });
     });

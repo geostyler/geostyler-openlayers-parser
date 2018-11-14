@@ -527,7 +527,11 @@ export class OlStyleParser implements StyleParser {
         if (!rule.filter) {
           matchesFilter = true;
         } else {
-          matchesFilter = this.geoStylerFilterToOlParserFilter(feature, rule.filter);
+          try {
+            matchesFilter = this.geoStylerFilterToOlParserFilter(feature, rule.filter);
+          } catch (e) {
+            matchesFilter = false;
+          }
         }
 
         if (isWithinScale && matchesFilter) {
@@ -574,69 +578,81 @@ export class OlStyleParser implements StyleParser {
     if (operatorMapping[operator]) {
       isNestedFilter = true;
     }
-    if (isNestedFilter) {
-      switch (filter[0]) {
-        case '&&':
-          let intermediate = true;
-          let restFilter = filter.slice(1);
-          restFilter.forEach((f: Filter) => {
-            if (!this.geoStylerFilterToOlParserFilter(feature, f)) {
-              intermediate = false;
+    try {
+      if (isNestedFilter) {
+        switch (filter[0]) {
+          case '&&':
+            let intermediate = true;
+            let restFilter = filter.slice(1);
+            restFilter.forEach((f: Filter) => {
+              if (!this.geoStylerFilterToOlParserFilter(feature, f)) {
+                intermediate = false;
+              }
+            });
+            matchesFilter = intermediate;
+            break;
+          case '||':
+            intermediate = false;
+            restFilter = filter.slice(1);
+            restFilter.forEach((f: Filter) => {
+              if (this.geoStylerFilterToOlParserFilter(feature, f)) {
+                intermediate = true;
+              }
+            });
+            matchesFilter = intermediate;
+            break;
+          case '!':
+            matchesFilter = !this.geoStylerFilterToOlParserFilter(feature, filter[1]);
+            break;
+          default:
+            throw new Error(`Cannot parse Filter. Unknown combination or negation operator.`);
+        }
+      } else {
+        const prop: any = feature.get(filter[1]);
+        switch (filter[0]) {
+          case '==':
+            matchesFilter = prop === filter[2];
+            break;
+          case '*=':
+            // inspired by
+            // https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/String/includes#Polyfill
+            if (typeof filter[2] === 'string' && typeof prop === 'string') {
+              if (filter[2].length > prop.length) {
+                matchesFilter = false;
+              } else {
+                matchesFilter = prop.indexOf(filter[2]) !== -1;
+              }
             }
-          });
-          matchesFilter = intermediate;
-          break;
-        case '||':
-          intermediate = false;
-          restFilter = filter.slice(1);
-          restFilter.forEach((f: Filter) => {
-            if (this.geoStylerFilterToOlParserFilter(feature, f)) {
-              intermediate = true;
+            break;
+          case '!=':
+            matchesFilter = prop !== filter[2];
+            break;
+          case '<':
+            if (typeof prop === typeof filter[2]) {
+              matchesFilter = prop < filter[2];
             }
-          });
-          matchesFilter = intermediate;
-          break;
-        case '!':
-          matchesFilter = !this.geoStylerFilterToOlParserFilter(feature, filter[1]);
-          break;
-        default:
-          break;
+            break;
+          case '<=':
+            if (typeof prop === typeof filter[2]) {
+              matchesFilter = prop <= filter[2];
+            }
+            break;
+          case '>':
+            if (typeof prop === typeof filter[2]) {
+              matchesFilter = prop > filter[2];
+            }
+            break;
+          case '>=':
+            if (typeof prop === typeof filter[2]) {
+              matchesFilter = prop >= filter[2];
+            }
+            break;
+          default:
+            throw new Error(`Cannot parse Filter. Unknown comparison operator.`);
+        }
       }
-    } else {
-      const prop: any = feature.get(filter[1]);
-      switch (filter[0]) {
-        case '==':
-          matchesFilter = prop === filter[2];
-          break;
-        case '*=':
-          // inspired by
-          // https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/String/includes#Polyfill
-          if (typeof filter[2] === 'string' && typeof prop === 'string') {
-            if (filter[2].length > prop.length) {
-              matchesFilter = false;
-            } else {
-              matchesFilter = prop.indexOf(filter[2]) !== -1;
-            }
-          }
-          break;
-        case '!=':
-          matchesFilter = prop !== filter[2];
-          break;
-        case '<':
-          matchesFilter = prop < filter[2];
-          break;
-        case '<=':
-          matchesFilter = prop <= filter[2];
-          break;
-        case '>':
-          matchesFilter = prop > filter[2];
-          break;
-        case '>=':
-          matchesFilter = prop >= filter[2];
-          break;
-        default:
-          break;
-      }
+    } catch (e) {
+      throw new Error(`Cannot parse Filter. Invalid structure.`);
     }
     return matchesFilter;
   }
