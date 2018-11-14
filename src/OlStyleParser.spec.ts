@@ -1112,6 +1112,12 @@ describe('OlStyleParser implements StyleParser', () => {
       });
     });
 
+    describe('#geoStylerFilterToOlParserFilter', () => {
+      it('is defined', () => {
+        expect(styleParser.geoStylerFilterToOlParserFilter).toBeDefined();
+      });
+    });
+
     describe('#getOlSymbolizerFromSymbolizer', () => {
       it('is defined', () => {
         expect(styleParser.getOlSymbolizerFromSymbolizer).toBeDefined();

@@ -609,8 +609,14 @@ export class OlStyleParser implements StyleParser {
           matchesFilter = prop === filter[2];
           break;
         case '*=':
-          if (typeof filter[2] === 'string') {
-            matchesFilter = prop.includes(filter[2]);
+          // inspired by
+          // https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/String/includes#Polyfill
+          if (typeof filter[2] === 'string' && typeof prop === 'string') {
+            if (filter[2].length > prop.length) {
+              matchesFilter = false;
+            } else {
+              matchesFilter = prop.indexOf(filter[2]) !== -1;
+            }
           }
           break;
         case '!=':
