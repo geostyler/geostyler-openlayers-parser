@@ -26,6 +26,9 @@ import point_simpledot from '../data/styles/point_simpledot';
 import point_simpleplus from '../data/styles/point_simpleplus';
 import point_simpletimes from '../data/styles/point_simpletimes';
 import line_simpleline from '../data/styles/line_simpleline';
+import filter_simplefilter from '../data/styles/filter_simpleFilter';
+import filter_nestedfilter from '../data/styles/filter_nestedFilter';
+import filter_invalidfilter from '../data/styles/filter_invalidFilter';
 import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
@@ -1035,19 +1038,83 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(styleOnlySecond).toHaveLength(1);
         });
     });
-    // it('can write a OpenLayers style with a filter', () => {
-    //   expect.assertions(2);
-    //   return styleParser.writeStyle(point_simplepoint_filter)
-    //     .then((sldString: string) => {
-    //       expect(sldString).toBeDefined();
-    //       // As string comparison between to XML-Strings is awkward and nonesens
-    //       // we read it again and compare the json input with the parser output
-    //       return styleParser.readStyle(sldString)
-    //         .then(readStyle => {
-    //           expect(readStyle).toEqual(point_simplepoint_filter);
-    //         });
-    //     });
-    // });
+    it('can write an OpenLayers style with a simple filter', () => {
+      expect.assertions(5);
+      return styleParser.writeStyle(filter_simplefilter)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const bonnFeat = new OlFeature();
+          bonnFeat.set('Name', 'Bonn');
+          const bonnStyle = olStyle(bonnFeat, 1);
+          expect(bonnStyle).toBeDefined();
+          const bonnRadius = bonnStyle[0].getImage().getRadius();
+          const expecBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[0].symbolizers[0] as MarkSymbolizer;
+          expect(bonnRadius).toBeCloseTo(expecBonnSymbolizer.radius);
+
+          const notBonnFeat = new OlFeature();
+          notBonnFeat.set('Name', 'Koblenz');
+          const notBonnStyle = olStyle(notBonnFeat, 1);
+          expect(notBonnStyle).toBeDefined();
+          const notBonnRadius = notBonnStyle[0].getImage().getRadius();
+          const expecNotBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[1].symbolizers[0] as MarkSymbolizer;
+          expect(notBonnRadius).toBeCloseTo(expecNotBonnSymbolizer.radius);
+        });
+    });
+    it('can write an OpenLayers style with a nested filter', () => {
+      expect.assertions(7);
+      return styleParser.writeStyle(filter_nestedfilter)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const matchFilterFeat = new OlFeature();
+          matchFilterFeat.set('state', 'germany');
+          matchFilterFeat.set('population', 100000);
+          matchFilterFeat.set('name', 'Dortmund');
+          const matchStyle = olStyle(matchFilterFeat, 1);
+          expect(matchStyle).toBeDefined();
+          const matchRadius = matchStyle[0].getImage().getRadius();
+          const expecMatchSymbolizer: MarkSymbolizer = filter_nestedfilter.rules[0].symbolizers[0] as MarkSymbolizer;
+          expect(matchRadius).toBeCloseTo(expecMatchSymbolizer.radius);
+
+          const noMatchFilterFeat = new OlFeature();
+          noMatchFilterFeat.set('state', 'germany');
+          noMatchFilterFeat.set('population', 100000);
+          noMatchFilterFeat.set('name', 'Schalke');
+          const noMatchStyle = olStyle(noMatchFilterFeat, 1);
+          expect(noMatchStyle).toBeDefined();
+          const noMatchRadius = noMatchStyle[0].getImage().getRadius();
+          const expecNoMatchSymbolizer: MarkSymbolizer = filter_nestedfilter.rules[1].symbolizers[0] as MarkSymbolizer;
+          expect(noMatchRadius).toBeCloseTo(expecNoMatchSymbolizer.radius);
+
+          const noMatchFilterFeat2 = new OlFeature();
+          noMatchFilterFeat2.set('state', 'germany');
+          noMatchFilterFeat2.set('population', '100000');
+          noMatchFilterFeat2.set('name', 'Schalke');
+          const noMatchStyle2 = olStyle(noMatchFilterFeat2, 1);
+          expect(noMatchStyle2).toBeDefined();
+          const noMatchRadius2 = noMatchStyle2[0].getImage().getRadius();
+          const expecNoMatch2Symbolizer: MarkSymbolizer = filter_nestedfilter.rules[1].symbolizers[0] as MarkSymbolizer;
+          expect(noMatchRadius2).toBeCloseTo(expecNoMatch2Symbolizer.radius);
+        });
+    });
+    it('does neither match nor crash if filters are invalid', () => {
+      expect.assertions(3);
+      return styleParser.writeStyle(filter_invalidfilter)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const noMatchFilterFeat = new OlFeature();
+          noMatchFilterFeat.set('state', 'germany');
+          noMatchFilterFeat.set('population', 100000);
+          noMatchFilterFeat.set('name', 'Schalke');
+          const noMatchStyle = olStyle(noMatchFilterFeat, 1);
+          expect(noMatchStyle).toBeDefined();
+          const noMatchRadius = noMatchStyle[0].getImage().getRadius();
+          const expecNoMatchSymbolizer: MarkSymbolizer = filter_invalidfilter.rules[1].symbolizers[0] as MarkSymbolizer;
+          expect(noMatchRadius).toBeCloseTo(expecNoMatchSymbolizer.radius);
+        });
+    });
 
     describe('#getOlStyleTypeFromGeoStylerStyle', () => {
       it('is defined', () => {
@@ -1070,6 +1137,12 @@ describe('OlStyleParser implements StyleParser', () => {
     describe('#geoStylerStyleToOlParserStyleFct', () => {
       it('is defined', () => {
         expect(styleParser.geoStylerStyleToOlParserStyleFct).toBeDefined();
+      });
+    });
+
+    describe('#geoStylerFilterToOlParserFilter', () => {
+      it('is defined', () => {
+        expect(styleParser.geoStylerFilterToOlParserFilter).toBeDefined();
       });
     });
 
