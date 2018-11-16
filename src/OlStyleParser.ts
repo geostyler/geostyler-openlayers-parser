@@ -78,7 +78,7 @@ export class OlStyleParser implements StyleParser {
    */
   getPointSymbolizerFromOlStyle(olStyle: OlStyle): PointSymbolizer {
     let pointSymbolizer: PointSymbolizer;
-    if (olStyle.getImage() instanceof OlStyleCircle) {
+    if (olStyle.getImage() instanceof this.OlStyleCircleConstructor) {
       // circle
       const olCircleStyle = olStyle.getImage() as OlStyleCircle;
       const olFillStyle = olCircleStyle.getFill();
@@ -94,7 +94,7 @@ export class OlStyleParser implements StyleParser {
         strokeWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined
       };
       pointSymbolizer = circleSymbolizer;
-    } else if (olStyle.getImage() instanceof OlStyleRegularshape) {
+    } else if (olStyle.getImage() instanceof this.OlStyleRegularshapeConstructor) {
       // square, triangle, star, cross or x
       const olRegularStyle = olStyle.getImage() as OlStyleRegularshape;
       const olFillStyle = olRegularStyle.getFill();
@@ -128,7 +128,7 @@ export class OlStyleParser implements StyleParser {
             case Math.PI / 4:
               markSymbolizer.wellKnownName = 'shape://slash';
               break;
-            case 2 * Math.PI - (Math.PI / 4): 
+            case 2 * Math.PI - (Math.PI / 4):
               markSymbolizer.wellKnownName = 'shape://backslash';
               break;
             default:
@@ -345,11 +345,11 @@ export class OlStyleParser implements StyleParser {
   getStyleTypeFromOlStyle(olStyle: OlStyle): StyleType {
     let styleType: StyleType;
 
-    if (olStyle.getImage() instanceof OlStyleImage) {
+    if (olStyle.getImage() instanceof this.OlStyleImageConstructor) {
       styleType = 'Point';
-    } else if (olStyle.getText() instanceof OlStyleText) {
+    } else if (olStyle.getText() instanceof this.OlStyleTextConstructor) {
       styleType = 'Point';
-    } else if (olStyle.getFill() instanceof OlStyleFill) {
+    } else if (olStyle.getFill() instanceof this.OlStyleFillConstructor) {
       styleType = 'Fill';
     } else if (olStyle.getStroke() && !olStyle.getFill()) {
       styleType = 'Line';
@@ -604,8 +604,8 @@ export class OlStyleParser implements StyleParser {
     let stroke;
     if (markSymbolizer.strokeColor || markSymbolizer.strokeWidth !== undefined) {
       stroke = new this.OlStyleStrokeConstructor({
-        color: (markSymbolizer.strokeColor && (markSymbolizer.strokeOpacity !== undefined)) ? 
-        OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) : 
+        color: (markSymbolizer.strokeColor && (markSymbolizer.strokeOpacity !== undefined)) ?
+        OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) :
         markSymbolizer.strokeColor,
         width: markSymbolizer.strokeWidth,
       });
@@ -624,7 +624,7 @@ export class OlStyleParser implements StyleParser {
       rotation: markSymbolizer.rotate ? markSymbolizer.rotate * Math.PI / 180 : undefined,
       stroke: stroke
     };
-    
+
     switch (markSymbolizer.wellKnownName) {
       case 'shape://dot':
       case 'Circle':
@@ -699,7 +699,7 @@ export class OlStyleParser implements StyleParser {
         olStyle = new this.OlStyleConstructor({
           image: new this.OlStyleRegularshapeConstructor(shapeOpts)
         });
-        break; 
+        break;
       case 'shape://horline':
         shapeOpts.points = 2;
         shapeOpts.angle = Math.PI / 2;
