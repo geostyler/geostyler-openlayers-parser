@@ -25,14 +25,17 @@
   },
   "homepage": "https://github.com/terrestris/geostyler-openlayers-parser#readme",
   "dependencies": {
-    "@terrestris/ol-util": "0.4.0",
     "geostyler-style": "0.14.2",
-    "lodash": "4.17.11",
+    "lodash": "4.17.11"
+  },
+  "peerDependencies": {
+    "@terrestris/ol-util": "0.4.0",
     "ol": "4.6.5"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && npm run build:browser",
     "build:browser": "webpack --config browser-build.config.js",
+    "start:dev": "webpack --config dev-build.config.js --watch",
     "prebuild": "npm run test",
     "pretest": "npm run lint",
     "prepublishOnly": "npm run build",
