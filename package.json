@@ -58,7 +58,7 @@
     "jest": "23.6.0",
     "jest-preset-typescript": "1.2.0",
     "np": "3.0.4",
-    "ts-jest": "22.4.6",
+    "ts-jest": "23.10.5",
     "tslint": "5.11.0",
     "typescript": "3.1.2",
     "uglifyjs-webpack-plugin": "1.1.2",
