@@ -25,11 +25,11 @@
   },
   "homepage": "https://github.com/terrestris/geostyler-openlayers-parser#readme",
   "dependencies": {
+    "@terrestris/ol-util": "0.5.0",
     "geostyler-style": "0.14.2",
     "lodash": "4.17.11"
   },
   "peerDependencies": {
-    "@terrestris/ol-util": "0.5.0",
     "ol": "4.6.5"
   },
   "scripts": {
