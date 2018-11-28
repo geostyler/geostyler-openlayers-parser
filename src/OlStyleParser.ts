@@ -611,7 +611,7 @@ export class OlStyleParser implements StyleParser {
         const prop: any = feature.get(filter[1]);
         switch (filter[0]) {
           case '==':
-            matchesFilter = prop === filter[2];
+            matchesFilter = ('' + prop) === ('' + filter[2]);
             break;
           case '*=':
             // inspired by
@@ -625,27 +625,19 @@ export class OlStyleParser implements StyleParser {
             }
             break;
           case '!=':
-            matchesFilter = prop !== filter[2];
+            matchesFilter = ('' + prop) !== ('' + filter[2]);
             break;
           case '<':
-            if (typeof prop === typeof filter[2]) {
-              matchesFilter = prop < filter[2];
-            }
+            matchesFilter = parseFloat(prop) < parseFloat(filter[2]);
             break;
           case '<=':
-            if (typeof prop === typeof filter[2]) {
-              matchesFilter = prop <= filter[2];
-            }
+            matchesFilter = parseFloat(prop) <= parseFloat(filter[2]);
             break;
           case '>':
-            if (typeof prop === typeof filter[2]) {
-              matchesFilter = prop > filter[2];
-            }
+            matchesFilter = parseFloat(prop) > parseFloat(filter[2]);
             break;
           case '>=':
-            if (typeof prop === typeof filter[2]) {
-              matchesFilter = prop >= filter[2];
-            }
+            matchesFilter = parseFloat(prop) >= parseFloat(filter[2]);
             break;
           default:
             throw new Error(`Cannot parse Filter. Unknown comparison operator.`);
