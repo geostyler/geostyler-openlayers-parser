@@ -48,7 +48,7 @@
     "@babel/polyfill": "7.0.0",
     "@terrestris/ol-util": "0.5.0",
     "@types/jest": "23.3.9",
-    "@types/node": "10.12.10",
+    "@types/node": "10.12.11",
     "@types/ol": "4.6.2",
     "awesome-typescript-loader": "4.0.1",
     "babel-core": "6.26.3",
