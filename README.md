@@ -5,3 +5,61 @@
 [![Coverage Status](https://coveralls.io/repos/github/terrestris/geostyler-openlayers-parser/badge.svg?branch=master)](https://coveralls.io/github/terrestris/geostyler-openlayers-parser?branch=master)
 
 [GeoStyler Style](https://github.com/terrestris/geostyler) Parser implementation for OpenLayers styles
+
+### Issues
+Please provide related issues here https://github.com/terrestris/geostyler/issues
+
+### How to use
+
+ES6:
+```js
+import OpenLayersParser from "geostyler-openlayers-parser";
+import OlLayerVector from "ol/layer/vector";
+
+const pointSimplePoint = {
+  name: "OL Style",
+  rules: [
+    {
+      name: "OL Style Rule 0",
+      symbolizers: [
+        {
+          kind: "Mark",
+          wellKnownName: "Circle",
+          color: "#FF0000",
+          radius: 6
+        }
+      ]
+    }
+  ]
+};
+
+const parser = new OpenLayersParser();
+const layer = new OlLayerVector();
+
+parser
+  .writeStyle(pointSimplePoint)
+  .then(olStyle => layer.setStyle(olStyle))
+  .catch(error => console.log(error));
+```
+
+Browser:
+
+```js
+var pointSimplePoint = {
+  name: "OL Style", rules: [{
+    name: "OL Style Rule 0",
+    symbolizers: [{
+      kind: "Mark",
+      wellKnownName: "Circle",
+      color: "#FF0000",
+      radius: 6
+    }]
+  }]
+};
+var vectorLayer = new ol.layer.Vector();
+var parser = new GeoStylerOpenlayersParser.OlStyleParser(ol);
+parser.writeStyle(geostyle)
+.then(function(style) {
+ vectorLayer.setStyle(style);
+});
+```
