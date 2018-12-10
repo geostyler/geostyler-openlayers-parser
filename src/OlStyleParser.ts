@@ -417,6 +417,7 @@ export class OlStyleParser implements StyleParser {
    * @return {Promise} The Promise resolving with one of above mentioned style types.
    */
   writeStyle(geoStylerStyle: Style): Promise<(OlStyle|OlStyle[]|OlParserStyleFct)> {
+    console.log('writing')
     return new Promise<any>((resolve, reject) => {
       try {
 
@@ -892,7 +893,7 @@ export class OlStyleParser implements StyleParser {
   getOlLineSymbolizerFromLineSymbolizer(symbolizer: LineSymbolizer) {
     return new this.OlStyleConstructor({
       stroke: new this.OlStyleStrokeConstructor({
-        color: (symbolizer.color && symbolizer.opacity) ?
+        color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
           OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color,
         width: symbolizer.width,
         lineCap: symbolizer.cap,
@@ -916,7 +917,7 @@ export class OlStyleParser implements StyleParser {
         width: symbolizer.outlineWidth
       }),
       fill: new this.OlStyleFillConstructor({
-        color: (symbolizer.color && symbolizer.opacity) ?
+        color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
           OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
       })
     });
@@ -932,11 +933,11 @@ export class OlStyleParser implements StyleParser {
     const baseProps = {
       font: OlStyleUtil.getTextFont(symbolizer),
       fill: new this.OlStyleFillConstructor({
-        color: (symbolizer.color && symbolizer.opacity) ?
+        color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
           OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
       }),
       stroke: new this.OlStyleStrokeConstructor({
-        color: (symbolizer.haloColor && symbolizer.opacity) ?
+        color: (symbolizer.haloColor && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
           OlStyleUtil.getRgbaColor(symbolizer.haloColor, symbolizer.opacity) : symbolizer.haloColor,
         width: symbolizer.haloWidth ? symbolizer.haloWidth : 0
       }),
