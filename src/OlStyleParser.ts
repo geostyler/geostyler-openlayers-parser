@@ -417,7 +417,6 @@ export class OlStyleParser implements StyleParser {
    * @return {Promise} The Promise resolving with one of above mentioned style types.
    */
   writeStyle(geoStylerStyle: Style): Promise<(OlStyle|OlStyle[]|OlParserStyleFct)> {
-    console.log('writing')
     return new Promise<any>((resolve, reject) => {
       try {
 
