@@ -14,14 +14,14 @@ import {
   Operator
 } from 'geostyler-style';
 
-import OlStyle from 'ol/style/style';
-import OlStyleImage from 'ol/style/image';
-import OlStyleFill from 'ol/style/fill';
-import OlStyleStroke from 'ol/style/stroke';
-import OlStyleText from 'ol/style/text';
-import OlStyleCircle from 'ol/style/circle';
-import OlStyleIcon from 'ol/style/icon';
-import OlStyleRegularshape from 'ol/style/regularshape';
+import OlStyle from 'ol/style/Style';
+import OlStyleImage from 'ol/style/Image';
+import OlStyleFill from 'ol/style/Fill';
+import OlStyleStroke from 'ol/style/Stroke';
+import OlStyleText from 'ol/style/Text';
+import OlStyleCircle from 'ol/style/Circle';
+import OlStyleIcon from 'ol/style/Icon';
+import OlStyleRegularshape from 'ol/style/RegularShape';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';

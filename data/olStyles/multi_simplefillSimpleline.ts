@@ -1,6 +1,6 @@
-import OlStyle from 'ol/style/style';
-import OlStyleStroke from 'ol/style/stroke';
-import OlStyleFill from 'ol/style/fill';
+import OlStyle from 'ol/style/Style';
+import OlStyleStroke from 'ol/style/Stroke';
+import OlStyleFill from 'ol/style/Fill';
 
 const olSimpleFill = new OlStyle({
   fill: new OlStyleFill({

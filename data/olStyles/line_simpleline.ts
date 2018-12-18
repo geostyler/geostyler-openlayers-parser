@@ -1,5 +1,5 @@
-import OlStyle from 'ol/style/style';
-import OlStyleStroke from 'ol/style/stroke';
+import OlStyle from 'ol/style/Style';
+import OlStyleStroke from 'ol/style/Stroke';
 
 const olSimpleLine = new OlStyle({
   stroke: new OlStyleStroke({

@@ -1,7 +1,7 @@
-import OlStyleText from 'ol/style/text';
-import OlStyleStroke from 'ol/style/stroke';
-import OlStyleFill from 'ol/style/fill';
-import OlStyle from 'ol/style/style';
+import OlStyleText from 'ol/style/Text';
+import OlStyleStroke from 'ol/style/Stroke';
+import OlStyleFill from 'ol/style/Fill';
+import OlStyle from 'ol/style/Style';
 
 const olPointStyledLabel = new OlStyle({
   text: new OlStyleText({

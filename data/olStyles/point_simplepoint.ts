@@ -1,6 +1,6 @@
-import OlStyle from 'ol/style/style';
-import OlStyleCircle from 'ol/style/circle';
-import OlStyleFill from 'ol/style/fill';
+import OlStyle from 'ol/style/Style';
+import OlStyleCircle from 'ol/style/Circle';
+import OlStyleFill from 'ol/style/Fill';
 
 const olSimplePoint = new OlStyle({
   image: new OlStyleCircle({

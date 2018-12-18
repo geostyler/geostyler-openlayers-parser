@@ -1,10 +1,10 @@
-import OlStyle from 'ol/style/style';
-import OlStyleText from 'ol/style/text';
-import OlStyleFill from 'ol/style/fill';
-import OlStyleCircle from 'ol/style/circle';
-import OlStyleIcon from 'ol/style/icon';
-import OlStyleRegularshape from 'ol/style/regularshape';
-import OlFeature from 'ol/feature';
+import OlStyle from 'ol/style/Style';
+import OlStyleText from 'ol/style/Text';
+import OlStyleFill from 'ol/style/Fill';
+import OlStyleCircle from 'ol/style/Circle';
+import OlStyleIcon from 'ol/style/Icon';
+import OlStyleRegularshape from 'ol/style/RegularShape';
+import OlFeature from 'ol/Feature';
 import ol from 'ol';
 
 import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
@@ -919,7 +919,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
           const expecSymb1 = multi_twoRulesSimplepoint.rules[0].symbolizers[0] as MarkSymbolizer;
           const expecSymb2 = multi_twoRulesSimplepoint.rules[1].symbolizers[0] as MarkSymbolizer;
-          
+
           const olCircle1 = styles[0].getImage() as OlStyleCircle;
           expect(olCircle1).toBeDefined();
           expect(olCircle1.getRadius()).toBeCloseTo(expecSymb1.radius);
