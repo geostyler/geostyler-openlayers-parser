@@ -30,7 +30,7 @@
     "lodash": "4.17.11"
   },
   "peerDependencies": {
-    "ol": "4.6.5"
+    "ol": "~5.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && npm run build:browser",
@@ -59,7 +59,7 @@
     "jest": "23.6.0",
     "jest-preset-typescript": "1.2.0",
     "np": "3.1.0",
-    "ol": "4.6.5",
+    "ol": "5.3.0",
     "ts-jest": "22.4.6",
     "tslint": "5.11.0",
     "typescript": "3.1.2",
