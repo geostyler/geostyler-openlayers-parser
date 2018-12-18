@@ -28,7 +28,7 @@ import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
 import { isNumber } from 'util';
 const _get = require('lodash/get');
 
-export type OlParserStyleFct = ol.StyleFunction & {
+export type OlParserStyleFct = Function & {
   __geoStylerStyle: Style
 };
 
@@ -78,11 +78,11 @@ export class OlStyleParser implements StyleParser {
    * @param {object} olStyle The OpenLayers Style object
    * @return {PointSymbolizer} The GeoStyler-Style PointSymbolizer
    */
-  getPointSymbolizerFromOlStyle(olStyle: OlStyle): PointSymbolizer {
+  getPointSymbolizerFromOlStyle(olStyle: any): PointSymbolizer {
     let pointSymbolizer: PointSymbolizer;
     if (olStyle.getImage() instanceof this.OlStyleCircleConstructor) {
       // circle
-      const olCircleStyle = olStyle.getImage() as OlStyleCircle;
+      const olCircleStyle = olStyle.getImage();
       const olFillStyle = olCircleStyle.getFill();
       const olStrokeStyle = olCircleStyle.getStroke();
       const circleSymbolizer: MarkSymbolizer = {
@@ -98,7 +98,7 @@ export class OlStyleParser implements StyleParser {
       pointSymbolizer = circleSymbolizer;
     } else if (olStyle.getImage() instanceof this.OlStyleRegularshapeConstructor) {
       // square, triangle, star, cross or x
-      const olRegularStyle = olStyle.getImage() as OlStyleRegularshape;
+      const olRegularStyle = olStyle.getImage();
       const olFillStyle = olRegularStyle.getFill();
       const olStrokeStyle = olRegularStyle.getStroke();
       const radius = olRegularStyle.getRadius();
@@ -174,7 +174,7 @@ export class OlStyleParser implements StyleParser {
       pointSymbolizer = markSymbolizer;
     } else {
       // icon
-      const olIconStyle: OlStyleIcon = olStyle.getImage() as OlStyleIcon;
+      const olIconStyle: any = olStyle.getImage();
       let iconSymbolizer: IconSymbolizer = {
         kind: 'Icon',
         image: olIconStyle.getSrc() ? olIconStyle.getSrc() : undefined,
@@ -194,8 +194,8 @@ export class OlStyleParser implements StyleParser {
    * @param {object} olStyle The OpenLayers Style object
    * @return {LineSymbolizer} The GeoStyler-Style LineSymbolizer
    */
-  getLineSymbolizerFromOlStyle(olStyle: OlStyle): LineSymbolizer {
-    const olStrokeStyle = olStyle.getStroke() as OlStyleStroke;
+  getLineSymbolizerFromOlStyle(olStyle: any): LineSymbolizer {
+    const olStrokeStyle = olStyle.getStroke();
 
     return {
       kind: 'Line',
@@ -217,9 +217,9 @@ export class OlStyleParser implements StyleParser {
    * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {FillSymbolizer} The GeoStyler-Style FillSymbolizer
    */
-  getFillSymbolizerFromOlStyle(olStyle: OlStyle): FillSymbolizer {
-    const olFillStyle = olStyle.getFill() as OlStyleFill;
-    const olStrokeStyle = olStyle.getStroke() as OlStyleStroke;
+  getFillSymbolizerFromOlStyle(olStyle: any): FillSymbolizer {
+    const olFillStyle = olStyle.getFill();
+    const olStrokeStyle = olStyle.getStroke();
 
     return {
       kind: 'Fill',
@@ -237,10 +237,10 @@ export class OlStyleParser implements StyleParser {
    * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {TextSymbolizer} The GeoStyler-Style TextSymbolizer
    */
-  getTextSymbolizerFromOlStyle(olStyle: OlStyle): TextSymbolizer {
-    const olTextStyle = olStyle.getText() as OlStyleText;
-    const olFillStyle = olTextStyle.getFill() as OlStyleFill;
-    const olStrokeStyle = olTextStyle.getStroke() as OlStyleStroke;
+  getTextSymbolizerFromOlStyle(olStyle: any): TextSymbolizer {
+    const olTextStyle = olStyle.getText();
+    const olFillStyle = olTextStyle.getFill();
+    const olStrokeStyle = olTextStyle.getStroke();
     const offsetX = olTextStyle.getOffsetX();
     const offsetY = olTextStyle.getOffsetY();
     const font = olTextStyle.getFont();
@@ -286,9 +286,9 @@ export class OlStyleParser implements StyleParser {
    * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {Symbolizer[]} The GeoStyler-Style Symbolizer array
    */
-  getSymbolizersFromOlStyle(olStyles: OlStyle[]): Symbolizer[] {
+  getSymbolizersFromOlStyle(olStyles: any[]): Symbolizer[] {
     const symbolizers: Symbolizer[] = [];
-    olStyles.forEach((olStyle: OlStyle) => {
+    olStyles.forEach((olStyle: any) => {
       let symbolizer: Symbolizer;
       const styleType: StyleType = this.getStyleTypeFromOlStyle(olStyle);
       switch (styleType) {
@@ -320,7 +320,7 @@ export class OlStyleParser implements StyleParser {
    * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {Rule} The GeoStyler-Style Rule
    */
-  getRuleFromOlStyle(olStyles: OlStyle|OlStyle[]): Rule {
+  getRuleFromOlStyle(olStyles: any): Rule {
     let rule: Rule;
     let symbolizers: Symbolizer[];
     const name = 'OL Style Rule 0';
@@ -344,7 +344,7 @@ export class OlStyleParser implements StyleParser {
    * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {Symbolizer} The GeoStyler-Style Symbolizer
    */
-  getStyleTypeFromOlStyle(olStyle: OlStyle): StyleType {
+  getStyleTypeFromOlStyle(olStyle: any): StyleType {
     let styleType: StyleType;
 
     if (olStyle.getImage() instanceof this.OlStyleImageConstructor) {
@@ -368,7 +368,7 @@ export class OlStyleParser implements StyleParser {
    * @param {object} olStyle The OpenLayers Style object
    * @return {Style} The GeoStyler-Style Style
    */
-  olStyleToGeoStylerStyle(olStyle: OlStyle|OlStyle[]): Style {
+  olStyleToGeoStylerStyle(olStyle: any): Style {
     const name = 'OL Style';
     const rule = this.getRuleFromOlStyle(olStyle);
     return {
@@ -386,7 +386,7 @@ export class OlStyleParser implements StyleParser {
    * @param {OlStyle|OlStyle[]|OlParserStyleFct} olStyle The style to be parsed
    * @return {Promise} The Promise resolving with the GeoStyler-Style Style
    */
-  readStyle(olStyle: OlStyle|OlStyle[]|OlParserStyleFct): Promise<Style> {
+  readStyle(olStyle: any): Promise<Style> {
     return new Promise<Style>((resolve, reject) => {
       try {
         if (this.isOlParserStyleFct(olStyle)) {
@@ -416,11 +416,11 @@ export class OlStyleParser implements StyleParser {
    * @param {Style} geoStylerStyle A GeoStyler-Style Style.
    * @return {Promise} The Promise resolving with one of above mentioned style types.
    */
-  writeStyle(geoStylerStyle: Style): Promise<(OlStyle|OlStyle[]|OlParserStyleFct)> {
+  writeStyle(geoStylerStyle: Style): Promise<(any)> {
     return new Promise<any>((resolve, reject) => {
       try {
 
-        const olStyle: (OlStyle|OlStyle[]|OlParserStyleFct) = this.getOlStyleTypeFromGeoStylerStyle(geoStylerStyle);
+        const olStyle: any = this.getOlStyleTypeFromGeoStylerStyle(geoStylerStyle);
         resolve(olStyle);
 
       } catch (error) {
@@ -442,7 +442,7 @@ export class OlStyleParser implements StyleParser {
    * @param {geoStylerStyle} A GeoStyler-Style Style
    * @return {OlStyle|OlStyle[]|OlParserStyleFct}
    */
-  getOlStyleTypeFromGeoStylerStyle(geoStylerStyle: Style): OlStyle|OlStyle[]|OlParserStyleFct {
+  getOlStyleTypeFromGeoStylerStyle(geoStylerStyle: Style): any {
     const rules = geoStylerStyle.rules;
     const nrRules = rules.length;
     if (nrRules === 1) {
@@ -474,10 +474,10 @@ export class OlStyleParser implements StyleParser {
    * @param {geoStylerStyle} A GeoStyler-Style Style
    * @return {OlStyle} An OpenLayers Style Object
    */
-  geoStylerStyleToOlStyle(geoStylerStyle: Style): OlStyle {
+  geoStylerStyleToOlStyle(geoStylerStyle: Style): any {
     const rule = geoStylerStyle.rules[0];
     const symbolizer = rule.symbolizers[0];
-    const olSymbolizer: OlStyle = this.getOlSymbolizerFromSymbolizer(symbolizer);
+    const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symbolizer);
     return olSymbolizer;
   }
 
@@ -487,11 +487,11 @@ export class OlStyleParser implements StyleParser {
    * @param {geoStylerStyle} A GeoStyler-Style Style
    * @return {OlStyle[]} An array of OpenLayers Style Objects
    */
-  geoStylerStyleToOlStyleArray(geoStylerStyle: Style): OlStyle[] {
+  geoStylerStyleToOlStyleArray(geoStylerStyle: Style): any[] {
     const rule = geoStylerStyle.rules[0];
-    const olStyles: OlStyle[] = [];
+    const olStyles: any[] = [];
     rule.symbolizers.forEach((symbolizer: Symbolizer) => {
-      const olSymbolizer: OlStyle = this.getOlSymbolizerFromSymbolizer(symbolizer);
+      const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symbolizer);
       olStyles.push(olSymbolizer);
     });
     return olStyles;
@@ -505,8 +505,8 @@ export class OlStyleParser implements StyleParser {
    */
   geoStylerStyleToOlParserStyleFct(geoStylerStyle: Style): OlParserStyleFct {
     const rules = geoStylerStyle.rules;
-    const olStyle: ol.StyleFunction = (feature: ol.Feature, resolution: number): OlStyle[] => {
-      const styles: OlStyle[] = [];
+    const olStyle: Function = (feature: any, resolution: number): any[] => {
+      const styles: any[] = [];
       const scale = MapUtil.getScaleForResolution(resolution, 'm');
       rules.forEach((rule: Rule) => {
         // handling scale denominator
@@ -536,7 +536,7 @@ export class OlStyleParser implements StyleParser {
 
         if (isWithinScale && matchesFilter) {
           rule.symbolizers.forEach((symb: Symbolizer) => {
-            const olSymbolizer: OlStyle|ol.StyleFunction = this.getOlSymbolizerFromSymbolizer(symb);
+            const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symb);
 
           // this.getOlTextSymbolizerFromTextSymbolizer returns
           // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
@@ -546,7 +546,7 @@ export class OlStyleParser implements StyleParser {
             if (typeof olSymbolizer !== 'function') {
               styles.push(olSymbolizer);
             } else {
-              const styleFromFct: OlStyle = olSymbolizer(feature, resolution) as OlStyle;
+              const styleFromFct: any = olSymbolizer(feature, resolution);
               styles.push(styleFromFct);
             }
           });
@@ -565,7 +565,7 @@ export class OlStyleParser implements StyleParser {
    * @param filter Filter
    * @return boolean true if feature matches filter expression
    */
-  geoStylerFilterToOlParserFilter(feature: ol.Feature, filter: Filter): boolean {
+  geoStylerFilterToOlParserFilter(feature: any, filter: Filter): boolean {
     const operatorMapping = {
       '&&': true,
       '||': true,
@@ -657,7 +657,7 @@ export class OlStyleParser implements StyleParser {
    * @return {object} The OpenLayers Style object or a StyleFunction
    */
   getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer): any {
-    let olSymbolizer: OlStyle | ol.StyleFunction;
+    let olSymbolizer: any;
     switch (symbolizer.kind) {
       case 'Mark':
         olSymbolizer = this.getOlPointSymbolizerFromMarkSymbolizer(symbolizer);
@@ -704,7 +704,7 @@ export class OlStyleParser implements StyleParser {
    * @param {MarkSymbolizer} markSymbolizer A GeoStyler-Style MarkSymbolizer.
    * @return {object} The OL Style object
    */
-  getOlPointSymbolizerFromMarkSymbolizer(markSymbolizer: MarkSymbolizer): OlStyle {
+  getOlPointSymbolizerFromMarkSymbolizer(markSymbolizer: MarkSymbolizer): any {
     let stroke;
     if (markSymbolizer.strokeColor || markSymbolizer.strokeWidth !== undefined) {
       stroke = new this.OlStyleStrokeConstructor({
@@ -720,7 +720,7 @@ export class OlStyleParser implements StyleParser {
         OlStyleUtil.getRgbaColor(markSymbolizer.color, markSymbolizer.opacity) : markSymbolizer.color
     });
 
-    let olStyle: OlStyle;
+    let olStyle: any;
     let shapeOpts: any = {
       fill: fill,
       opacity: markSymbolizer.opacity || 1,
@@ -870,7 +870,7 @@ export class OlStyleParser implements StyleParser {
    * @param {IconSymbolizer} symbolizer  A GeoStyler-Style IconSymbolizer.
    * @return {object} The OL Style object
    */
-  getOlIconSymbolizerFromIconSymbolizer(symbolizer: IconSymbolizer): OlStyle {
+  getOlIconSymbolizerFromIconSymbolizer(symbolizer: IconSymbolizer): any {
     return new this.OlStyleConstructor({
       image: new this.OlStyleIconConstructor({
         src: symbolizer.image,
@@ -928,7 +928,7 @@ export class OlStyleParser implements StyleParser {
    * @param {TextSymbolizer} textSymbolizer A GeoStyler-Style TextSymbolizer.
    * @return {object} The OL StyleFunction
    */
-  getOlTextSymbolizerFromTextSymbolizer(symbolizer: TextSymbolizer): ol.StyleFunction|OlStyle {
+  getOlTextSymbolizerFromTextSymbolizer(symbolizer: TextSymbolizer): any {
     const baseProps = {
       font: OlStyleUtil.getTextFont(symbolizer),
       fill: new this.OlStyleFillConstructor({
@@ -956,7 +956,7 @@ export class OlStyleParser implements StyleParser {
     if (regExpRes) {
       // if it contains a placeholder
       // return olStyleFunction
-      const olPointStyledLabelFn = (feature: ol.Feature, res: number) => {
+      const olPointStyledLabelFn = (feature: any, res: number) => {
 
         const text = new this.OlStyleTextConstructor({
           text: OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.label as string, ''),

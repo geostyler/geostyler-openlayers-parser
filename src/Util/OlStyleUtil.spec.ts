@@ -88,7 +88,7 @@ describe('OlStyleUtil', () => {
     let coords: [number, number];
     let geom;
     let props: any;
-    let feat: OlFeature;
+    let feat: any;
     let featId;
 
     beforeEach(() => {
