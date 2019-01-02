@@ -45,9 +45,9 @@
     "release": "np --no-yarn && git push https://github.com/terrestris/geostyler-openlayers-parser.git master --tags"
   },
   "devDependencies": {
-    "@babel/polyfill": "7.0.0",
+    "@babel/polyfill": "7.2.5",
     "@terrestris/ol-util": "0.5.0",
-    "@types/jest": "23.3.10",
+    "@types/jest": "23.3.11",
     "@types/node": "10.12.18",
     "@types/ol": "4.6.2",
     "awesome-typescript-loader": "4.0.1",
@@ -63,7 +63,7 @@
     "ts-jest": "22.4.6",
     "tslint": "5.11.0",
     "typescript": "3.1.2",
-    "uglifyjs-webpack-plugin": "1.1.2",
+    "uglifyjs-webpack-plugin": "2.1.1",
     "webpack": "4.28.3",
     "webpack-cli": "3.1.2"
   },
