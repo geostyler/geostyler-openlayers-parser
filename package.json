@@ -1,6 +1,6 @@
 {
   "name": "geostyler-openlayers-parser",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
   "main": "build/dist/OlStyleParser.js",
   "files": [
@@ -45,9 +45,9 @@
     "release": "np --no-yarn && git push https://github.com/terrestris/geostyler-openlayers-parser.git master --tags"
   },
   "devDependencies": {
-    "@babel/polyfill": "7.0.0",
-    "@types/jest": "23.3.10",
-    "@types/node": "10.12.15",
+    "@babel/polyfill": "7.2.5",
+    "@types/jest": "23.3.11",
+    "@types/node": "10.12.18",
     "awesome-typescript-loader": "4.0.1",
     "babel-core": "6.26.3",
     "babel-jest": "23.6.0",
@@ -61,9 +61,9 @@
     "ts-jest": "22.4.6",
     "tslint": "5.11.0",
     "typescript": "3.1.2",
-    "uglifyjs-webpack-plugin": "1.1.2",
-    "webpack": "4.27.1",
-    "webpack-cli": "3.1.2"
+    "uglifyjs-webpack-plugin": "2.1.1",
+    "webpack": "4.28.3",
+    "webpack-cli": "3.2.0"
   },
   "jest": {
     "testURL": "http://localhost/",
