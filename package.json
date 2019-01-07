@@ -25,12 +25,12 @@
   },
   "homepage": "https://github.com/terrestris/geostyler-openlayers-parser#readme",
   "dependencies": {
-    "@terrestris/ol-util": "0.5.0",
+    "@terrestris/ol-util": "1.6.0",
     "geostyler-style": "0.14.2",
     "lodash": "4.17.11"
   },
   "peerDependencies": {
-    "ol": "4.6.5"
+    "ol": "~5.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && npm run build:browser",
@@ -46,10 +46,8 @@
   },
   "devDependencies": {
     "@babel/polyfill": "7.2.5",
-    "@terrestris/ol-util": "0.5.0",
     "@types/jest": "23.3.11",
     "@types/node": "10.12.18",
-    "@types/ol": "4.6.3",
     "awesome-typescript-loader": "4.0.1",
     "babel-core": "6.26.3",
     "babel-jest": "23.6.0",
@@ -59,7 +57,7 @@
     "jest": "23.6.0",
     "jest-preset-typescript": "1.2.0",
     "np": "3.1.0",
-    "ol": "4.6.5",
+    "ol": "5.3.0",
     "ts-jest": "22.4.6",
     "tslint": "5.11.0",
     "typescript": "3.1.2",

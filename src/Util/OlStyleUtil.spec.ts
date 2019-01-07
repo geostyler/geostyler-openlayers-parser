@@ -1,10 +1,10 @@
 import OlStyleUtil from './OlStyleUtil';
-import OlFeature from 'ol/feature';
-import OlGeomPoint from 'ol/geom/point';
+import OlFeature from 'ol/Feature';
+import OlGeomPoint from 'ol/geom/Point';
 import { TextSymbolizer } from 'geostyler-style';
 
 describe('OlStyleUtil', () => {
-  
+
   it('OlStyleUtil is defined', () => {
     expect(OlStyleUtil).toBeDefined();
   });
@@ -88,7 +88,7 @@ describe('OlStyleUtil', () => {
     let coords: [number, number];
     let geom;
     let props: any;
-    let feat: OlFeature;
+    let feat: any;
     let featId;
 
     beforeEach(() => {

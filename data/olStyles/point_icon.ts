@@ -1,5 +1,5 @@
-import OlStyle from 'ol/style/style';
-import OlStyleIcon from 'ol/style/icon';
+import OlStyle from 'ol/style/Style';
+import OlStyleIcon from 'ol/style/Icon';
 
 const olIconPoint = new OlStyle({
   image: new OlStyleIcon({

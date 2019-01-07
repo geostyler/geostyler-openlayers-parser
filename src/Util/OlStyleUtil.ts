@@ -120,7 +120,7 @@ class OlStyleUtil {
    * @return {String} The resolved template string.
    */
   static resolveAttributeTemplate(
-    feature: ol.Feature,
+    feature: any,
     template: string,
     noValueFoundText: string = 'n.v.',
     valueAdjust: Function = (key: string, val: any) => val

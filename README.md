@@ -14,7 +14,7 @@ Please provide related issues here https://github.com/terrestris/geostyler/issue
 ES6:
 ```js
 import OpenLayersParser from "geostyler-openlayers-parser";
-import OlLayerVector from "ol/layer/vector";
+import OlLayerVector from "ol/layer/Vector";
 
 const pointSimplePoint = {
   name: "OL Style",

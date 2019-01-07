@@ -1,7 +1,7 @@
-import OlStyle from 'ol/style/style';
-import OlStyleStroke from 'ol/style/stroke';
-import OlStyleFill from 'ol/style/fill';
-import OlStyleText from 'ol/style/text';
+import OlStyle from 'ol/style/Style';
+import OlStyleStroke from 'ol/style/Stroke';
+import OlStyleFill from 'ol/style/Fill';
+import OlStyleText from 'ol/style/Text';
 
 const olSimpleLine = new OlStyle({
   stroke: new OlStyleStroke({
@@ -23,7 +23,7 @@ const olStyledLabel = new OlStyle({
     }),
     offsetX: 0,
     offsetY: 5
-  }) 
+  })
 });
 
 export default [olSimpleLine, olStyledLabel];
