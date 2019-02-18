@@ -62,7 +62,7 @@
     "tslint": "5.11.0",
     "typescript": "3.1.2",
     "uglifyjs-webpack-plugin": "2.1.1",
-    "webpack": "4.29.3",
+    "webpack": "4.29.4",
     "webpack-cli": "3.2.3"
   },
   "jest": {
