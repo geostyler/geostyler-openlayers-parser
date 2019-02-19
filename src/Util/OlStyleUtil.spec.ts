@@ -18,6 +18,17 @@ describe('OlStyleUtil', () => {
       const rgba = OlStyleUtil.getRgbaColor('#808a08', 0.5);
       expect(rgba).toEqual('rgba(128, 138, 8, 0.5)');
     });
+
+    it('doesn\'t transform rgba color', () => {
+      const testString = 'rgba(248, 231, 28, 1)';
+      const rgba = OlStyleUtil.getRgbaColor(testString, 0.9);
+      expect(rgba).toEqual(testString);
+    });
+
+    it('returns undefined of no valid HEX string passed to function', () => {
+      const rgba = OlStyleUtil.getRgbaColor('THIS IS NOT A COLOR STRING', 0.9);
+      expect(rgba).toBeUndefined();
+    });
   });
 
   describe('#splitRgbaColor', () => {

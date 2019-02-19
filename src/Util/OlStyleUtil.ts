@@ -8,14 +8,25 @@ class OlStyleUtil {
   /**
    * Transforms a HEX encoded color and an opacity value to a RGB(A) notation.
    *
-   * @param {string} hexColor HEX encoded color
+   * @param {string} colorString HEX encoded color
    * @param {number} opacity  Opacity (Betweeen 0 and 1)
    * @return {string} the RGB(A) value of the input color
    */
-  public static getRgbaColor(hexColor: string, opacity: number) {
-    const r = parseInt(hexColor.slice(1, 3), 16);
-    const g = parseInt(hexColor.slice(3, 5), 16);
-    const b = parseInt(hexColor.slice(5, 7), 16);
+  public static getRgbaColor(colorString: string, opacity: number) {
+    if (colorString.startsWith('rgba(')) {
+      return colorString;
+    }
+
+    // check if is valid HEX color - see also here
+    // https://stackoverflow.com/questions/8027423/how-to-check-if-a-string-is-a-valid-hex-color-representation/8027444
+    const isHexColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorString);
+    if (!isHexColor) {
+      return;
+    }
+
+    const r = parseInt(colorString.slice(1, 3), 16);
+    const g = parseInt(colorString.slice(3, 5), 16);
+    const b = parseInt(colorString.slice(5, 7), 16);
 
     if (opacity < 0) {
       opacity = 1;
