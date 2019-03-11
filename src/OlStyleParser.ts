@@ -910,15 +910,16 @@ export class OlStyleParser implements StyleParser {
    * @return {object} The OL Style object
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer) {
+    const fill = symbolizer.color ? new this.OlStyleFillConstructor({
+      color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
+        OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
+    }) : null;
     return new this.OlStyleConstructor({
       stroke: new this.OlStyleStrokeConstructor({
         color: symbolizer.outlineColor,
         width: symbolizer.outlineWidth
       }),
-      fill: new this.OlStyleFillConstructor({
-        color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
-          OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
-      })
+      fill: fill
     });
   }
 
