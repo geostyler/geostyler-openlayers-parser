@@ -708,16 +708,16 @@ export class OlStyleParser implements StyleParser {
     let stroke;
     if (markSymbolizer.strokeColor || markSymbolizer.strokeWidth !== undefined) {
       stroke = new this.OlStyleStrokeConstructor({
-        color: (markSymbolizer.strokeColor && (markSymbolizer.strokeOpacity !== undefined)) ?
-        OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) :
-        markSymbolizer.strokeColor,
+        color: markSymbolizer.strokeColor ?
+          OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) :
+          markSymbolizer.strokeColor,
         width: markSymbolizer.strokeWidth,
       });
     }
 
     const fill = new this.OlStyleFillConstructor({
-      color: (markSymbolizer.color && markSymbolizer.opacity !== undefined) ?
-        OlStyleUtil.getRgbaColor(markSymbolizer.color, markSymbolizer.opacity) : markSymbolizer.color
+      color: markSymbolizer.color ? OlStyleUtil.getRgbaColor(markSymbolizer.color, markSymbolizer.opacity) :
+        markSymbolizer.color
     });
 
     let olStyle: any;
@@ -892,8 +892,7 @@ export class OlStyleParser implements StyleParser {
   getOlLineSymbolizerFromLineSymbolizer(symbolizer: LineSymbolizer) {
     return new this.OlStyleConstructor({
       stroke: new this.OlStyleStrokeConstructor({
-        color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
-          OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color,
+        color: symbolizer.color ? OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color,
         width: symbolizer.width,
         lineCap: symbolizer.cap,
         lineJoin: symbolizer.join,
@@ -911,8 +910,7 @@ export class OlStyleParser implements StyleParser {
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer) {
     const fill = symbolizer.color ? new this.OlStyleFillConstructor({
-      color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
-        OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
+      color: OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity)
     }) : null;
     return new this.OlStyleConstructor({
       stroke: new this.OlStyleStrokeConstructor({
@@ -932,13 +930,12 @@ export class OlStyleParser implements StyleParser {
   getOlTextSymbolizerFromTextSymbolizer(symbolizer: TextSymbolizer): any {
     const baseProps = {
       font: OlStyleUtil.getTextFont(symbolizer),
-      fill: new this.OlStyleFillConstructor({
-        color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
-          OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
-      }),
+      fill: symbolizer.color ? new this.OlStyleFillConstructor({
+        color: OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity)
+      }) : null,
       stroke: new this.OlStyleStrokeConstructor({
-        color: (symbolizer.haloColor && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
-          OlStyleUtil.getRgbaColor(symbolizer.haloColor, symbolizer.opacity) : symbolizer.haloColor,
+        color: symbolizer.haloColor ? OlStyleUtil.getRgbaColor(symbolizer.haloColor, symbolizer.opacity) :
+          symbolizer.haloColor,
         width: symbolizer.haloWidth ? symbolizer.haloWidth : 0
       }),
       offsetX: symbolizer.offset ? symbolizer.offset[0] : 0,

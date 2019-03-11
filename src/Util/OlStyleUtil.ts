@@ -12,7 +12,7 @@ class OlStyleUtil {
    * @param {number} opacity  Opacity (Betweeen 0 and 1)
    * @return {string} the RGB(A) value of the input color
    */
-  public static getRgbaColor(colorString: string, opacity: number) {
+  public static getRgbaColor(colorString: string, opacity: number|undefined) {
     if (colorString.startsWith('rgba(')) {
       return colorString;
     }
@@ -28,7 +28,7 @@ class OlStyleUtil {
     const g = parseInt(colorString.slice(3, 5), 16);
     const b = parseInt(colorString.slice(5, 7), 16);
 
-    if (opacity < 0) {
+    if (opacity === null || opacity === undefined || opacity < 0) {
       opacity = 1;
     }
 
