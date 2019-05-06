@@ -63,7 +63,7 @@
     "typescript": "3.1.2",
     "uglifyjs-webpack-plugin": "2.1.2",
     "webpack": "4.30.0",
-    "webpack-cli": "3.3.1"
+    "webpack-cli": "3.3.2"
   },
   "jest": {
     "testURL": "http://localhost/",
