@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "declaration": true,
     "outDir": "build/dist",
     "module": "commonjs",
     "target": "es5",
@@ -9,9 +10,8 @@
       "es2017"
     ],
     "sourceMap": true,
-    "allowJs": true,
     "moduleResolution": "node",
-    "rootDir": "src",
+    "rootDir": ".",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -27,8 +27,7 @@
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/setupTests.ts",
-    "src/**.spec.ts",
+    "**/*.spec.ts",
     "data",
     "coverage",
     "browser",

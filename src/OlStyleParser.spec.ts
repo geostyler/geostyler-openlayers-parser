@@ -1,9 +1,6 @@
 import OlStyle from 'ol/style/Style';
 import OlStyleText from 'ol/style/Text';
 import OlStyleFill from 'ol/style/Fill';
-import OlStyleCircle from 'ol/style/Circle';
-import OlStyleIcon from 'ol/style/Icon';
-import OlStyleRegularshape from 'ol/style/RegularShape';
 import OlFeature from 'ol/Feature';
 import ol from 'ol';
 
@@ -55,7 +52,6 @@ import ol_point_simpleplus from '../data/olStyles/point_simpleplus';
 import ol_point_simpletimes from '../data/olStyles/point_simpletimes';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
-import ol_multi_twoRulesSimplepoint from '../data/olStyles/multi_twoRulesSimplepoint';
 import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimpleline';
 import ol_point_styledLabel_static from '../data/olStyles/point_styledLabel_static';
 import {
@@ -64,8 +60,7 @@ import {
   TextSymbolizer,
   Style,
   IconSymbolizer,
-  MarkSymbolizer,
-  Symbolizer
+  MarkSymbolizer
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
