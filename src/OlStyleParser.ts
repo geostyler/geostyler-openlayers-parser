@@ -41,6 +41,13 @@ export type OlParserStyleFct = Function & {
  */
 export class OlStyleParser implements StyleParser {
 
+  /**
+   * The name of the OlStyleParser.
+   */
+  public static title = 'OpenLayers Style Parser';
+
+  title = 'OpenLayers Style Parser';
+
   OlStyleConstructor: any = OlStyle;
   OlStyleImageConstructor: any = OlStyleImage;
   OlStyleFillConstructor: any = OlStyleFill;
@@ -66,11 +73,6 @@ export class OlStyleParser implements StyleParser {
       this.OlStyleRegularshapeConstructor = ol.style.RegularShape;
     }
   }
-
-  /**
-   * The name of the OlStyleParser.
-   */
-  public static title = 'OpenLayers Style Parser';
 
   /**
    * Get the GeoStyler-Style PointSymbolizer from an OpenLayers Style object.
