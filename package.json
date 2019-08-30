@@ -26,9 +26,9 @@
   },
   "homepage": "https://github.com/terrestris/geostyler-openlayers-parser#readme",
   "dependencies": {
-    "@terrestris/ol-util": "^3.0.0",
-    "geostyler-style": "^1.2.0",
-    "lodash": "^4.17.11"
+    "@terrestris/ol-util": "^3.0.1",
+    "geostyler-style": "^1.2.1",
+    "lodash": "^4.17.15"
   },
   "peerDependencies": {
     "ol": "^5.3.0"
@@ -45,26 +45,26 @@
     "release": "np --no-yarn && git push https://github.com/terrestris/geostyler-openlayers-parser.git master --tags"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/polyfill": "^7.4.4",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-env": "^7.5.5",
     "@babel/preset-typescript": "^7.3.3",
-    "@types/jest": "^24.0.15",
-    "@types/node": "^12.0.12",
-    "babel-jest": "^24.8.0",
-    "canvas": "^2.5.0",
-    "coveralls": "^3.0.4",
-    "jest": "^24.8.0",
-    "jest-canvas-mock": "^2.1.0",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.3",
+    "babel-jest": "^24.9.0",
+    "canvas": "^2.6.0",
+    "coveralls": "^3.0.6",
+    "jest": "^24.9.0",
+    "jest-canvas-mock": "^2.1.1",
     "np": "^5.0.3",
     "ol": "^5.3.3",
-    "terser-webpack-plugin": "^1.3.0",
-    "ts-loader": "^6.0.0",
-    "tslint": "^5.16.0",
-    "typescript": "^3.4.5",
-    "webpack": "^4.35.2",
-    "webpack-cli": "^3.3.5"
+    "terser-webpack-plugin": "^1.4.1",
+    "ts-loader": "^6.0.4",
+    "tslint": "^5.19.0",
+    "typescript": "^3.6.2",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.7"
   }
 }
