@@ -1,13 +1,13 @@
 # geostyler-openlayers-parser
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/terrestris/geostyler-openlayers-parser.svg)](https://greenkeeper.io/)
-[![Build Status](https://travis-ci.org/terrestris/geostyler-openlayers-parser.svg?branch=master)](https://travis-ci.org/terrestris/geostyler-openlayers-parser)
-[![Coverage Status](https://coveralls.io/repos/github/terrestris/geostyler-openlayers-parser/badge.svg?branch=master)](https://coveralls.io/github/terrestris/geostyler-openlayers-parser?branch=master)
+[![Greenkeeper badge](https://badges.greenkeeper.io/geostyler/geostyler-openlayers-parser.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.org/geostyler/geostyler-openlayers-parser.svg?branch=master)](https://travis-ci.org/geostyler/geostyler-openlayers-parser)
+[![Coverage Status](https://coveralls.io/repos/github/geostyler/geostyler-openlayers-parser/badge.svg?branch=master)](https://coveralls.io/github/geostyler/geostyler-openlayers-parser?branch=master)
 
-[GeoStyler Style](https://github.com/terrestris/geostyler) Parser implementation for OpenLayers styles
+[GeoStyler Style](https://github.com/geostyler/geostyler) Parser implementation for OpenLayers styles
 
 ### Issues
-Please provide related issues here https://github.com/terrestris/geostyler/issues
+Please provide related issues here https://github.com/geostyler/geostyler/issues
 
 ### How to use
 

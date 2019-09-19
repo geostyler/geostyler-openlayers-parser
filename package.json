@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terrestris/geostyler-openlayers-parser.git"
+    "url": "git+https://github.com/geostyler/geostyler-openlayers-parser.git"
   },
   "keywords": [
     "geostyler",
@@ -22,11 +22,11 @@
   "author": "",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/terrestris/geostyler-openlayers-parser/issues"
+    "url": "https://github.com/geostyler/geostyler-openlayers-parser/issues"
   },
-  "homepage": "https://github.com/terrestris/geostyler-openlayers-parser#readme",
+  "homepage": "https://github.com/geostyler/geostyler-openlayers-parser#readme",
   "dependencies": {
-    "@terrestris/ol-util": "^3.0.1",
+    "@geostyler/ol-util": "^3.0.1",
     "geostyler-style": "^2.0.0",
     "lodash": "^4.17.15"
   },
@@ -42,7 +42,7 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "lint": "tslint --project tsconfig.json --config tslint.json && tsc --noEmit --project tsconfig.json",
-    "release": "np --no-yarn && git push https://github.com/terrestris/geostyler-openlayers-parser.git master --tags"
+    "release": "np --no-yarn && git push https://github.com/geostyler/geostyler-openlayers-parser.git master --tags"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
