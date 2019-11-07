@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/geostyler/geostyler-openlayers-parser#readme",
   "dependencies": {
-    "@terrestris/ol-util": "^3.0.1",
+    "@terrestris/ol-util": "^4.0.0",
     "geostyler-style": "^2.0.3",
     "lodash": "^4.17.15"
   },
