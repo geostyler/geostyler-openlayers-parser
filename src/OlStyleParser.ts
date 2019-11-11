@@ -198,6 +198,8 @@ export class OlStyleParser implements StyleParser {
    */
   getLineSymbolizerFromOlStyle(olStyle: any): LineSymbolizer {
     const olStrokeStyle = olStyle.getStroke();
+    // getLineDash returns null not undefined. So we have to double check
+    const dashArray = olStrokeStyle ? olStrokeStyle.getLineDash() : undefined;
 
     return {
       kind: 'Line',
@@ -206,7 +208,7 @@ export class OlStyleParser implements StyleParser {
       width: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
       cap: olStrokeStyle ? <LineSymbolizer['cap']> olStrokeStyle.getLineCap() : 'butt',
       join: olStrokeStyle ? <LineSymbolizer['join']> olStrokeStyle.getLineJoin() : 'miter',
-      dasharray: olStrokeStyle ? olStrokeStyle.getLineDash() : undefined,
+      dasharray: dashArray ? dashArray : undefined,
       dashOffset: olStrokeStyle ? olStrokeStyle.getLineDashOffset() : undefined
     };
   }

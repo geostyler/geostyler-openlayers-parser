@@ -14,7 +14,7 @@ const multiSimplefillSimpleline: Style = {
         kind: 'Line',
         color: '#FF0000',
         width: 5,
-        dasharray: null,
+        dasharray: undefined,
         opacity: undefined
       }]
     }
