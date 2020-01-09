@@ -52,7 +52,7 @@
     "@babel/preset-env": "^7.6.2",
     "@babel/preset-typescript": "^7.6.0",
     "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.8",
+    "@types/node": "^13.1.6",
     "babel-jest": "^24.9.0",
     "canvas": "^2.6.0",
     "coveralls": "^3.0.6",
