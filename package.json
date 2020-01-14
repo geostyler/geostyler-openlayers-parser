@@ -45,12 +45,12 @@
     "release": "np --no-yarn && git push https://github.com/geostyler/geostyler-openlayers-parser.git master"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
-    "@babel/polyfill": "^7.6.0",
-    "@babel/preset-env": "^7.6.2",
-    "@babel/preset-typescript": "^7.6.0",
+    "@babel/core": "^7.8.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
+    "@babel/polyfill": "^7.8.3",
+    "@babel/preset-env": "^7.8.2",
+    "@babel/preset-typescript": "^7.7.7",
     "@types/jest": "^24.0.18",
     "@types/node": "^12.7.8",
     "babel-jest": "^24.9.0",
