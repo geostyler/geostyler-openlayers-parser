@@ -58,7 +58,7 @@
     "coveralls": "^3.0.6",
     "jest": "^24.9.0",
     "jest-canvas-mock": "^2.1.1",
-    "np": "^5.1.0",
+    "np": "^6.0.0",
     "ol": "^6.0.0",
     "terser-webpack-plugin": "^2.1.0",
     "ts-loader": "^6.1.2",
