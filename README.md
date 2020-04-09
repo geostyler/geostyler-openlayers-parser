@@ -55,7 +55,7 @@ var pointSimplePoint = {
 };
 var vectorLayer = new ol.layer.Vector();
 var parser = new GeoStylerOpenlayersParser.OlStyleParser(ol);
-parser.writeStyle(geostyle)
+parser.writeStyle(pointSimplePoint)
 .then(function(style) {
  vectorLayer.setStyle(style);
 });
