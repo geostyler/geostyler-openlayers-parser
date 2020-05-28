@@ -1,7 +1,7 @@
-import OlStyleUtil from './OlStyleUtil';
+import OlStyleUtil, { DUMMY_MARK_SYMBOLIZER_FONT } from './OlStyleUtil';
 import OlFeature from 'ol/Feature';
 import OlGeomPoint from 'ol/geom/Point';
-import { TextSymbolizer } from 'geostyler-style';
+import { MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
 
 describe('OlStyleUtil', () => {
 
@@ -81,7 +81,7 @@ describe('OlStyleUtil', () => {
       expect(OlStyleUtil.getTextFont).toBeDefined();
     });
 
-    it('returns correct opacity', () => {
+    it('returns correct font', () => {
       const symb: TextSymbolizer = {
         kind: 'Text',
         color: '#000000',
@@ -92,6 +92,135 @@ describe('OlStyleUtil', () => {
       };
       const opac = OlStyleUtil.getTextFont(symb);
       expect(opac).toEqual('Normal 12px Arial');
+    });
+  });
+
+  describe('#getIsFontGlyphBased', () => {
+    it('is defined', () => {
+      expect(OlStyleUtil.getIsFontGlyphBased).toBeDefined();
+    });
+
+    it('returns false if wellknownname is not based on a font glyph', () => {
+      const symb: MarkSymbolizer = {
+        kind: 'Mark',
+        color: '#000000',
+        wellKnownName: 'shape://backslash'
+      };
+      const isGlyph = OlStyleUtil.getIsFontGlyphBased(symb);
+      expect(isGlyph).toEqual(false);
+    });
+
+    it('returns true if wellknownname is based on a font glyph', () => {
+      const symb: MarkSymbolizer = {
+        kind: 'Mark',
+        color: '#000000',
+        wellKnownName: 'ttf://Webdings#0x0064'
+      };
+      const isGlyph = OlStyleUtil.getIsFontGlyphBased(symb);
+      expect(isGlyph).toEqual(true);
+    });
+  });
+
+  describe('#getIsMarkSymbolizerFont', () => {
+    it('is defined', () => {
+      expect(OlStyleUtil.getIsMarkSymbolizerFont).toBeDefined();
+    });
+
+    it('returns false if the font was not intended for a mark symbolizer', () => {
+      const font = '12px \'Arial Black\'';
+      const isMark = OlStyleUtil.getIsMarkSymbolizerFont(font);
+      expect(isMark).toEqual(false);
+    });
+
+    it('returns true if the font was intended for a mark symbolizer', () => {
+      const font = `Normal 12px 'Arial Black', ${DUMMY_MARK_SYMBOLIZER_FONT}`;
+      const isMark = OlStyleUtil.getIsMarkSymbolizerFont(font);
+      expect(isMark).toEqual(true);
+    });
+  });
+
+  describe('#getTextFontForMarkSymbolizer', () => {
+    it('is defined', () => {
+      expect(OlStyleUtil.getTextFontForMarkSymbolizer).toBeDefined();
+    });
+
+    it('returns correct font', () => {
+      const symb: MarkSymbolizer = {
+        kind: 'Mark',
+        color: '#000000',
+        radius: 10,
+        wellKnownName: 'ttf://Arial Black#0x0064'
+      };
+      const font = OlStyleUtil.getTextFontForMarkSymbolizer(symb);
+      expect(font).toEqual(`Normal 10px 'Arial Black', ${DUMMY_MARK_SYMBOLIZER_FONT}`);
+    });
+
+    it('returns correct font (with default size)', () => {
+      const symb: MarkSymbolizer = {
+        kind: 'Mark',
+        color: '#000000',
+        wellKnownName: 'ttf://Arial Black#0x0064'
+      };
+      const font = OlStyleUtil.getTextFontForMarkSymbolizer(symb);
+      expect(font).toEqual(`Normal 5px 'Arial Black', ${DUMMY_MARK_SYMBOLIZER_FONT}`);
+    });
+  });
+
+  describe('#getCharacterForMarkSymbolizer', () => {
+    it('is defined', () => {
+      expect(OlStyleUtil.getCharacterForMarkSymbolizer).toBeDefined();
+    });
+
+    it('returns correct character', () => {
+      const symb: MarkSymbolizer = {
+        kind: 'Mark',
+        color: '#000000',
+        wellKnownName: 'ttf://Arial Black#0x0064'
+      };
+      const char = OlStyleUtil.getCharacterForMarkSymbolizer(symb);
+      expect(char).toEqual('d');
+    });
+  });
+
+  describe('#getFontNameFromOlFont', () => {
+    it('is defined', () => {
+      expect(OlStyleUtil.getFontNameFromOlFont).toBeDefined();
+    });
+
+    it('returns correct font name (1)', () => {
+      const name = OlStyleUtil.getFontNameFromOlFont(`Normal 13px 'Arial Sans', sans-serif`);
+      expect(name).toEqual('Arial Sans');
+    });
+
+    it('returns correct font name (2)', () => {
+      const name = OlStyleUtil.getFontNameFromOlFont(`10px Arial`);
+      expect(name).toEqual('Arial');
+    });
+
+    it('returns correct font name (3)', () => {
+      const name = OlStyleUtil.getFontNameFromOlFont(`italic 1.2em "Fira Sans", serif`);
+      expect(name).toEqual('Fira Sans');
+    });
+  });
+
+  describe('#getSizeFromOlFont', () => {
+    it('is defined', () => {
+      expect(OlStyleUtil.getSizeFromOlFont).toBeDefined();
+    });
+
+    it('returns correct size in pixels (1)', () => {
+      const size = OlStyleUtil.getSizeFromOlFont(`Normal 13px 'Arial Sans', sans-serif`);
+      expect(size).toEqual(13);
+    });
+
+    it('returns correct size in pixels (2)', () => {
+      const size = OlStyleUtil.getSizeFromOlFont(`10px Arial`);
+      expect(size).toEqual(10);
+    });
+
+    it('returns 0 if no available size in pixels', () => {
+      const size = OlStyleUtil.getSizeFromOlFont(`italic 1.2em "Fira Sans", serif`);
+      expect(size).toEqual(0);
     });
   });
 
