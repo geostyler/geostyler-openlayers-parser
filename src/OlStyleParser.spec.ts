@@ -34,6 +34,7 @@ import scaleDenomLineCircle from '../data/styles/scaleDenom_line_circle';
 import scaleDenomLineCircleOverlap from '../data/styles/scaleDenom_line_circle_overlap';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import point_styledlabel from '../data/styles/point_styledlabel';
+import point_fontglyph from '../data/styles/point_fontglyph';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
 import ol_point_icon from '../data/olStyles/point_icon';
 import ol_point_simplesquare from '../data/olStyles/point_simplesquare';
@@ -54,6 +55,7 @@ import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
 import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimpleline';
 import ol_point_styledLabel_static from '../data/olStyles/point_styledLabel_static';
+import ol_point_fontglyph from '../data/olStyles/point_fontglyph';
 import {
   LineSymbolizer,
   FillSymbolizer,
@@ -287,6 +289,14 @@ describe('OlStyleParser implements StyleParser', () => {
     //       expect(geoStylerStyle).toEqual(point_simplepoint_filter);
     //     });
     // });
+    it('can read a OpenLayers MarkSymbolizer based on a font glyph (WellKnownName starts with ttf://)', () => {
+      expect.assertions(2);
+      return styleParser.readStyle(ol_point_fontglyph)
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(point_fontglyph);
+        });
+    });
 
     describe('#olStyleToGeoStylerStyle', () => {
       it('is defined', () => {
@@ -758,6 +768,28 @@ describe('OlStyleParser implements StyleParser', () => {
           const olTimesFill: OlStyleFill = olTimes.getFill();
           expect(olTimesFill).toBeDefined();
           expect(olTimesFill.getColor()).toEqual(expecSymb.color);
+        });
+    });
+    it('can write a OpenLayers Style based on a font glyph (WellKnownName starts with ttf://)', () => {
+      expect.assertions(8);
+      return styleParser.writeStyle(point_fontglyph)
+        .then((olStyle: OlStyle) => {
+          expect(olStyle).toBeDefined();
+
+          const expecSymb = point_fontglyph.rules[0].symbolizers[0] as MarkSymbolizer;
+          const olText: OlStyleText = olStyle.getText();
+          expect(olText).toBeDefined();
+
+          expect(olText.getFont()).toBe('Normal 12px \'My Font Name\', geostyler-mark-symbolizer');
+          expect(olText.getText()).toBe('|');
+
+          const olTextFill: OlStyleFill = olText.getFill();
+          expect(olTextFill).toBeDefined();
+          expect(olTextFill.getColor()).toEqual(expecSymb.color);
+
+          const olTextStroke: OlStyleStroke = olText.getStroke();
+          expect(olTextStroke).toBeDefined();
+          expect(olTextStroke.getColor()).toEqual(expecSymb.strokeColor);
         });
     });
     it('can write a OpenLayers LineSymbolizer', () => {
