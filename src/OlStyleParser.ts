@@ -174,6 +174,28 @@ export class OlStyleParser implements StyleParser {
           throw new Error(`Could not parse OlStyle. Only 2, 3, 4 or 5 point regular shapes are allowed`);
       }
       pointSymbolizer = markSymbolizer;
+    } else if (olStyle.getText() instanceof this.OlStyleTextConstructor) {
+      const olTextStyle = olStyle.getText();
+      const olFillStyle = olTextStyle.getFill();
+      const olStrokeStyle = olTextStyle.getStroke();
+      const rotation = olTextStyle.getRotation();
+      const char = olTextStyle.getText();
+      const font = olTextStyle.getFont();
+      const fontName = OlStyleUtil.getFontNameFromOlFont(font);
+      const radius = OlStyleUtil.getSizeFromOlFont(font);
+
+      pointSymbolizer = {
+        kind: 'Mark',
+        wellKnownName: `ttf://${fontName}#0x${char.charCodeAt(0).toString(16)}`,
+        color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
+        opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
+        strokeColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined,
+        strokeOpacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
+        strokeWidth: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
+        radius: (radius !== 0) ? radius : 5,
+        // Rotation in openlayers is radians while we use degree
+        rotate: rotation ? rotation / Math.PI * 180 : 0
+      } as MarkSymbolizer;
     } else {
       // icon
       const olIconStyle: any = olStyle.getImage();
@@ -297,7 +319,7 @@ export class OlStyleParser implements StyleParser {
       const styleType: StyleType = this.getStyleTypeFromOlStyle(olStyle);
       switch (styleType) {
         case 'Point':
-          if (olStyle.getText()) {
+          if (olStyle.getText() && !OlStyleUtil.getIsMarkSymbolizerFont(olStyle.getText().getFont())) {
             symbolizer = this.getTextSymbolizerFromOlStyle(olStyle);
           } else {
             symbolizer = this.getPointSymbolizerFromOlStyle(olStyle);
@@ -862,6 +884,18 @@ export class OlStyleParser implements StyleParser {
         });
         break;
       default:
+        if (OlStyleUtil.getIsFontGlyphBased(markSymbolizer)) {
+          olStyle = new this.OlStyleConstructor({
+            text: new this.OlStyleTextConstructor({
+              text: OlStyleUtil.getCharacterForMarkSymbolizer(markSymbolizer),
+              font: OlStyleUtil.getTextFontForMarkSymbolizer(markSymbolizer),
+              fill: shapeOpts.fill,
+              stroke: shapeOpts.stroke,
+              rotation: shapeOpts.rotation
+            })
+          });
+          break;
+        }
         throw new Error(`MarkSymbolizer cannot be parsed. Unsupported WellKnownName.`);
     }
 
