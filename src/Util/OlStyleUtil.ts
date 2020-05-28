@@ -1,4 +1,7 @@
-import { TextSymbolizer } from 'geostyler-style';
+import { MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
+
+const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
+export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
 
 /**
  * Offers some utility functions to work with OpenLayers Styles.
@@ -110,6 +113,83 @@ class OlStyleUtil {
     const size = symbolizer.size;
     const font = symbolizer.font;
     return weight + ' ' + size + 'px ' + font;
+  }
+
+  /**
+   * Returns true if the given mark symbolizer is based on a font glyph
+   * (i.e. has a well known name property starting with 'ttf://').
+   *
+   * @param symbolizer The TextSymbolizer to derive the font string from
+   */
+  public static getIsFontGlyphBased(symbolizer: MarkSymbolizer) {
+    return WELLKNOWNNAME_TTF_REGEXP.test(symbolizer.wellKnownName);
+  }
+
+  /**
+   * Returns whether the given font (as used in the OpenLayers Text Style `font` property)
+   * is intended for a mark symbolizer or not.
+   * This is done by checking whether the dummy DUMMY_MARK_SYMBOLIZER_FONT font name is present.
+   *
+   * @param font The text font to analyze
+   */
+  public static getIsMarkSymbolizerFont(font: string) {
+    const search = DUMMY_MARK_SYMBOLIZER_FONT;
+    return font.substring(font.length - search.length, font.length) === search;
+  }
+
+  /**
+   * Returns an OL compliant font string, to be used for mark symbolizers
+   * using a font glyph.
+   * This also includes a dummy DUMMY_MARK_SYMBOLIZER_FONT font name at the end of the
+   * string to allow determining that this font was intended for a mark symbolizer
+   * later on.
+   *
+   * @param symbolizer The TextSymbolizer to derive the font string from
+   */
+  public static getTextFontForMarkSymbolizer(symbolizer: MarkSymbolizer) {
+    const parts = symbolizer.wellKnownName.match(WELLKNOWNNAME_TTF_REGEXP);
+    if (!parts) {
+      throw new Error(`Could not parse font-based well known name: ${symbolizer.wellKnownName}`);
+    }
+    const fontFamily = parts[1];
+    return `Normal ${symbolizer.radius || 5}px '${fontFamily}', ${DUMMY_MARK_SYMBOLIZER_FONT}`;
+  }
+
+  /**
+   * Returns a 1-char string to be used as text for mark symbolizers using a font glyph.
+   *
+   * @param symbolizer The MarkSymbolizer to derive the character string from
+   */
+  public static getCharacterForMarkSymbolizer(symbolizer: MarkSymbolizer) {
+    const parts = symbolizer.wellKnownName.match(WELLKNOWNNAME_TTF_REGEXP);
+    if (!parts) {
+      throw new Error(`Could not parse font-based well known name: ${symbolizer.wellKnownName}`);
+    }
+    return String.fromCharCode(parseInt(parts[2], 16));
+  }
+
+  /**
+   * Returns the font name used in the OpenLayers text style `font` property.
+   *
+   * @param olFont the `font` property of an OpenLayers text style
+   */
+  public static getFontNameFromOlFont(olFont: string) {
+    const parts = olFont.match(/(?:\d+\S+) '?"?([^,'"]+)/);
+    if (!parts) {
+      throw new Error(`Could not find font family name in the following string: ${olFont}`);
+    }
+    return parts[1];
+  }
+
+  /**
+   * Returns the size in pixels specified in the OpenLayers text style `font` property,
+   * or 0 if not found.
+   *
+   * @param olFont the `font` property of an OpenLayers text style
+   */
+  public static getSizeFromOlFont(olFont: string) {
+    const parts = olFont.match(/(?:(\d+)px)/);
+    return parts ? parseInt(parts[1], 10) : 0;
   }
 
   /**
