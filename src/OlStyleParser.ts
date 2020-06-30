@@ -228,8 +228,8 @@ export class OlStyleParser implements StyleParser {
       color: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) as string : undefined,
       opacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
       width: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
-      cap: olStrokeStyle ? <LineSymbolizer['cap']> olStrokeStyle.getLineCap() : 'butt',
-      join: olStrokeStyle ? <LineSymbolizer['join']> olStrokeStyle.getLineJoin() : 'miter',
+      cap: olStrokeStyle ? <LineSymbolizer['cap']>olStrokeStyle.getLineCap() : 'butt',
+      join: olStrokeStyle ? <LineSymbolizer['join']>olStrokeStyle.getLineJoin() : 'miter',
       dasharray: dashArray ? dashArray : undefined,
       dashOffset: olStrokeStyle ? olStrokeStyle.getLineDashOffset() : undefined
     };
@@ -275,7 +275,7 @@ export class OlStyleParser implements StyleParser {
     let fontStyleWeightSize: string;
     let fontSizePart: string[];
     let fontSize: number = Infinity;
-    let fontFamily: string[]|undefined = undefined;
+    let fontFamily: string[] | undefined = undefined;
 
     if (font) {
       const fontSplit = font.split('px');
@@ -564,11 +564,11 @@ export class OlStyleParser implements StyleParser {
           rule.symbolizers.forEach((symb: Symbolizer) => {
             const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symb);
 
-          // this.getOlTextSymbolizerFromTextSymbolizer returns
-          // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
-          // of OlStyles, not ol.StyleFunctions.
-          // So we have to check it and in case of an ol.StyleFunction call that function
-          // and add the returned style to const styles.
+            // this.getOlTextSymbolizerFromTextSymbolizer returns
+            // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
+            // of OlStyles, not ol.StyleFunctions.
+            // So we have to check it and in case of an ol.StyleFunction call that function
+            // and add the returned style to const styles.
             if (typeof olSymbolizer !== 'function') {
               styles.push(olSymbolizer);
             } else {
@@ -735,8 +735,8 @@ export class OlStyleParser implements StyleParser {
     if (markSymbolizer.strokeColor || markSymbolizer.strokeWidth !== undefined) {
       stroke = new this.OlStyleStrokeConstructor({
         color: (markSymbolizer.strokeColor && (markSymbolizer.strokeOpacity !== undefined)) ?
-        OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) :
-        markSymbolizer.strokeColor,
+          OlStyleUtil.getRgbaColor(markSymbolizer.strokeColor, markSymbolizer.strokeOpacity) :
+          markSymbolizer.strokeColor,
         width: markSymbolizer.strokeWidth,
       });
     }
@@ -952,11 +952,13 @@ export class OlStyleParser implements StyleParser {
       color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
         OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
     }) : null;
+    const stroke = symbolizer.outlineColor || symbolizer.outlineWidth ? new this.OlStyleStrokeConstructor({
+      color: symbolizer.outlineColor ? symbolizer.outlineColor : '#000000',
+      width: symbolizer.outlineWidth ? symbolizer.outlineWidth : 1,
+      lineDash: symbolizer.outlineDasharray ? symbolizer.outlineDasharray : null
+    }) : null;
     return new this.OlStyleConstructor({
-      stroke: new this.OlStyleStrokeConstructor({
-        color: symbolizer.outlineColor,
-        width: symbolizer.outlineWidth
-      }),
+      stroke: stroke,
       fill: fill
     });
   }
