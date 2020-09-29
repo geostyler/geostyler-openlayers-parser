@@ -949,14 +949,18 @@ export class OlStyleParser implements StyleParser {
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer) {
     const fill = symbolizer.color ? new this.OlStyleFillConstructor({
-      color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
+      color: (symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
         OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
     }) : null;
+
+    const stroke = symbolizer.outlineColor ? new this.OlStyleStrokeConstructor({
+      color: (symbolizer.outlineOpacity !== null && symbolizer.outlineOpacity !== undefined) ?
+        OlStyleUtil.getRgbaColor(symbolizer.outlineColor, symbolizer.outlineOpacity) : symbolizer.outlineColor,
+      width: symbolizer.outlineWidth
+    }) : null;
+
     return new this.OlStyleConstructor({
-      stroke: new this.OlStyleStrokeConstructor({
-        color: symbolizer.outlineColor,
-        width: symbolizer.outlineWidth
-      }),
+      stroke: stroke,
       fill: fill
     });
   }
