@@ -246,12 +246,16 @@ export class OlStyleParser implements StyleParser {
   getFillSymbolizerFromOlStyle(olStyle: any): FillSymbolizer {
     const olFillStyle = olStyle.getFill();
     const olStrokeStyle = olStyle.getStroke();
+    // getLineDash returns null not undefined. So we have to double check
+    const outlineDashArray = olStrokeStyle ? olStrokeStyle.getLineDash() : undefined;
 
     return {
       kind: 'Fill',
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
-      outlineColor: olStrokeStyle ? olStrokeStyle.getColor() as string : undefined,
+      outlineColor: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,
+      outlineDasharray: outlineDashArray ? outlineDashArray : undefined,
+      outlineOpacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
       outlineWidth: olStrokeStyle ? olStrokeStyle.getWidth() as number : undefined
     };
   }
@@ -949,14 +953,19 @@ export class OlStyleParser implements StyleParser {
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer) {
     const fill = symbolizer.color ? new this.OlStyleFillConstructor({
-      color: (symbolizer.color && symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
+      color: (symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
         OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
     }) : null;
+
+    const stroke = symbolizer.outlineColor ? new this.OlStyleStrokeConstructor({
+      color: (symbolizer.outlineOpacity !== null && symbolizer.outlineOpacity !== undefined) ?
+        OlStyleUtil.getRgbaColor(symbolizer.outlineColor, symbolizer.outlineOpacity) : symbolizer.outlineColor,
+      width: symbolizer.outlineWidth,
+      lineDash: symbolizer.outlineDasharray,
+    }) : null;
+
     return new this.OlStyleConstructor({
-      stroke: new this.OlStyleStrokeConstructor({
-        color: symbolizer.outlineColor,
-        width: symbolizer.outlineWidth
-      }),
+      stroke: stroke,
       fill: fill
     });
   }

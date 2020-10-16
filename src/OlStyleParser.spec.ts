@@ -808,22 +808,27 @@ describe('OlStyleParser implements StyleParser', () => {
         });
     });
     it('can write a OpenLayers PolygonSymbolizer', () => {
-      expect.assertions(5);
+      expect.assertions(6);
       return styleParser.writeStyle(polygon_transparentpolygon)
         .then((olStyle: OlStyle) => {
           expect(olStyle).toBeDefined();
 
           const expecSymb = polygon_transparentpolygon.rules[0].symbolizers[0] as FillSymbolizer;
           const olStroke = olStyle.getStroke();
-
           expect(olStroke).toBeDefined();
-          expect(olStroke.getColor()).toEqual(expecSymb.outlineColor);
+
+          const expecSymbOutlCol: string = expecSymb.outlineColor as string;
+          const expecSymbOutlOpac: number = expecSymb.outlineOpacity as number;
+          expect(olStroke.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbOutlCol, expecSymbOutlOpac));
 
           const olFill = olStyle.getFill();
           expect(olFill).toBeDefined();
-          const expecSymbCol: string = expecSymb.color as string;
-          const expecSymbOpac: number = expecSymb.opacity as number;
-          expect(olFill.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbCol, expecSymbOpac));
+
+          const expecSymbFillCol: string = expecSymb.color as string;
+          const expecSymbFillOpac: number = expecSymb.opacity as number;
+          expect(olFill.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbFillCol, expecSymbFillOpac));
+
+          expect(olStroke.getLineDash()).toEqual(expecSymb.outlineDasharray);
         });
     });
     it('can write a OpenLayers TextSymbolizer', () => {
