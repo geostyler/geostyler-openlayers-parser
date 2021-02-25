@@ -1,30 +1,36 @@
 import {
+  FillSymbolizer,
+  Filter,
+  IconSymbolizer,
+  LineSymbolizer,
+  MarkSymbolizer,
+  Operator,
+  PointSymbolizer,
+  Rule,
   Style,
   StyleParser,
-  Rule,
-  Symbolizer,
-  MarkSymbolizer,
-  LineSymbolizer,
-  FillSymbolizer,
-  TextSymbolizer,
   StyleType,
-  PointSymbolizer,
-  IconSymbolizer,
-  Filter,
-  Operator
+  Symbolizer,
+  TextSymbolizer
 } from 'geostyler-style';
 
+import OlImageState from 'ol/ImageState';
+
+// import CanvasImmediateRenderer from 'ol/render/canvas/Immediate';
+// import EventType from 'ol/events/EventType.js';
+import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
+import OlGeomPoint from 'ol/geom/Point';
 import OlStyle from 'ol/style/Style';
-import OlStyleImage from 'ol/style/Image';
+import OlStyleCircle from 'ol/style/Circle';
 import OlStyleFill from 'ol/style/Fill';
+import OlStyleIcon from 'ol/style/Icon';
+import OlStyleImage from 'ol/style/Image';
+import OlStyleRegularshape from 'ol/style/RegularShape';
 import OlStyleStroke from 'ol/style/Stroke';
 import OlStyleText from 'ol/style/Text';
-import OlStyleCircle from 'ol/style/Circle';
-import OlStyleIcon from 'ol/style/Icon';
-import OlStyleRegularshape from 'ol/style/RegularShape';
-
 import OlStyleUtil from './Util/OlStyleUtil';
-import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
+import { toContext } from 'ol/render';
+
 const _get = require('lodash/get');
 
 export interface OlParserStyleFct {
@@ -949,10 +955,79 @@ export class OlStyleParser implements StyleParser {
    * @return {object} The OL Style object
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer) {
-    const fill = symbolizer.color ? new this.OlStyleFillConstructor({
+
+    // This style will be created once and then reused
+    // This allows us to avoid re-creating on every render update
+    let imageStyle: any;
+
+    const getImageFillStyle = (graphicFill: any) => {
+      // Return already created style
+      if (imageStyle) {
+        return imageStyle;
+      }
+
+      // We can only proceed if graphic fill has been provided and is of type Icon or Mark
+      if (!graphicFill || !['Icon', 'Mark'].includes(graphicFill.kind)) {
+        return;
+      }
+
+      // TODO: Should we wrap this in a try/catch?
+      const graphicFillStyle = this.getOlSymbolizerFromSymbolizer(graphicFill);
+      const graphicFillImage = graphicFillStyle?.getImage();
+      graphicFillImage.load(); // Only needed for Icon type images with a remote src
+
+      // We can only work with the image once it's loaded
+      if (graphicFillImage?.getImageState() !== OlImageState.LOADED) {
+        return;
+      }
+
+      // We need to clone the style and image since we'll be changing the scale below (hack)
+      const graphicFillStyleCloned = graphicFillStyle.clone();
+      const imageCloned = graphicFillStyleCloned.getImage();
+
+      // Temporary canvas.
+      // TODO: Can/should we reuse an pre-existing one for efficiency?
+      const tmpCanvas: HTMLCanvasElement = document.createElement('canvas');
+      const tmpContext = tmpCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+      // Hack to make scaling work for Icons.
+      // TODO: find a better way than this.
+      const scale = imageCloned.getScale() || 1;
+      const pixelRatio = scale;
+      imageCloned.setScale(1);
+
+      const size: number[] = imageCloned.getSize();
+
+      // Create the context where we'll be drawing the style on
+      const vectorContext = toContext(tmpContext, {
+        pixelRatio,
+        size
+      });
+
+      // Draw the graphic
+      vectorContext.setStyle(graphicFillStyleCloned);
+      const pointCoords = size.map(item  => item / 2);
+      vectorContext.drawGeometry(new OlGeomPoint(pointCoords));
+
+      // Create the actual pattern and return style
+      const graphicFillImagePattern = tmpContext.createPattern(tmpCanvas, 'repeat');
+
+      return new this.OlStyleConstructor({
+        fill: new this.OlStyleFillConstructor({
+          color: graphicFillImagePattern
+        })
+      });
+    };
+
+    // STYLES
+    const colorFill = symbolizer.color ? new this.OlStyleFillConstructor({
       color: (symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
         OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
     }) : null;
+
+    const colorFillStyle = new this.OlStyleConstructor({
+      fill: colorFill,
+    });
 
     const stroke = symbolizer.outlineColor ? new this.OlStyleStrokeConstructor({
       color: (symbolizer.outlineOpacity !== null && symbolizer.outlineOpacity !== undefined) ?
@@ -961,10 +1036,47 @@ export class OlStyleParser implements StyleParser {
       lineDash: symbolizer.outlineDasharray,
     }) : null;
 
-    return new this.OlStyleConstructor({
-      stroke: stroke,
-      fill: fill
+    const strokeStyle = new this.OlStyleConstructor({
+      stroke
     });
+
+    const colorFillStrokeStyle = new this.OlStyleConstructor({
+      fill: colorFill,
+      stroke
+    });
+
+    // Note: this style will not follow the zIndex rules
+    const imageRenderStyle = new this.OlStyleConstructor({
+      renderer: (pixelCoordinates: any, state: any) => { // TODO: get types
+        // Map pixel coordinates to geometry
+        const context: CanvasRenderingContext2D = state.context;
+        const geometry = state.geometry.clone();
+        geometry.setCoordinates(pixelCoordinates);
+
+        const renderContext = toContext(context, {
+          pixelRatio: 1 // needed
+        });
+
+        // Draw color fill style first
+        renderContext.setStyle(colorFillStyle);
+        renderContext.drawGeometry(geometry);
+
+        // Draw image fill style after this
+        const imageFillStyle = getImageFillStyle(symbolizer.graphicFill);
+        if (imageFillStyle) {
+          renderContext.setStyle(imageFillStyle);
+          renderContext.drawGeometry(geometry);
+        }
+
+        // Draw stroke style last
+        renderContext.setStyle(strokeStyle);
+        renderContext.drawGeometry(geometry);
+      },
+    });
+
+    const olStyle = symbolizer.graphicFill ? imageRenderStyle : colorFillStrokeStyle;
+
+    return olStyle;
   }
 
   /**
