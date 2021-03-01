@@ -684,6 +684,7 @@ export class OlStyleParser implements StyleParser {
    * @return {object} The OpenLayers Style object or a StyleFunction
    */
   getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer): any {
+    let addGeomFunction = true;
     let olSymbolizer: any;
     switch (symbolizer.kind) {
       case 'Mark':
@@ -696,9 +697,11 @@ export class OlStyleParser implements StyleParser {
         olSymbolizer = this.getOlTextSymbolizerFromTextSymbolizer(symbolizer);
         break;
       case 'Line':
+        addGeomFunction = false;
         olSymbolizer = this.getOlLineSymbolizerFromLineSymbolizer(symbolizer);
         break;
       case 'Fill':
+        addGeomFunction = false;
         olSymbolizer = this.getOlPolygonSymbolizerFromFillSymbolizer(symbolizer);
         break;
       default:
@@ -722,6 +725,25 @@ export class OlStyleParser implements StyleParser {
         });
         break;
     }
+
+    // We can only add the geometry function if the style allows for it
+    if (typeof olSymbolizer.setGeometry !== 'function') {
+      addGeomFunction = false;
+    }
+
+    // Allow for polygon geometries to be styled as a point
+    // TODO: should we cater for MultiPolygons (getInteriorPoints())?
+    if (addGeomFunction) {
+      const geomFunction = function (feature: any) {
+        const geom = feature.getGeometry();
+        const geomHasInteriorPoint = typeof geom.getInteriorPoint === 'function';
+
+        return geomHasInteriorPoint ? geom.getInteriorPoint() : geom;
+      };
+
+      olSymbolizer.setGeometry(geomFunction);
+    }
+
     return olSymbolizer;
   }
 
