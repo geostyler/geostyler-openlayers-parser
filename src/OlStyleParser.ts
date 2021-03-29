@@ -25,7 +25,7 @@ import OlStyleRegularshape from 'ol/style/RegularShape';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
-const _get = require('lodash/get');
+import _get from 'lodash/get';
 
 export interface OlParserStyleFct {
   (feature: any, resolution: number): any;
@@ -655,16 +655,16 @@ export class OlStyleParser implements StyleParser {
             matchesFilter = ('' + prop) !== ('' + filter[2]);
             break;
           case '<':
-            matchesFilter = parseFloat(prop) < parseFloat(filter[2]);
+            matchesFilter = parseFloat(prop) < Number(filter[2]);
             break;
           case '<=':
-            matchesFilter = parseFloat(prop) <= parseFloat(filter[2]);
+            matchesFilter = parseFloat(prop) <= Number(filter[2]);
             break;
           case '>':
-            matchesFilter = parseFloat(prop) > parseFloat(filter[2]);
+            matchesFilter = parseFloat(prop) > Number(filter[2]);
             break;
           case '>=':
-            matchesFilter = parseFloat(prop) >= parseFloat(filter[2]);
+            matchesFilter = parseFloat(prop) >= Number(filter[2]);
             break;
           default:
             throw new Error('Cannot parse Filter. Unknown comparison operator.');
