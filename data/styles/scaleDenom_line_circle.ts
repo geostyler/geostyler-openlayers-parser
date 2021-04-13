@@ -26,7 +26,7 @@ const scaleDenomLineCircle: Style = {
       },
       symbolizers: [{
         kind: 'Mark',
-        wellKnownName: 'Circle',
+        wellKnownName: 'circle',
         color: '#FF0000',
         radius: 6
       }]
