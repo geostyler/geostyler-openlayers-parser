@@ -7,7 +7,7 @@ const multiTwoRulesSimplepoint: Style = {
       name: 'OL Style Rule 0',
       symbolizers: [{
         kind: 'Mark',
-        wellKnownName: 'Circle',
+        wellKnownName: 'circle',
         color: '#FF0000',
         radius: 6
       }]
@@ -16,7 +16,7 @@ const multiTwoRulesSimplepoint: Style = {
       name: 'OL Style Rule 1',
       symbolizers: [{
         kind: 'Mark',
-        wellKnownName: 'Circle',
+        wellKnownName: 'circle',
         color: '#FF1111',
         radius: 4
       }]

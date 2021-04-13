@@ -89,7 +89,7 @@ export class OlStyleParser implements StyleParser {
       const olStrokeStyle = olCircleStyle.getStroke();
       const circleSymbolizer: MarkSymbolizer = {
         kind: 'Mark',
-        wellKnownName: 'Circle',
+        wellKnownName: 'circle',
         color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
         opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
         radius: (olCircleStyle.getRadius() !== 0) ? olCircleStyle.getRadius() : 5,
@@ -142,7 +142,7 @@ export class OlStyleParser implements StyleParser {
         case 3:
           switch (angle) {
             case 0:
-              markSymbolizer.wellKnownName = 'Triangle';
+              markSymbolizer.wellKnownName = 'triangle';
               break;
             case Math.PI / 2:
               markSymbolizer.wellKnownName = 'shape://carrow';
@@ -156,19 +156,19 @@ export class OlStyleParser implements StyleParser {
             // cross or x
             if (olRegularStyle.getAngle() === 0) {
               // cross
-              markSymbolizer.wellKnownName = 'Cross';
+              markSymbolizer.wellKnownName = 'cross';
             } else {
               // x
-              markSymbolizer.wellKnownName = 'X';
+              markSymbolizer.wellKnownName = 'x';
             }
           } else {
             // square
-            markSymbolizer.wellKnownName = 'Square';
+            markSymbolizer.wellKnownName = 'square';
           }
           break;
         case 5:
           // star
-          markSymbolizer.wellKnownName = 'Star';
+          markSymbolizer.wellKnownName = 'star';
           break;
         default:
           throw new Error('Could not parse OlStyle. Only 2, 3, 4 or 5 point regular shapes are allowed');
@@ -758,26 +758,26 @@ export class OlStyleParser implements StyleParser {
 
     switch (markSymbolizer.wellKnownName) {
       case 'shape://dot':
-      case 'Circle':
+      case 'circle':
         olStyle = new this.OlStyleConstructor({
           image: new this.OlStyleCircleConstructor(shapeOpts)
         });
         break;
-      case 'Square':
+      case 'square':
         shapeOpts.points = 4;
         shapeOpts.angle = 45 * Math.PI / 180;
         olStyle = new this.OlStyleConstructor({
           image: new this.OlStyleRegularshapeConstructor(shapeOpts)
         });
         break;
-      case 'Triangle':
+      case 'triangle':
         shapeOpts.points = 3;
         shapeOpts.angle = 0;
         olStyle = new this.OlStyleConstructor({
           image: new this.OlStyleRegularshapeConstructor(shapeOpts)
         });
         break;
-      case 'Star':
+      case 'star':
         shapeOpts.points = 5;
         shapeOpts.radius2 = shapeOpts.radius / 2.5;
         shapeOpts.angle = 0;
@@ -786,7 +786,7 @@ export class OlStyleParser implements StyleParser {
         });
         break;
       case 'shape://plus':
-      case 'Cross':
+      case 'cross':
         shapeOpts.points = 4;
         shapeOpts.radius2 = 0;
         shapeOpts.angle = 0;
@@ -802,7 +802,7 @@ export class OlStyleParser implements StyleParser {
         });
         break;
       case 'shape://times':
-      case 'X':
+      case 'x':
         shapeOpts.points = 4;
         shapeOpts.radius2 = 0;
         shapeOpts.angle = 45 * Math.PI / 180;

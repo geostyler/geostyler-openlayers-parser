@@ -7,7 +7,7 @@ const pointSimpleCross: Style = {
       name: 'OL Style Rule 0',
       symbolizers: [{
         kind: 'Mark',
-        wellKnownName: 'Cross',
+        wellKnownName: 'cross',
         color: '#FF0000',
         radius: 6,
         rotate: 0

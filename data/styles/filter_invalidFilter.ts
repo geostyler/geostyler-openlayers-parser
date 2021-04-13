@@ -17,7 +17,7 @@ const filterInvalidFilter: Style = {
       ],
       symbolizers: [{
         kind: 'Mark',
-        wellKnownName: 'Circle',
+        wellKnownName: 'circle',
         color: '#FF0000',
         radius: 10
       }]
@@ -25,7 +25,7 @@ const filterInvalidFilter: Style = {
       name: 'OL Style Rule 1',
       symbolizers: [{
         kind: 'Mark',
-        wellKnownName: 'Circle',
+        wellKnownName: 'circle',
         color: '#FF0000',
         radius: 6
       }]
