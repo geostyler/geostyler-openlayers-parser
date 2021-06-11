@@ -7,6 +7,7 @@ module.exports = {
     "./src/OlStyleParser.ts"
   ],
   mode: 'production',
+  target: 'es5',
   output: {
     filename: "olStyleParser.js",
     path: __dirname + "/browser",
@@ -22,15 +23,11 @@ module.exports = {
   },
   module: {
     rules: [
-      // All files with a '.ts'
       {
-        test: /\.ts$/,
-        include: __dirname + '/src',
-        use: [
-          {
-            loader: require.resolve('ts-loader'),
-          },
-        ],
+        test: /\.(ts|js)$/,
+        use: {
+          loader: 'babel-loader'
+        },
       }
     ]
   }
