@@ -921,7 +921,7 @@ export class OlStyleParser implements StyleParser {
       // Rotation in openlayers is radians while we use degree
       rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
     };
-    // check if TextSymbolizer.image contains a placeholder
+    // check if IconSymbolizer.image contains a placeholder
     const prefix = '\\{\\{';
     const suffix = '\\}\\}';
     const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
