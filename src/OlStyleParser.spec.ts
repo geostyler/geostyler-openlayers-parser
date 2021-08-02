@@ -492,7 +492,7 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olIcon).toBeDefined();
         });
     });
-    it('can write an OpenLayers IconSymbolizer f-n with with feature attrib based src', () => {
+    it('can write an OpenLayers IconSymbolizer with feature attribute based src', () => {
       expect.assertions(5);
       return styleParser.writeStyle(point_dynamic_icon)
         .then((olStyle: OlStyle) => {
