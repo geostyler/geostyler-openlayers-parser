@@ -936,17 +936,26 @@ export class OlStyleParser implements StyleParser {
         if(!src) {
           src = symbolizer.image + '';
         }
+        let image;
         if(this.olIconStyleCache[src]) {
-          return this.olIconStyleCache[src];
+          image = this.olIconStyleCache[src];
+          image.setScale(baseProps.scale);
+          if(baseProps.rotation !== undefined) {
+            image.setRotation(baseProps.rotation);
+          }
+          if(baseProps.opacity !== undefined) {
+            image.setOpacity(baseProps.opacity);
+          }
+        } else {
+          image = new this.OlStyleIconConstructor({
+            ...baseProps,
+            src // order is important
+          });
+          this.olIconStyleCache[src] = image;
         }
-        const image = new this.OlStyleIconConstructor({
-          ...baseProps,
-          src // order is important
-        });
         const style = new this.OlStyleConstructor({
           image
         });
-        this.olIconStyleCache[src] = style;
         return style;
       };
       return olPointStyledIconFn;
