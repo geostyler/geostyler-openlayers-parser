@@ -47,6 +47,7 @@ export class OlStyleParser implements StyleParser {
   public static title = 'OpenLayers Style Parser';
 
   title = 'OpenLayers Style Parser';
+  olIconStyleCache: any = {};
 
   OlStyleConstructor: any = OlStyle;
   OlStyleImageConstructor: any = OlStyleImage;
@@ -930,18 +931,23 @@ export class OlStyleParser implements StyleParser {
       // if it contains a placeholder
       // return olStyleFunction
       const olPointStyledIconFn = (feature: any) => {
-        let src: string | undefined = OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.image as string, '');
+        let src: string = OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.image as string, '');
         // src can't be blank, would trigger ol errors
         if(!src) {
-          src = symbolizer.image;
+          src = symbolizer.image + '';
+        }
+        if(this.olIconStyleCache[src]) {
+          return this.olIconStyleCache[src];
         }
         const image = new this.OlStyleIconConstructor({
           ...baseProps,
           src // order is important
         });
-        return new this.OlStyleConstructor({
+        const style = new this.OlStyleConstructor({
           image
         });
+        this.olIconStyleCache[src] = style;
+        return style;
       };
       return olPointStyledIconFn;
     } else {
