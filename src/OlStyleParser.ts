@@ -481,7 +481,10 @@ export class OlStyleParser implements StyleParser {
       const hasTextSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
         return symbolizer.kind === 'Text';
       });
-      if (!hasFilter && !hasScaleDenominator && !hasTextSymbolizer) {
+      const hasDynamicIconSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
+        return symbolizer.kind === 'Icon' && symbolizer.image?.includes('{{');
+      });
+      if (!hasFilter && !hasScaleDenominator && !hasTextSymbolizer && !hasDynamicIconSymbolizer) {
         if (nrSymbolizers === 1) {
           return this.geoStylerStyleToOlStyle(geoStylerStyle);
         } else {
@@ -910,16 +913,44 @@ export class OlStyleParser implements StyleParser {
    * @return {object} The OL Style object
    */
   getOlIconSymbolizerFromIconSymbolizer(symbolizer: IconSymbolizer): any {
-    return new this.OlStyleConstructor({
-      image: new this.OlStyleIconConstructor({
-        src: symbolizer.image,
-        crossOrigin: 'anonymous',
-        opacity: symbolizer.opacity,
-        scale: symbolizer.size || 1,
-        // Rotation in openlayers is radians while we use degree
-        rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
-      })
-    });
+    const baseProps = {
+      src: symbolizer.image,
+      crossOrigin: 'anonymous',
+      opacity: symbolizer.opacity,
+      scale: symbolizer.size || 1,
+      // Rotation in openlayers is radians while we use degree
+      rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
+    };
+    // check if IconSymbolizer.image contains a placeholder
+    const prefix = '\\{\\{';
+    const suffix = '\\}\\}';
+    const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
+    const regExpRes = symbolizer.image ? symbolizer.image.match(regExp) : null;
+    if (regExpRes) {
+      // if it contains a placeholder
+      // return olStyleFunction
+      const olPointStyledIconFn = (feature: any) => {
+        let src: string | undefined = OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.image as string, '');
+        // src can't be blank, would trigger ol errors
+        if(!src) {
+          src = symbolizer.image;
+        }
+        const image = new this.OlStyleIconConstructor({
+          ...baseProps,
+          src // order is important
+        });
+        return new this.OlStyleConstructor({
+          image
+        });
+      };
+      return olPointStyledIconFn;
+    } else {
+      return new this.OlStyleConstructor({
+        image: new this.OlStyleIconConstructor({
+          ...baseProps
+        })
+      });
+    }
   }
 
   /**

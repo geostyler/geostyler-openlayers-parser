@@ -8,6 +8,7 @@ import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
 
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_icon from '../data/styles/point_icon';
+import point_dynamic_icon from '../data/styles/point_dynamic_icon';
 import point_simplesquare from '../data/styles/point_simplesquare';
 import point_simplestar from '../data/styles/point_simplestar';
 import point_simpletriangle from '../data/styles/point_simpletriangle';
@@ -489,6 +490,24 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olIcon.getOpacity()).toBeCloseTo(expecSymb.opacity);
 
           expect(olIcon).toBeDefined();
+        });
+    });
+    it('can write an OpenLayers IconSymbolizer with feature attribute based src', () => {
+      expect.assertions(5);
+      return styleParser.writeStyle(point_dynamic_icon)
+        .then((olStyle: OlStyle) => {
+          expect(olStyle).toBeDefined();
+          const dummyFeat = new OlFeature({
+            path: 'image.jpg'
+          });
+
+          const styles = olStyle(dummyFeat, 1);
+          expect(styles).toBeDefined();
+          expect(styles).toHaveLength(1);
+
+          const olIcon: OlStyleIcon = styles[0].getImage() as OlStyleIcon;
+          expect(olIcon).toBeDefined();        
+          expect(olIcon.getSrc()).toEqual(dummyFeat.get('path'));
         });
     });
     it('can write a OpenLayers RegularShape square', () => {
