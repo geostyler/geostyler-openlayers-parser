@@ -1,7 +1,7 @@
 import OlStyleUtil, { DUMMY_MARK_SYMBOLIZER_FONT } from './OlStyleUtil';
 import OlFeature from 'ol/Feature';
 import OlGeomPoint from 'ol/geom/Point';
-import { MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
+import { CategorizeFunctionFilter, FunctionCall, LiteralValue, MarkSymbolizer, PropertyName, TextSymbolizer } from 'geostyler-style';
 
 describe('OlStyleUtil', () => {
 
@@ -306,6 +306,248 @@ describe('OlStyleUtil', () => {
       template = '{{name}} {{notAvailable}}';
       got = OlStyleUtil.resolveAttributeTemplate(feat, template, notFoundPlaceHolder);
       expect(got).toBe(`${props.name} ${notFoundPlaceHolder}`);
+    });
+  });
+
+  describe('#containsExpression', () => {
+
+    it('returns false, if object contains no expression', () => {
+      const obj =  {foo: 'bar', baz: 'faz'};
+      const got = OlStyleUtil.containsExpression(obj);
+      expect(got).toBe(false);
+    });
+
+    it('returns true, if object contains one expression', () => {
+      const obj =  {
+        foo: 'bar',
+        baz: {
+          type: 'literal',
+          value: 5
+        }
+      };
+      const got = OlStyleUtil.containsExpression(obj);
+      expect(got).toBe(true);
+    });
+
+    it('returns true, if object contains more than one expression', () => {
+      const obj =  {
+        foo: {
+          type: 'property',
+          name: 'foo'
+        },
+        baz: {
+          type: 'literal',
+          value: 5
+        }
+      };
+      const got = OlStyleUtil.containsExpression(obj);
+      expect(got).toBe(true);
+    });
+
+    it('returns true, if nested subproperty contains expressions', () => {
+      const obj =  {
+        foo: {
+          bar: {
+            type: 'property',
+            name: 'baz'
+          }
+        }
+      };
+      const got = OlStyleUtil.containsExpression(obj);
+      expect(got).toBe(true);
+    });
+
+    it('returns false, if object in array contains no expressions', () => {
+      const arr = [{
+        foo: 'bar'
+      }, {
+        baz: 'faz'
+      }];
+      const got = OlStyleUtil.containsExpression(arr);
+      expect(got).toBe(false);
+    });
+
+    it('returns true, if object in array contains expressions', () => {
+      const arr = [{
+        foo: 'bar'
+      }, {
+        bar: {
+          type: 'property',
+          name: 'baz'
+        }
+      }];
+      const got = OlStyleUtil.containsExpression(arr);
+      expect(got).toBe(true);
+    });
+
+    it('returns false, if called with primitive', () => {
+      const prim = 5;
+      const got = OlStyleUtil.containsExpression(prim);
+      expect(got).toBe(false);
+    });
+
+  });
+
+  describe('#runCategorizeFunction', () => {
+
+    it('returns the value of the right category', () => {
+      const propExpression: PropertyName = {type: 'property', name: 'myProp'};
+      const initialValue: LiteralValue = {type: 'literal', value: '0'};
+      const firstPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '3'}, {type: 'literal', value: 'one'}
+      ];
+      const secondPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '10'}, {type: 'literal', value: 'two'}
+      ];
+      const functionArgs = [
+        propExpression,
+        initialValue,
+        ...firstPair,
+        ...secondPair
+      ];
+
+      const dummyFeature = new OlFeature();
+      dummyFeature.set('myProp', 1);
+      const got = OlStyleUtil.runCategorizeFunction(functionArgs, dummyFeature);
+      expect(got).toEqual(firstPair[1].value);
+    });
+
+    it('considers the belongsTo succeeding value', () => {
+      const propExpression: PropertyName = {type: 'property', name: 'myProp'};
+      const initialValue: LiteralValue = {type: 'literal', value: '0'};
+      const firstPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '3'}, {type: 'literal', value: 'one'}
+      ];
+      const secondPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '10'}, {type: 'literal', value: 'two'}
+      ];
+
+      const belongsTo: LiteralValue = {
+        type: 'literal',
+        value: 'succeeding'
+      };
+      const functionArgs = [
+        propExpression,
+        initialValue,
+        ...firstPair,
+        ...secondPair,
+        belongsTo
+      ];
+
+      const dummyFeature = new OlFeature();
+      dummyFeature.set('myProp', 3);
+      const got = OlStyleUtil.runCategorizeFunction(functionArgs, dummyFeature);
+      expect(got).toEqual(secondPair[1].value);
+    });
+
+    it('considers the belongsTo preceding value', () => {
+      const propExpression: PropertyName = {type: 'property', name: 'myProp'};
+      const initialValue: LiteralValue = {type: 'literal', value: '0'};
+      const firstPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '3'}, {type: 'literal', value: 'one'}
+      ];
+      const secondPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '10'}, {type: 'literal', value: 'two'}
+      ];
+
+      const belongsTo: LiteralValue = {
+        type: 'literal',
+        value: 'preceding'
+      };
+      const functionArgs = [
+        propExpression,
+        initialValue,
+        ...firstPair,
+        ...secondPair,
+        belongsTo
+      ];
+
+      const dummyFeature = new OlFeature();
+      dummyFeature.set('myProp', 3);
+      const got = OlStyleUtil.runCategorizeFunction(functionArgs, dummyFeature);
+      expect(got).toEqual(firstPair[1].value);
+    });
+
+    it('returns the initialValue if no category fits', () => {
+      const propExpression: PropertyName = {type: 'property', name: 'myProp'};
+      const initialValue: LiteralValue = {type: 'literal', value: '20'};
+      const firstPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '3'}, {type: 'literal', value: 'one'}
+      ];
+      const secondPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '10'}, {type: 'literal', value: 'two'}
+      ];
+
+      const belongsTo: LiteralValue = {
+        type: 'literal',
+        value: 'preceding'
+      };
+      const functionArgs = [
+        propExpression,
+        initialValue,
+        ...firstPair,
+        ...secondPair,
+        belongsTo
+      ];
+
+      const dummyFeature = new OlFeature();
+      dummyFeature.set('myProp', 100);
+      const got = OlStyleUtil.runCategorizeFunction(functionArgs, dummyFeature);
+      expect(got).toEqual(initialValue.value);
+    });
+
+    it('can be used with literal inputs', () => {
+      const propExpression: LiteralValue = {type: 'literal', value: '1'};
+      const initialValue: LiteralValue = {type: 'literal', value: '0'};
+      const firstPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '3'}, {type: 'literal', value: 'one'}
+      ];
+      const secondPair: [LiteralValue, LiteralValue] = [
+        {type: 'literal', value: '10'}, {type: 'literal', value: 'two'}
+      ];
+      const functionArgs = [
+        propExpression,
+        initialValue,
+        ...firstPair,
+        ...secondPair
+      ];
+
+      const dummyFeature = new OlFeature();
+      dummyFeature.set('myProp', 1);
+      const got = OlStyleUtil.runCategorizeFunction(functionArgs, dummyFeature);
+      expect(got).toEqual(firstPair[1].value);
+    });
+  });
+
+  describe('#getValueFromFunctionCall', () => {
+
+    it('returns the value using the categorize function', () => {
+
+      const propExpression: LiteralValue = {type: 'literal', value: '1'};
+      const initialValue: LiteralValue = {type: 'literal', value: '0'};
+      // const firstPair: [LiteralValue, LiteralValue] = [
+      //   {type: 'literal', value: '3'}, {type: 'literal', value: 'one'}
+      // ];
+      // const secondPair: [LiteralValue, LiteralValue] = [
+      //   {type: 'literal', value: '10'}, {type: 'literal', value: 'two'}
+      // ];
+      const functionArgs = [
+        propExpression,
+        initialValue,
+        // ...firstPair,
+        // ...secondPair
+      ];
+
+      const functionCall: CategorizeFunctionFilter = {
+        type: 'functioncall',
+        name: 'Categorize',
+        args: functionArgs
+      };
+
+      const dummyFeature = new OlFeature();
+      dummyFeature.set('myProp', 1);
+      const got = OlStyleUtil.getValueFromFunctionCall(functionCall, dummyFeature);
+      expect(got).toEqual(initialValue.value);
     });
   });
 

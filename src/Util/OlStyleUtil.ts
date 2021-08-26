@@ -1,4 +1,16 @@
-import { MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
+import {
+  Expression,
+  FunctionCall,
+  isCategorizeFunctionFilter,
+  isExpression,
+  isFunctionCall,
+  isLiteralValue,
+  isPropertyName,
+  LiteralValue,
+  MarkSymbolizer,
+  PropertyName,
+  TextSymbolizer
+} from 'geostyler-style';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
@@ -7,6 +19,161 @@ export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
  * Offers some utility functions to work with OpenLayers Styles.
  */
 class OlStyleUtil {
+
+  /**
+   * Check if an object or array contains an Expression.
+   *
+   * This also works for nested objects and arrays.
+   *
+   * @param obj 
+   * @returns {boolean} True, if contains Expression. False otherwise.
+   */
+  public static containsExpression(obj: any): boolean {
+    if (Array.isArray(obj)) {
+      obj.some((o: any) => this.containsExpression(o), this);
+    }
+    if (obj === Object(obj)) {
+      if (isExpression(obj)) {
+        return true;
+      }
+      return Object.keys(obj).some((key: string) => {
+        return this.containsExpression(obj[key]);
+      }, this);
+    }
+    return false;
+  }
+
+  /**
+   * Get the value from an Expression or value.
+   * 
+   * If an Expression is given, it will be evaluated on the given feature.
+   *
+   * @param expressionOrValue The Expression or value to get the value from.
+   * @param feature The feature to evaluate the Expression on.
+   * @returns The value or the return value of the evaluated Expression.
+   */
+  public static getValueFromExpressionOrValue(expressionOrValue: any, feature: any): any {
+    if (expressionOrValue && isExpression(expressionOrValue)) {
+      return this.getValueFromExpression(expressionOrValue, feature);
+    } else {
+      return expressionOrValue;
+    }
+  }
+
+  /**
+   * Get the value from an Expression.
+   *
+   * The Expression will be evaluated on the given feature.
+   *
+   * @param expression The expression to get the value from.
+   * @param feature The feature to evaluate the Expression on.
+   * @returns The return value of the evaluated Expression.
+   */
+  public static getValueFromExpression(expression: Expression, feature: any): any {
+    if (isLiteralValue(expression)) {
+      return this.getValueFromLiteral(expression);
+    } else if (isPropertyName(expression)) {
+      return this.getValueFromPropertyName(expression, feature);
+    } else if (isFunctionCall(expression)) {
+      return this.getValueFromFunctionCall(expression, feature);
+    } else {
+      return undefined;
+    }
+  }
+
+  /**
+   * Get the value from a literal.
+   *
+   * @param literal The literal to return the value from.
+   * @returns The value of the literal.
+   */
+  public static getValueFromLiteral(literal: LiteralValue): any {
+    // TODO how do we now if we should parse to another type?
+    return literal.value;
+  }
+
+  /**
+   * Get the value of a feature property.
+   * 
+   * @param propertyName The name of the feature property.
+   * @param feature The feature to get the property from.
+   * @returns The value of the property for the given feature.
+   */
+  public static getValueFromPropertyName(propertyName: PropertyName, feature: any): any {
+    return feature.get(propertyName.name);
+  }
+
+  /**
+   * Get the result of a functionCall for a feature.
+   *
+   * @param functionCall The functionCall to evaluate.
+   * @param feature The feature to evaluate the functionCall on.
+   * @returns The value of the evaluated functionCall on the given feature.
+   */
+  public static getValueFromFunctionCall(functionCall: FunctionCall, feature: any): any {
+    if (isCategorizeFunctionFilter(functionCall)) {
+      return this.runCategorizeFunction(functionCall.args, feature);
+    } else {
+      return undefined;
+    }
+  }
+
+  /**
+   * Implementation of the Categorize function.
+   * See https://geoserver-pdf.readthedocs.io/en/latest/filter/function_reference.html#transformation-functions
+   * 
+   * @param functionArgs The arguments for the categorize function.
+   * @param feature The feature to evaluate the function on.
+   * @returns The evaluated categorize function on the given feature.
+   */
+  public static runCategorizeFunction(functionArgs: Expression[], feature: any): () => any {
+    const args = [...functionArgs];
+    const BELONGS_TO_DEFAULT = 'preceding';
+    let belongsTo: string = BELONGS_TO_DEFAULT;
+    const input = this.getValueFromExpressionOrValue(args.shift(), feature);
+    const initialValue = this.getValueFromExpressionOrValue(args.shift(), feature);
+    if (args.length % 2 === 1) {
+      belongsTo = this.getValueFromExpressionOrValue(args.pop(), feature);
+    }
+
+    const categoryMap = [];
+    while(args.length) {
+      categoryMap.push({
+        threshold: parseFloat(this.getValueFromExpressionOrValue(args.shift(), feature)),
+        value: this.getValueFromExpressionOrValue(args.shift(), feature)
+      });
+    }
+
+    const sorter = (a: any, b: any) => {
+      if (a.threshold > b.threshold) {
+        return -1;
+      }
+      if (a.threshold === b.threshold) {
+        return 0;
+      }
+      return 1;
+    };
+
+    categoryMap.sort(sorter);
+
+    const category = categoryMap.reduce((acc: any, cur: any) => {
+      if (belongsTo === BELONGS_TO_DEFAULT) {
+        if (input <= cur.threshold) {
+          return cur;
+        } else {
+          return acc;
+        }
+      } else {
+        if (input < cur.threshold) {
+          return cur;
+        } else {
+          return acc;
+        }
+      }
+    }, {value: initialValue});
+
+    return category.value;
+  }
 
   /**
    * Transforms a HEX encoded color and an opacity value to a RGB(A) notation.

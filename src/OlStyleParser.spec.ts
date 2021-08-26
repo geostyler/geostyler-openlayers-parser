@@ -7,6 +7,7 @@ import ol from 'ol';
 import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
 
 import point_simplepoint from '../data/styles/point_simplepoint';
+import point_expressionpoint from '../data/styles/point_expressionpoint';
 import point_icon from '../data/styles/point_icon';
 import point_dynamic_icon from '../data/styles/point_dynamic_icon';
 import point_simplesquare from '../data/styles/point_simplesquare';
@@ -63,7 +64,9 @@ import {
   TextSymbolizer,
   Style,
   IconSymbolizer,
-  MarkSymbolizer
+  MarkSymbolizer,
+  PointSymbolizer,
+  LiteralValue
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
@@ -1164,6 +1167,21 @@ describe('OlStyleParser implements StyleParser', () => {
           const noMatchRadius = noMatchStyle[0].getImage().getRadius();
           const expecNoMatchSymbolizer: MarkSymbolizer = filter_invalidfilter.rules[1].symbolizers[0] as MarkSymbolizer;
           expect(noMatchRadius).toBeCloseTo(expecNoMatchSymbolizer.radius);
+        });
+    });
+    it('can evaluate GeoStyler expressions', () => {
+      expect.assertions(3);
+      return styleParser.writeStyle(point_expressionpoint)
+        .then((olStyle: OlParserStyleFct) => {
+          expect(olStyle).toBeDefined();
+
+          const dummyFeature = new OlFeature();
+          const expressionStyle = olStyle(dummyFeature, 1);
+          expect(expressionStyle).toBeDefined();
+          const color = expressionStyle[0].getImage().getFill().getColor();
+          const symbolizer = point_expressionpoint.rules[0].symbolizers[0] as PointSymbolizer;
+          const expecColor = symbolizer.color as LiteralValue;
+          expect(color).toEqual(expecColor.value);
         });
     });
 
