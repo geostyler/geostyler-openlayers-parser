@@ -10,7 +10,7 @@ module.exports = {
     "^.+\\.(ts|js)$": "<rootDir>/node_modules/babel-jest"
   },
   "transformIgnorePatterns": [
-    "node_modules/(?!(ol|@terrestris/*)/)"
+    "node_modules/(?!(ol|geostyler-style|@terrestris/*)/)"
   ],
   "testRegex": "/src/.*\\.spec.ts$",
   "collectCoverageFrom": [

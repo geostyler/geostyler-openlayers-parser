@@ -34,6 +34,7 @@ import scaleDenomLine from '../data/styles/scaleDenom_line';
 import scaleDenomLineCircle from '../data/styles/scaleDenom_line_circle';
 import scaleDenomLineCircleOverlap from '../data/styles/scaleDenom_line_circle_overlap';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
+import polygon_graphicfill_mark from '../data/styles/polygon_graphicFill_mark';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import point_fontglyph from '../data/styles/point_fontglyph';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
@@ -848,6 +849,17 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(olFill.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbFillCol, expecSymbFillOpac));
 
           expect(olStroke.getLineDash()).toEqual(expecSymb.outlineDasharray);
+        });
+    });
+    it('can write a OpenLayers PolygonSymbolizer with MarkSymbolizer as graphicFill', () => {
+      expect.assertions(3);
+      return styleParser.writeStyle(polygon_graphicfill_mark)
+        .then((olStyle: OlStyle) => {
+          expect(olStyle).toBeDefined();
+
+          const olFill = olStyle.getFill();
+          expect(olFill).toBeDefined();
+          expect(olFill.getColor()).toBeInstanceOf(CanvasPattern);
         });
     });
     it('can write a OpenLayers TextSymbolizer', () => {
