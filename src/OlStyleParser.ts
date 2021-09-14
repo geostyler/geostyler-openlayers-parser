@@ -58,10 +58,6 @@ export class OlStyleParser implements StyleParser {
   OlStyleIconConstructor: any = OlStyleIcon;
   OlStyleRegularshapeConstructor: any = OlStyleRegularshape;
 
-  isOlParserStyleFct = (x: any): x is OlParserStyleFct => {
-    return typeof x === 'function';
-  };
-
   constructor(ol?: any) {
     if (ol) {
       this.OlStyleConstructor = ol.style.Style;
@@ -74,6 +70,10 @@ export class OlStyleParser implements StyleParser {
       this.OlStyleRegularshapeConstructor = ol.style.RegularShape;
     }
   }
+
+  isOlParserStyleFct = (x: any): x is OlParserStyleFct => {
+    return typeof x === 'function';
+  };
 
   /**
    * Get the GeoStyler-Style PointSymbolizer from an OpenLayers Style object.
@@ -933,17 +933,17 @@ export class OlStyleParser implements StyleParser {
       const olPointStyledIconFn = (feature: any) => {
         let src: string = OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.image as string, '');
         // src can't be blank, would trigger ol errors
-        if(!src) {
+        if (!src) {
           src = symbolizer.image + '';
         }
         let image;
-        if(this.olIconStyleCache[src]) {
+        if (this.olIconStyleCache[src]) {
           image = this.olIconStyleCache[src];
           image.setScale(baseProps.scale);
-          if(baseProps.rotation !== undefined) {
+          if (baseProps.rotation !== undefined) {
             image.setRotation(baseProps.rotation);
           }
-          if(baseProps.opacity !== undefined) {
+          if (baseProps.opacity !== undefined) {
             image.setOpacity(baseProps.opacity);
           }
         } else {
