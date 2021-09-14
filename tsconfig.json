@@ -3,23 +3,21 @@
     "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
-    "outDir": "build/dist",
-    "module": "commonjs",
-    "target": "es5",
-    "lib": [
-      "dom",
-      "es2017"
-    ],
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
+    "lib": [ "dom", "es2017"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "outDir": "build/dist",
+    "rootDir": "src",
+    "skipLibCheck": true,
+    "sourceMap": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true
+    "target": "es5"
   },
   "exclude": [
     "node_modules",
