@@ -34,15 +34,13 @@
     "ol": "^6.0.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && npm run build:browser",
     "build:browser": "webpack --config browser-build.config.js",
-    "prebuild": "npm run test",
-    "pretest": "npm run lint",
-    "prepublishOnly": "npm run build",
-    "test": "jest",
-    "test:watch": "jest --watchAll",
+    "build": "tsc -p tsconfig.json && npm run build:browser",
     "lint": "eslint -c .eslintrc.js --ext .ts && tsc --noEmit --project tsconfig.json",
-    "release": "np --no-yarn && git push https://github.com/geostyler/geostyler-openlayers-parser.git master"
+    "prepublishOnly": "npm run build",
+    "release": "np --no-yarn && git push https://github.com/geostyler/geostyler-openlayers-parser.git master",
+    "test:watch": "jest --watchAll",
+    "test": "jest --coverage"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
