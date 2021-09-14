@@ -58,10 +58,6 @@ export class OlStyleParser implements StyleParser {
   OlStyleIconConstructor: any = OlStyleIcon;
   OlStyleRegularshapeConstructor: any = OlStyleRegularshape;
 
-  isOlParserStyleFct = (x: any): x is OlParserStyleFct => {
-    return typeof x === 'function';
-  };
-
   constructor(ol?: any) {
     if (ol) {
       this.OlStyleConstructor = ol.style.Style;
