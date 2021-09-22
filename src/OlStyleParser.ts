@@ -276,7 +276,7 @@ export class OlStyleParser implements StyleParser {
     const offsetY = olTextStyle.getOffsetY();
     const font = olTextStyle.getFont();
     const rotation = olTextStyle.getRotation();
-    const allowOverlap = olTextStyle.getOverflow();
+    const allowOverlap = olTextStyle.getOverflow() ? olTextStyle.getOverflow() : undefined;
     const text = olTextStyle.getText();
     let fontStyleWeightSize: string;
     let fontSizePart: string[];
