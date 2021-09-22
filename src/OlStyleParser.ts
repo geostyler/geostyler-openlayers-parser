@@ -268,7 +268,7 @@ export class OlStyleParser implements StyleParser {
    * @param {OlStyle} olStyle The OpenLayers Style object
    * @return {TextSymbolizer} The GeoStyler-Style TextSymbolizer
    */
-  getTextSymbolizerFromOlStyle(olStyle: any): TextSymbolizer {
+  getTextSymbolizerFromOlStyle(olStyle: OlStyle): TextSymbolizer {
     const olTextStyle = olStyle.getText();
     const olFillStyle = olTextStyle.getFill();
     const olStrokeStyle = olTextStyle.getStroke();
@@ -276,6 +276,7 @@ export class OlStyleParser implements StyleParser {
     const offsetY = olTextStyle.getOffsetY();
     const font = olTextStyle.getFont();
     const rotation = olTextStyle.getRotation();
+    const allowOverlap = olTextStyle.getOverflow();
     const text = olTextStyle.getText();
     let fontStyleWeightSize: string;
     let fontSizePart: string[];
@@ -300,6 +301,7 @@ export class OlStyleParser implements StyleParser {
     return {
       kind: 'Text',
       label: text,
+      allowOverlap,
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       size: isFinite(fontSize) ? fontSize : undefined,
       font: fontFamily,
@@ -1031,6 +1033,7 @@ export class OlStyleParser implements StyleParser {
           OlStyleUtil.getRgbaColor(symbolizer.haloColor, symbolizer.opacity) : symbolizer.haloColor,
         width: symbolizer.haloWidth ? symbolizer.haloWidth : 0
       }),
+      overflow: symbolizer.allowOverlap,
       offsetX: symbolizer.offset ? symbolizer.offset[0] : 0,
       offsetY: symbolizer.offset ? symbolizer.offset[1] : 0,
       rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
