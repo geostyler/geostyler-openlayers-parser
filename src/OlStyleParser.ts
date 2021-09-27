@@ -63,7 +63,7 @@ export class OlStyleParser implements StyleParser {
         antialias: 'none',
         fillOpacity: {
           support: 'none',
-          info: 'Uses opacity instead.'
+          info: 'Use opacity instead.'
         },
         graphicFill: 'none',
         visibility: 'none'
