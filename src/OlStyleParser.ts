@@ -11,7 +11,8 @@ import {
   PointSymbolizer,
   IconSymbolizer,
   Filter,
-  Operator
+  Operator,
+  UnsupportedProperties
 } from 'geostyler-style';
 
 import OlStyle from 'ol/style/Style';
@@ -45,6 +46,62 @@ export class OlStyleParser implements StyleParser {
    * The name of the OlStyleParser.
    */
   public static title = 'OpenLayers Style Parser';
+
+  unsupportedProperties: UnsupportedProperties = {
+    Symbolizer: {
+      MarkSymbolizer: {
+        avoidEdges: 'none',
+        blur: 'none',
+        offset: 'none',
+        fillOpacity: 'none',
+        offsetAnchor: 'none',
+        pitchAlignment: 'none',
+        pitchScale: 'none',
+        visibility: 'none'
+      },
+      FillSymbolizer: {
+        antialias: 'none',
+        fillOpacity: {
+          support: 'none',
+          info: 'Use opacity instead.'
+        },
+        graphicFill: 'none',
+        visibility: 'none'
+      },
+      IconSymbolizer: {
+        allowOverlap: 'none',
+        anchor: 'none',
+        avoidEdges: 'none',
+        color: 'none',
+        haloBlur: 'none',
+        haloColor: 'none',
+        haloWidth: 'none',
+        keepUpright: 'none',
+        offset: 'none',
+        offsetAnchor: 'none',
+        optional: 'none',
+        padding: 'none',
+        pitchAlignment: 'none',
+        rotationAlignment: 'none',
+        textFit: 'none',
+        textFitPadding: 'none',
+        visibility: 'none'
+      },
+      LineSymbolizer: {
+        blur: 'none',
+        gapWidth: 'none',
+        gradient: 'none',
+        miterLimit: 'none',
+        roundLimit: 'none',
+        spacing: 'none',
+        visibility: 'none',
+        graphicFill: 'none',
+        graphicStroke: 'none',
+        perpendicularOffset: 'none'
+      },
+      RasterSymbolizer: 'none'
+    }
+  };
 
   title = 'OpenLayers Style Parser';
   olIconStyleCache: any = {};
