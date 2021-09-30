@@ -11,7 +11,8 @@ const pointFontglyph: Style = {
         color: '#FF0000',
         radius: 12,
         rotate: 0,
-        strokeColor: '#112233'
+        strokeColor: '#112233',
+        offset: [10, 20]
       }]
     }
   ]
