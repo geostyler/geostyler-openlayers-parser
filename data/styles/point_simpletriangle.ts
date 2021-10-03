@@ -10,7 +10,8 @@ const pointSimpleTriangle: Style = {
         wellKnownName: 'triangle',
         color: '#FF0000',
         radius: 6,
-        rotate: 0
+        rotate: 0,
+        offset: [10, 20]
       }]
     }
   ]

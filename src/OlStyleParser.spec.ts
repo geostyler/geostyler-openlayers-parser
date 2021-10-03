@@ -1,8 +1,11 @@
-import OlStyle from 'ol/style/Style';
-import OlStyleText from 'ol/style/Text';
-import OlStyleFill from 'ol/style/Fill';
+import OlStyle, { Options as StyleOptions, StyleFunction } from 'ol/style/Style';
+import OlStyleCircle from 'ol/style/Circle';
+import OlStyleRegularshape from 'ol/style/RegularShape';
+import OlStyleStroke from 'ol/style/Stroke';
+import OlStyleIcon from 'ol/style/Icon';
+import OlStyleText, { Options as TextOptions } from 'ol/style/Text';
+import OlStyleFill, { Options as FillOptions } from 'ol/style/Fill';
 import OlFeature from 'ol/Feature';
-import ol from 'ol';
 
 import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
 
@@ -253,18 +256,18 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can read a OpenLayers LineSymbolizer', () => {
       expect.assertions(2);
       return styleParser.readStyle(ol_line_simpleline)
-      .then((geoStylerStyle: Style) => {
-        expect(geoStylerStyle).toBeDefined();
-        expect(geoStylerStyle).toEqual(line_simpleline);
-      });
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(line_simpleline);
+        });
     });
     it('can read a OpenLayers PolygonSymbolizer', () => {
       expect.assertions(2);
       return styleParser.readStyle(ol_polygon_transparentpolygon)
-      .then((geoStylerStyle: Style) => {
-        expect(geoStylerStyle).toBeDefined();
-        expect(geoStylerStyle).toEqual(polygon_transparentpolygon);
-      });
+        .then((geoStylerStyle: Style) => {
+          expect(geoStylerStyle).toBeDefined();
+          expect(geoStylerStyle).toEqual(polygon_transparentpolygon);
+        });
     });
     it('can read two OpenLayers Styles in one Rule', () => {
       expect.assertions(2);
@@ -372,10 +375,10 @@ describe('OlStyleParser implements StyleParser', () => {
         const font = `19px ${fontFamily}`;
         const rotation = Math.PI / 4;
 
-        const fillOpts: ol.olx.style.FillOptions = {
+        const fillOpts: FillOptions = {
           color: '#FFFF00'
         };
-        const textOpts: ol.olx.style.TextOptions = {
+        const textOpts: TextOptions = {
           text: 'Peter',
           offsetX,
           offsetY,
@@ -384,7 +387,7 @@ describe('OlStyleParser implements StyleParser', () => {
           rotation
         };
 
-        const styleOpts: ol.olx.style.StyleOptions = {
+        const styleOpts: StyleOptions = {
           text: new OlStyleText(textOpts)
         };
         const testStyle: OlStyle = new OlStyle(styleOpts);
@@ -412,18 +415,18 @@ describe('OlStyleParser implements StyleParser', () => {
 
         const expectedFontSizes = [5, 12, 15];
 
-        const fillOpts: ol.olx.style.FillOptions = {
+        const fillOpts: FillOptions = {
           color: '#FFFF00'
         };
 
         [font1, font2, font3].forEach((font: string, idx: number) => {
-          const textOpts: ol.olx.style.TextOptions = {
+          const textOpts: TextOptions = {
             text: 'Peter',
             font,
             fill: new OlStyleFill(fillOpts)
           };
 
-          const styleOpts: ol.olx.style.StyleOptions = {
+          const styleOpts: StyleOptions = {
             text: new OlStyleText(textOpts)
           };
           const testStyle: OlStyle = new OlStyle(styleOpts);
@@ -496,7 +499,7 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can write an OpenLayers IconSymbolizer with feature attribute based src', () => {
       expect.assertions(5);
       return styleParser.writeStyle(point_dynamic_icon)
-        .then((olStyle: OlStyle) => {
+        .then((olStyle: StyleFunction) => {
           expect(olStyle).toBeDefined();
           const dummyFeat = new OlFeature({
             path: 'image.jpg'
@@ -507,7 +510,7 @@ describe('OlStyleParser implements StyleParser', () => {
           expect(styles).toHaveLength(1);
 
           const olIcon: OlStyleIcon = styles[0].getImage() as OlStyleIcon;
-          expect(olIcon).toBeDefined();        
+          expect(olIcon).toBeDefined();
           expect(olIcon.getSrc()).toEqual(dummyFeat.get('path'));
         });
     });

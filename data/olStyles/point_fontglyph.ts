@@ -7,6 +7,8 @@ const olFontGlyph = new OlStyle({
   text: new OlStyleText({
     text: '|',
     font: 'Normal 12px \'My Font Name\', geostyler-mark-symbolizer',
+    offsetX: 10,
+    offsetY: 20,
     fill: new OlStyleFill({
       color: '#FF0000'
     }),

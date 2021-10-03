@@ -11,7 +11,8 @@ module.exports = {
   output: {
     filename: "olStyleParser.js",
     path: __dirname + "/browser",
-    library: "GeoStylerOpenlayersParser"
+    library: "GeoStylerOpenlayersParser",
+    chunkFormat: "array-push"
   },
   resolve: {
     extensions: [".ts", ".js", ".json"]

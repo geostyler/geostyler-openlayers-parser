@@ -6,6 +6,7 @@ const olSimpleTriangle = new OlStyle({
   image: new OlStyleRegularshape({
     points: 3,
     radius: 6,
+    displacement: [10, 20],
     fill: new OlStyleFill({
       color: '#FF0000'
     })
