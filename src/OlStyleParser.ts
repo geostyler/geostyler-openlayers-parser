@@ -1023,7 +1023,9 @@ export class OlStyleParser implements StyleParser {
       if (!fill) {
         fill = new this.OlStyleFillConstructor({});
       }
-      fill.setColor(pattern);
+      if (pattern) {
+        fill.setColor(pattern);
+      }
       olStyle.setFill(fill);
     }
 
@@ -1045,7 +1047,7 @@ export class OlStyleParser implements StyleParser {
     if (isIconSymbolizer(graphicFill)) {
       graphicFillStyle = this.getOlIconSymbolizerFromIconSymbolizer(graphicFill);
       const graphicFillImage = graphicFillStyle?.getImage();
-      graphicFillImage.load(); // Needed for Icon type images with a remote src
+      graphicFillImage?.load(); // Needed for Icon type images with a remote src
       // We can only work with the image once it's loaded
       if (graphicFillImage?.getImageState() !== OlImageState.LOADED) {
         return null;
