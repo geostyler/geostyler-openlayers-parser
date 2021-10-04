@@ -25,14 +25,6 @@
     "url": "https://github.com/geostyler/geostyler-openlayers-parser/issues"
   },
   "homepage": "https://github.com/geostyler/geostyler-openlayers-parser#readme",
-  "dependencies": {
-    "@terrestris/ol-util": "^4.0.1",
-    "geostyler-style": "^4.0.0",
-    "lodash": "^4.17.15"
-  },
-  "peerDependencies": {
-    "ol": "^6.0.0"
-  },
   "scripts": {
     "build:browser": "webpack --config browser-build.config.js",
     "build": "tsc -p tsconfig.json && npm run build:browser",
@@ -44,6 +36,14 @@
     "test": "jest --coverage",
     "lint:test": "npm run lint && npm run test",
     "lint:typecheck:test": "npm run lint && npm run typecheck && npm run test"
+  },
+  "dependencies": {
+    "@terrestris/ol-util": "^4.0.1",
+    "geostyler-style": "^5.0.0",
+    "lodash": "^4.17.15"
+  },
+  "peerDependencies": {
+    "ol": "^6.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
@@ -67,6 +67,7 @@
     "jest-canvas-mock": "^2.3.1",
     "np": "^7.5.0",
     "ol": "^6.7.0",
+    "regenerator-runtime": "^0.13.9",
     "terser-webpack-plugin": "^5.2.4",
     "typescript": "^4.4.3",
     "webpack": "^5.52.1",
