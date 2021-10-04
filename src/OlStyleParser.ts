@@ -8,13 +8,15 @@ import {
   MarkSymbolizer,
   Operator,
   PointSymbolizer,
+  ReadStyleResult,
   Rule,
   Style,
   StyleParser,
   StyleType,
   Symbolizer,
   TextSymbolizer,
-  UnsupportedProperties
+  UnsupportedProperties,
+  WriteStyleResult
 } from 'geostyler-style';
 
 import OlImageState from 'ol/ImageState';
@@ -48,7 +50,7 @@ export interface OlParserStyleFct {
  * @class OlStyleParser
  * @implements StyleParser
  */
-export class OlStyleParser implements StyleParser {
+export class OlStyleParser implements StyleParser<OlStyleLike> {
 
   /**
    * The name of the OlStyleParser.
@@ -489,18 +491,24 @@ export class OlStyleParser implements StyleParser {
    * @param olStyle The style to be parsed
    * @return The Promise resolving with the GeoStyler-Style Style
    */
-  readStyle(olStyle: OlStyleLike): Promise<Style> {
-    return new Promise<Style>((resolve, reject) => {
+  readStyle(olStyle: OlStyleLike): Promise<ReadStyleResult> {
+    return new Promise<ReadStyleResult>((resolve) => {
       try {
         if (this.isOlParserStyleFct(olStyle)) {
-          resolve(olStyle.__geoStylerStyle);
+          resolve({
+            output: olStyle.__geoStylerStyle
+          });
         } else {
           olStyle = olStyle as OlStyle | OlStyle[];
           const geoStylerStyle: Style = this.olStyleToGeoStylerStyle(olStyle);
-          resolve(geoStylerStyle);
+          resolve({
+            output: geoStylerStyle
+          });
         }
       } catch (error) {
-        reject(error);
+        resolve({
+          errors: [error]
+        });
       }
     });
   }
@@ -519,15 +527,17 @@ export class OlStyleParser implements StyleParser {
    * @param {Style} geoStylerStyle A GeoStyler-Style Style.
    * @return {Promise} The Promise resolving with one of above mentioned style types.
    */
-  writeStyle(geoStylerStyle: Style): Promise<(any)> {
-    return new Promise<any>((resolve, reject) => {
+  writeStyle(geoStylerStyle: Style): Promise<WriteStyleResult<OlStyleLike>> {
+    return new Promise<WriteStyleResult>((resolve) => {
       try {
-
-        const olStyle: any = this.getOlStyleTypeFromGeoStylerStyle(geoStylerStyle);
-        resolve(olStyle);
-
+        const olStyle = this.getOlStyleTypeFromGeoStylerStyle(geoStylerStyle);
+        resolve({
+          output: olStyle
+        });
       } catch (error) {
-        reject(error);
+        resolve({
+          errors: [error]
+        });
       }
     });
   }
