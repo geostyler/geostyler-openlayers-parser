@@ -188,17 +188,17 @@ describe('OlStyleUtil', () => {
     });
 
     it('returns correct font name (1)', () => {
-      const name = OlStyleUtil.getFontNameFromOlFont(`Normal 13px 'Arial Sans', sans-serif`);
+      const name = OlStyleUtil.getFontNameFromOlFont('Normal 13px \'Arial Sans\', sans-serif');
       expect(name).toEqual('Arial Sans');
     });
 
     it('returns correct font name (2)', () => {
-      const name = OlStyleUtil.getFontNameFromOlFont(`10px Arial`);
+      const name = OlStyleUtil.getFontNameFromOlFont('10px Arial');
       expect(name).toEqual('Arial');
     });
 
     it('returns correct font name (3)', () => {
-      const name = OlStyleUtil.getFontNameFromOlFont(`italic 1.2em "Fira Sans", serif`);
+      const name = OlStyleUtil.getFontNameFromOlFont('italic 1.2em "Fira Sans", serif');
       expect(name).toEqual('Fira Sans');
     });
   });
@@ -209,17 +209,17 @@ describe('OlStyleUtil', () => {
     });
 
     it('returns correct size in pixels (1)', () => {
-      const size = OlStyleUtil.getSizeFromOlFont(`Normal 13px 'Arial Sans', sans-serif`);
+      const size = OlStyleUtil.getSizeFromOlFont('Normal 13px \'Arial Sans\', sans-serif');
       expect(size).toEqual(13);
     });
 
     it('returns correct size in pixels (2)', () => {
-      const size = OlStyleUtil.getSizeFromOlFont(`10px Arial`);
+      const size = OlStyleUtil.getSizeFromOlFont('10px Arial');
       expect(size).toEqual(10);
     });
 
     it('returns 0 if no available size in pixels', () => {
-      const size = OlStyleUtil.getSizeFromOlFont(`italic 1.2em "Fira Sans", serif`);
+      const size = OlStyleUtil.getSizeFromOlFont('italic 1.2em "Fira Sans", serif');
       expect(size).toEqual(0);
     });
   });
@@ -284,11 +284,9 @@ describe('OlStyleUtil', () => {
       expect(got).toBe('||');
       const mockFn = jest.fn(() => {return 'FOO'; });
       got = OlStyleUtil.resolveAttributeTemplate(feat, template, '', mockFn);
-      expect(mockFn.mock.calls.length).toBe(2);
-      expect(mockFn.mock.calls[0][0]).toBe('exists-and-is-undefined');
-      expect(mockFn.mock.calls[0][1]).toBe(undefined);
-      expect(mockFn.mock.calls[1][0]).toBe('exists-and-is-null');
-      expect(mockFn.mock.calls[1][1]).toBe(null);
+      expect(mockFn).toHaveBeenCalledTimes(2);
+      expect(mockFn).toHaveBeenCalledWith('exists-and-is-undefined', undefined);
+      expect(mockFn).toHaveBeenCalledWith('exists-and-is-null', null);
       expect(got).toBe('FOO|FOO|');
     });
 

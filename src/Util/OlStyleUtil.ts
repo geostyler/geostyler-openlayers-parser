@@ -215,7 +215,7 @@ class OlStyleUtil {
     template: string,
     noValueFoundText: string = 'n.v.',
     valueAdjust: Function = (key: string, val: any) => val
-    ) {
+  ) {
 
     let attributeTemplatePrefix = '\\{\\{';
     let attributeTemplateSuffix = '\\}\\}';
