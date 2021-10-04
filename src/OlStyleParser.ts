@@ -1,32 +1,40 @@
 import {
+  FillSymbolizer,
+  Filter,
+  IconSymbolizer,
+  isIconSymbolizer,
+  isMarkSymbolizer,
+  LineSymbolizer,
+  MarkSymbolizer,
+  Operator,
+  PointSymbolizer,
+  Rule,
   Style,
   StyleParser,
-  Rule,
-  Symbolizer,
-  MarkSymbolizer,
-  LineSymbolizer,
-  FillSymbolizer,
-  TextSymbolizer,
   StyleType,
-  PointSymbolizer,
-  IconSymbolizer,
-  Filter,
-  Operator,
+  Symbolizer,
+  TextSymbolizer,
   UnsupportedProperties
 } from 'geostyler-style';
 
+import OlImageState from 'ol/ImageState';
+
+import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
+import OlGeomPoint from 'ol/geom/Point';
+
 import OlStyle, { StyleFunction as OlStyleFunction, StyleLike as OlStyleLike} from 'ol/style/Style';
 import OlStyleImage from 'ol/style/Image';
-import OlStyleFill from 'ol/style/Fill';
 import OlStyleStroke from 'ol/style/Stroke';
 import OlStyleText from 'ol/style/Text';
 import OlStyleCircle from 'ol/style/Circle';
+import OlStyleFill from 'ol/style/Fill';
 import OlStyleIcon from 'ol/style/Icon';
 import OlStyleRegularshape, { Options as OlStyleRegularshapeOptions } from 'ol/style/RegularShape';
 
 import OlStyleUtil from './Util/OlStyleUtil';
-import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
-import _get from 'lodash/get';
+import { toContext } from 'ol/render';
+
+const _get = require('lodash/get');
 
 export interface OlParserStyleFct {
   (feature: any, resolution: number): any;
@@ -1064,7 +1072,7 @@ export class OlStyleParser implements StyleParser {
    * @return {object} The OL Style object
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer): OlStyleFill {
-    const fill = symbolizer.color ? new this.OlStyleFillConstructor({
+    let fill = symbolizer.color ? new this.OlStyleFillConstructor({
       color: (symbolizer.opacity !== null && symbolizer.opacity !== undefined) ?
         OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
     }) : null;
@@ -1076,10 +1084,81 @@ export class OlStyleParser implements StyleParser {
       lineDash: symbolizer.outlineDasharray,
     }) : null;
 
-    return new this.OlStyleConstructor({
-      stroke: stroke,
-      fill: fill
+    const olStyle = new this.OlStyleConstructor({
+      fill,
+      stroke
     });
+
+    if (symbolizer.graphicFill) {
+      const pattern = this.getOlPatternFromGraphicFill(symbolizer.graphicFill);
+      if (!fill) {
+        fill = new this.OlStyleFillConstructor({});
+      }
+      if (pattern) {
+        fill.setColor(pattern);
+      }
+      olStyle.setFill(fill);
+    }
+
+    return olStyle;
+  }
+
+  /**
+   * Get the pattern for a graphicFill.
+   *
+   * This creates a CanvasPattern based on the
+   * properties of the given PointSymbolizer. Currently,
+   * only IconSymbolizer and MarkSymbolizer are supported.
+   *
+   * @param {PointSymbolizer} graphicFill The Symbolizer that holds the pattern config.
+   * @returns The created CanvasPattern, or null.
+   */
+  getOlPatternFromGraphicFill(graphicFill: PointSymbolizer): CanvasPattern | null {
+    let graphicFillStyle: any;
+    if (isIconSymbolizer(graphicFill)) {
+      graphicFillStyle = this.getOlIconSymbolizerFromIconSymbolizer(graphicFill);
+      const graphicFillImage = graphicFillStyle?.getImage();
+      graphicFillImage?.load(); // Needed for Icon type images with a remote src
+      // We can only work with the image once it's loaded
+      if (graphicFillImage?.getImageState() !== OlImageState.LOADED) {
+        return null;
+      }
+    } else if (isMarkSymbolizer(graphicFill)) {
+      graphicFillStyle = this.getOlPointSymbolizerFromMarkSymbolizer(graphicFill);
+    } else {
+      return null;
+    }
+
+    // We need to clone the style and image since we'll be changing the scale below (hack)
+    const graphicFillStyleCloned = graphicFillStyle.clone();
+    const imageCloned = graphicFillStyleCloned.getImage();
+
+    // Temporary canvas.
+    // TODO: Can/should we reuse an pre-existing one for efficiency?
+    const tmpCanvas: HTMLCanvasElement = document.createElement('canvas');
+    const tmpContext = tmpCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+    // Hack to make scaling work for Icons.
+    // TODO: find a better way than this.
+    const scale = imageCloned.getScale() || 1;
+    const pixelRatio = scale;
+    imageCloned.setScale(1);
+
+    const size: [number, number] = imageCloned.getSize();
+
+    // Create the context where we'll be drawing the style on
+    const vectorContext = toContext(tmpContext, {
+      pixelRatio,
+      size
+    });
+
+    // Draw the graphic
+    vectorContext.setStyle(graphicFillStyleCloned);
+    const pointCoords = size.map(item  => item / 2);
+    vectorContext.drawGeometry(new OlGeomPoint(pointCoords));
+
+    // Create the actual pattern and return style
+    return tmpContext.createPattern(tmpCanvas, 'repeat');
   }
 
   /**
