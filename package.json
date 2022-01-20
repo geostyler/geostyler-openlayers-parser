@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@terrestris/ol-util": "^4.0.1",
-    "geostyler-style": "^5.0.0",
+    "geostyler-style": "^5.0.1",
     "lodash": "^4.17.15"
   },
   "peerDependencies": {
