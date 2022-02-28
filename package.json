@@ -38,7 +38,7 @@
     "lint:typecheck:test": "npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
-    "@terrestris/ol-util": "^4.0.1",
+    "@terrestris/ol-util": "^5.1.0",
     "geostyler-style": "^5.0.1",
     "lodash": "^4.17.15"
   },
