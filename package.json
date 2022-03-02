@@ -1,6 +1,6 @@
 {
   "name": "geostyler-openlayers-parser",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
   "main": "build/dist/OlStyleParser.js",
   "types": "build/dist/OlStyleParser.d.ts",
@@ -38,7 +38,6 @@
     "lint:typecheck:test": "npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
-    "@terrestris/ol-util": "^4.0.1",
     "geostyler-style": "^5.0.1",
     "lodash": "^4.17.15"
   },
