@@ -21,7 +21,6 @@ import {
 
 import OlImageState from 'ol/ImageState';
 
-import MapUtil from '@terrestris/ol-util/dist/MapUtil/MapUtil';
 import OlGeomPoint from 'ol/geom/Point';
 
 import OlStyle, { StyleFunction as OlStyleFunction, StyleLike as OlStyleLike} from 'ol/style/Style';
@@ -32,6 +31,7 @@ import OlStyleCircle from 'ol/style/Circle';
 import OlStyleFill from 'ol/style/Fill';
 import OlStyleIcon from 'ol/style/Icon';
 import OlStyleRegularshape, { Options as OlStyleRegularshapeOptions } from 'ol/style/RegularShape';
+import { METERS_PER_UNIT } from 'ol/proj/Units';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 import { toContext } from 'ol/render';
@@ -622,7 +622,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const rules = geoStylerStyle.rules;
     const olStyle = (feature: any, resolution: number): any[] => {
       const styles: any[] = [];
-      const scale = MapUtil.getScaleForResolution(resolution, 'm');
+
+      // calculate scale for resolution (from ol-util MapUtil)
+      const dpi = 25.4 / 0.28;
+      const mpu = METERS_PER_UNIT.m;
+      const inchesPerMeter = 39.37;
+      const scale = resolution * mpu * inchesPerMeter * dpi;
+
       rules.forEach((rule: Rule) => {
         // handling scale denominator
         const minScale = _get(rule, 'scaleDenominator.min');
