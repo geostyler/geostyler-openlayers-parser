@@ -250,11 +250,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       const olFillStyle = olTextStyle.getFill();
       const olStrokeStyle = olTextStyle.getStroke();
       const rotation = olTextStyle.getRotation();
-      const char = olTextStyle.getText() || 'a';
+      let char = olTextStyle.getText() || 'a';
       const font = olTextStyle.getFont() || '10px sans-serif';
       const fontName = OlStyleUtil.getFontNameFromOlFont(font);
       const radius = OlStyleUtil.getSizeFromOlFont(font);
       const offset = [olTextStyle.getOffsetX(), olTextStyle.getOffsetY()];
+
+      if (Array.isArray(char)) {
+        char = char[0];
+      }
 
       pointSymbolizer = {
         kind: 'Mark',
@@ -353,6 +357,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const rotation = olTextStyle.getRotation();
     const allowOverlap = olTextStyle.getOverflow() ? olTextStyle.getOverflow() : undefined;
     const text = olTextStyle.getText();
+    const label = Array.isArray(text) ? text[0] : text;
     let fontStyleWeightSize: string;
     let fontSizePart: string[];
     let fontSize: number = Infinity;
@@ -375,7 +380,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
 
     return {
       kind: 'Text',
-      label: text,
+      label,
       allowOverlap,
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       size: isFinite(fontSize) ? fontSize : undefined,
