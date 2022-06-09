@@ -329,15 +329,30 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     // getLineDash returns null not undefined. So we have to double check
     const outlineDashArray = olStrokeStyle ? olStrokeStyle.getLineDash() : undefined;
 
-    return {
-      kind: 'Fill',
-      color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
-      opacity: olFillStyle ? OlStyleUtil.getOpacity(olFillStyle.getColor() as string) : undefined,
-      outlineColor: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,
-      outlineDasharray: outlineDashArray ? outlineDashArray : undefined,
-      outlineOpacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
-      outlineWidth: olStrokeStyle ? olStrokeStyle.getWidth() as number : undefined
+    const symbolizer: FillSymbolizer = {
+      kind: 'Fill'
     };
+
+    if (olFillStyle) {
+      symbolizer.color = OlStyleUtil.getHexColor(olFillStyle.getColor() as string);
+    }
+    if (olStrokeStyle) {
+      symbolizer.opacity = OlStyleUtil.getOpacity(olFillStyle.getColor() as string);
+    }
+    if (olStrokeStyle) {
+      symbolizer.outlineColor = OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string);
+    }
+    if (outlineDashArray) {
+      symbolizer.outlineDasharray = outlineDashArray;
+    }
+    if (olStrokeStyle) {
+      symbolizer.outlineOpacity = OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string);
+    }
+    if (olStrokeStyle && olStrokeStyle.getWidth()) {
+      symbolizer.outlineWidth = olStrokeStyle.getWidth();
+    }
+    return symbolizer;
+
   }
 
   /**
@@ -507,7 +522,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           olStyle = olStyle as OlStyle | OlStyle[];
           const geoStylerStyle: Style = this.olStyleToGeoStylerStyle(olStyle);
           resolve({
-            output: geoStylerStyle
+            output: geoStylerStyle,
+            // unsupportedProperties // TODO
           });
         }
       } catch (error) {
@@ -534,10 +550,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   writeStyle(geoStylerStyle: Style): Promise<WriteStyleResult<OlStyleLike>> {
     return new Promise<WriteStyleResult>((resolve) => {
+      const unsupportedProperties = this.checkForUnsupportedProperites(geoStylerStyle);
       try {
         const olStyle = this.getOlStyleTypeFromGeoStylerStyle(geoStylerStyle);
         resolve({
-          output: olStyle
+          output: olStyle,
+          unsupportedProperties,
+          warnings: unsupportedProperties && ['Your style contains unsupportedProperties!']
         });
       } catch (error) {
         resolve({
@@ -545,6 +564,42 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         });
       }
     });
+  }
+
+  checkForUnsupportedProperites(geoStylerStyle: Style): UnsupportedProperties | undefined {
+    const capitalizeFirstLetter = (a: string) => a[0].toUpperCase() + a.slice(1);
+    let unsupportedProperties: UnsupportedProperties = {};
+    geoStylerStyle.rules.forEach(rule => {
+      // ScaleDenominator and Filters are completly supported so we just check for symbolizers
+      rule.symbolizers.forEach(symbolizer => {
+        const key = capitalizeFirstLetter(`${symbolizer.kind}Symbolizer`);
+        const value = this.unsupportedProperties?.Symbolizer?.[key];
+        if (value) {
+          if (!unsupportedProperties.Symbolizer) {
+            unsupportedProperties.Symbolizer = {};
+          }
+          if (typeof value === 'string' || value instanceof String ) {
+            unsupportedProperties.Symbolizer[key] = value;
+          } else {
+            if (!unsupportedProperties.Symbolizer[key]) {
+              unsupportedProperties.Symbolizer[key] = {};
+            }
+            Object.keys(symbolizer).forEach(property => {
+              if (value[property]) {
+                if (!unsupportedProperties.Symbolizer) {
+                  unsupportedProperties.Symbolizer = {};
+                }
+                unsupportedProperties.Symbolizer[key][property] = value[property];
+              }
+            });
+          }
+        }
+      });
+    });
+    if (Object.keys(unsupportedProperties).length > 0) {
+      return unsupportedProperties;
+    }
+    return undefined;
   }
 
   /**

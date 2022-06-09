@@ -42,6 +42,7 @@ import scaleDenomLineCircle from '../data/styles/scaleDenom_line_circle';
 import scaleDenomLineCircleOverlap from '../data/styles/scaleDenom_line_circle_overlap';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import polygon_graphicfill_mark from '../data/styles/polygon_graphicFill_mark';
+import polygon_simple from '../data/styles/polygon_simple';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import point_fontglyph from '../data/styles/point_fontglyph';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
@@ -62,6 +63,7 @@ import ol_point_simpleplus from '../data/olStyles/point_simpleplus';
 import ol_point_simpletimes from '../data/olStyles/point_simpletimes';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
+import ol_polygon_simple from '../data/olStyles/polygon_simple';
 import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimpleline';
 import ol_point_styledLabel_static from '../data/olStyles/point_styledLabel_static';
 import ol_point_fontglyph from '../data/olStyles/point_fontglyph';
@@ -1050,6 +1052,12 @@ describe('OlStyleParser implements StyleParser', () => {
     const noMatchRadius = noMatchStyle[0].getImage().getRadius();
     const expecNoMatchSymbolizer: MarkSymbolizer = filter_invalidfilter.rules[1].symbolizers[0] as MarkSymbolizer;
     expect(noMatchRadius).toBeCloseTo(expecNoMatchSymbolizer.radius);
+  });
+
+  it('can write a simple polygon with just fill', async () => {
+    const { output: geoStylerStyle } = await styleParser.writeStyle(polygon_simple);
+    expect(geoStylerStyle).toBeDefined();
+    expect(geoStylerStyle).toEqual(ol_polygon_simple);
   });
 
   describe('#getOlStyleTypeFromGeoStylerStyle', () => {
