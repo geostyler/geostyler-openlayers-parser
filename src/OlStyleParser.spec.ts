@@ -42,8 +42,11 @@ import scaleDenomLineCircle from '../data/styles/scaleDenom_line_circle';
 import scaleDenomLineCircleOverlap from '../data/styles/scaleDenom_line_circle_overlap';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import polygon_graphicfill_mark from '../data/styles/polygon_graphicFill_mark';
+import polygon_simple from '../data/styles/polygon_simple';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import point_fontglyph from '../data/styles/point_fontglyph';
+import unsupported_properties from '../data/styles/unsupported_properties';
+
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
 import ol_point_icon from '../data/olStyles/point_icon';
 import ol_point_simplesquare from '../data/olStyles/point_simplesquare';
@@ -62,9 +65,12 @@ import ol_point_simpleplus from '../data/olStyles/point_simpleplus';
 import ol_point_simpletimes from '../data/olStyles/point_simpletimes';
 import ol_line_simpleline from '../data/olStyles/line_simpleline';
 import ol_polygon_transparentpolygon from '../data/olStyles/polygon_transparentpolygon';
+import ol_polygon_simple from '../data/olStyles/polygon_simple';
 import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimpleline';
 import ol_point_styledLabel_static from '../data/olStyles/point_styledLabel_static';
 import ol_point_fontglyph from '../data/olStyles/point_fontglyph';
+import ol_unsupported_properties from '../data/olStyles/unsupported_properties';
+
 import { METERS_PER_UNIT } from 'ol/proj/Units';
 import {
   LineSymbolizer,
@@ -241,6 +247,12 @@ describe('OlStyleParser implements StyleParser', () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_fontglyph);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_fontglyph);
+    });
+
+    it('can read a simple polygon with just fill', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(ol_polygon_simple);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(polygon_simple);
     });
 
     describe('#olStyleToGeoStylerStyle', () => {
@@ -1050,6 +1062,35 @@ describe('OlStyleParser implements StyleParser', () => {
     const noMatchRadius = noMatchStyle[0].getImage().getRadius();
     const expecNoMatchSymbolizer: MarkSymbolizer = filter_invalidfilter.rules[1].symbolizers[0] as MarkSymbolizer;
     expect(noMatchRadius).toBeCloseTo(expecNoMatchSymbolizer.radius);
+  });
+
+  it('can write a simple polygon with just fill', async () => {
+    const { output: geoStylerStyle } = await styleParser.writeStyle(polygon_simple);
+    expect(geoStylerStyle).toBeDefined();
+    expect(geoStylerStyle).toEqual(ol_polygon_simple);
+  });
+
+  it('adds unsupportedProperties to the write output', async () => {
+    let {
+      output: olStyle,
+      unsupportedProperties,
+      warnings
+    } = await styleParser.writeStyle(unsupported_properties);
+    expect(olStyle).toBeDefined();
+    const unsupportedGot = {
+      Symbolizer: {
+        FillSymbolizer: {
+          fillOpacity: {
+            info: 'Use opacity instead.',
+            support: 'none'
+          }
+        }
+      }
+    };
+    const warningsGot = ['Your style contains unsupportedProperties!'];
+    expect(unsupportedProperties).toEqual(unsupportedGot);
+    expect(warnings).toEqual(warningsGot);
+    expect(olStyle).toEqual(ol_unsupported_properties);
   });
 
   describe('#getOlStyleTypeFromGeoStylerStyle', () => {

@@ -4,7 +4,7 @@ const pointSimplePoint: Style = {
   name: 'OL Style',
   rules: [
     {
-      name: 'OL Style Rule',
+      name: 'OL Style Rule 0',
       filter: ['&&',
         ['==', 'NAME', 'New York'],
         ['!',
