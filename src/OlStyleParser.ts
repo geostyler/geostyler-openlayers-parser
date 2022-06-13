@@ -2,6 +2,7 @@ import {
   FillSymbolizer,
   Filter,
   IconSymbolizer,
+  isFunctionFilter,
   isIconSymbolizer,
   isMarkSymbolizer,
   LineSymbolizer,
@@ -30,6 +31,7 @@ import OlStyleText from 'ol/style/Text';
 import OlStyleCircle from 'ol/style/Circle';
 import OlStyleFill from 'ol/style/Fill';
 import OlStyleIcon from 'ol/style/Icon';
+import OlFeature from 'ol/Feature';
 import OlStyleRegularshape, { Options as OlStyleRegularshapeOptions } from 'ol/style/RegularShape';
 import { METERS_PER_UNIT } from 'ol/proj/Units';
 
@@ -39,7 +41,7 @@ import { toContext } from 'ol/render';
 const _get = require('lodash/get');
 
 export interface OlParserStyleFct {
-  (feature: any, resolution: number): any;
+  (feature: OlFeature, resolution: number): OlStyleLike;
   __geoStylerStyle: Style;
 }
 
@@ -112,7 +114,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   };
 
   title = 'OpenLayers Style Parser';
-  olIconStyleCache: any = {};
+  olIconStyleCache = {};
 
   OlStyleConstructor: any = OlStyle;
   OlStyleImageConstructor: any = OlStyleImage;
@@ -275,14 +277,14 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       } as MarkSymbolizer;
     } else {
       // icon
-      const olIconStyle: any = olStyle.getImage();
+      const olIconStyle = olStyle.getImage() as OlStyleIcon;
       const offset = olIconStyle.getDisplacement() as [number, number];
 
       const iconSymbolizer: IconSymbolizer = {
         kind: 'Icon',
         image: olIconStyle.getSrc() ? olIconStyle.getSrc() : undefined,
         opacity: olIconStyle.getOpacity(),
-        size: (olIconStyle.getScale() !== 0) ? olIconStyle.getScale() : 5,
+        size: olIconStyle.getSize()[0],
         // Rotation in openlayers is radians while we use degree
         rotate: olIconStyle.getRotation() / Math.PI * 180,
         offset: offset[0] || offset[1] ? offset : undefined
@@ -636,10 +638,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           return this.geoStylerStyleToOlStyleArray(geoStylerStyle);
         }
       } else {
-        return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
+        return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle) as OlStyleFunction;
       }
     } else {
-      return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
+      return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle) as OlStyleFunction;
     }
   }
 
@@ -664,9 +666,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   geoStylerStyleToOlStyleArray(geoStylerStyle: Style): OlStyle[] {
     const rule = geoStylerStyle.rules[0];
-    const olStyles: any[] = [];
+    const olStyles: OlStyle[] = [];
     rule.symbolizers.forEach((symbolizer: Symbolizer) => {
-      const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symbolizer);
+      const olSymbolizer = this.getOlSymbolizerFromSymbolizer(symbolizer) as OlStyle;
       olStyles.push(olSymbolizer);
     });
     return olStyles;
@@ -675,13 +677,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   /**
    * Get the OpenLayers Style object from an GeoStyler-Style Style
    *
-   * @param {Style} geoStylerStyle A GeoStyler-Style Style.
-   * @return {OlParserStyleFct} An OlParserStyleFct
+   * @param geoStylerStyle A GeoStyler-Style Style.
+   * @return An OlParserStyleFct
    */
   geoStylerStyleToOlParserStyleFct(geoStylerStyle: Style): OlParserStyleFct {
     const rules = geoStylerStyle.rules;
-    const olStyle = (feature: any, resolution: number): any[] => {
-      const styles: any[] = [];
+    const olStyle = (feature: OlFeature, resolution: number): OlStyle[] => {
+      let styles: OlStyle[] = [];
 
       // calculate scale for resolution (from ol-util MapUtil)
       const dpi = 25.4 / 0.28;
@@ -717,18 +719,20 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
 
         if (isWithinScale && matchesFilter) {
           rule.symbolizers.forEach((symb: Symbolizer) => {
-            const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symb);
+            const olSymbolizer = this.getOlSymbolizerFromSymbolizer(symb) as OlStyleLike;
 
             // this.getOlTextSymbolizerFromTextSymbolizer returns
             // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
             // of OlStyles, not ol.StyleFunctions.
             // So we have to check it and in case of an ol.StyleFunction call that function
             // and add the returned style to const styles.
-            if (typeof olSymbolizer !== 'function') {
+            if (typeof olSymbolizer !== 'function' && !Array.isArray(olSymbolizer)) {
               styles.push(olSymbolizer);
-            } else {
-              const styleFromFct: any = olSymbolizer(feature, resolution);
+            } else if (typeof olSymbolizer === 'function') {
+              const styleFromFct = olSymbolizer(feature, resolution) as OlStyle;
               styles.push(styleFromFct);
+            } else {
+              styles = olSymbolizer;
             }
           });
         }
@@ -746,7 +750,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @param filter Filter
    * @return boolean true if feature matches filter expression
    */
-  geoStylerFilterToOlParserFilter(feature: any, filter: Filter): boolean {
+  geoStylerFilterToOlParserFilter(feature: OlFeature, filter: Filter): boolean {
     const operatorMapping = {
       '&&': true,
       '||': true,
@@ -788,8 +792,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           default:
             throw new Error('Cannot parse Filter. Unknown combination or negation operator.');
         }
-      } else {
-        const prop: any = feature.get(filter[1]);
+      } else if (!isFunctionFilter(filter)) {
+        const prop = feature.get(filter[1] as string);
         switch (filter[0]) {
           case '==':
             matchesFilter = ('' + prop) === ('' + filter[2]);
@@ -838,7 +842,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @return {object} The OpenLayers Style object or a StyleFunction
    */
   getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer): OlStyleLike {
-    let olSymbolizer: any;
+    let olSymbolizer;
     switch (symbolizer.kind) {
       case 'Mark':
         olSymbolizer = this.getOlPointSymbolizerFromMarkSymbolizer(symbolizer);
@@ -901,7 +905,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         OlStyleUtil.getRgbaColor(markSymbolizer.color, markSymbolizer.opacity) : markSymbolizer.color
     });
 
-    let olStyle: any;
+    let olStyle: OlStyleRegularshape;
     const shapeOpts: OlStyleRegularshapeOptions = {
       fill: fill,
       // @ts-ignore
@@ -1070,7 +1074,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       src: symbolizer.image,
       crossOrigin: 'anonymous',
       opacity: symbolizer.opacity,
-      scale: symbolizer.size || 1,
+      size: [symbolizer.size, symbolizer.size],
       // Rotation in openlayers is radians while we use degree
       rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined,
       displacement: symbolizer.offset
@@ -1083,7 +1087,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     if (regExpRes) {
       // if it contains a placeholder
       // return olStyleFunction
-      const olPointStyledIconFn = (feature: any) => {
+      const olPointStyledIconFn = (feature: OlFeature) => {
         let src: string = OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.image as string, '');
         // src can't be blank, would trigger ol errors
         if (!src) {
@@ -1092,7 +1096,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         let image;
         if (this.olIconStyleCache[src]) {
           image = this.olIconStyleCache[src];
-          image.setScale(baseProps.scale);
           if (baseProps.rotation !== undefined) {
             image.setRotation(baseProps.rotation);
           }
@@ -1272,7 +1275,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     if (regExpRes) {
       // if it contains a placeholder
       // return olStyleFunction
-      const olPointStyledLabelFn = (feature: any) => {
+      const olPointStyledLabelFn = (feature: OlFeature) => {
 
         const text = new this.OlStyleTextConstructor({
           text: OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.label as string, ''),

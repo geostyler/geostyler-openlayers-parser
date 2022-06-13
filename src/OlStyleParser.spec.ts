@@ -421,7 +421,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(olCircle.getRadius()).toBeCloseTo(expecSymb.radius);
       expect(olCircle.getFill().getColor()).toEqual(expecSymb.color);
     });
-    it('can write a OpenLayers IconSymbolizer', async () => {
+    it('can write an OpenLayers IconSymbolizer', async () => {
       let { output: olStyle } = await styleParser.writeStyle(point_icon);
       olStyle = olStyle as OlStyle;
       expect(olStyle).toBeDefined();
@@ -430,7 +430,8 @@ describe('OlStyleParser implements StyleParser', () => {
       const olIcon: OlStyleIcon = olStyle.getImage() as OlStyleIcon;
 
       expect(olIcon.getSrc()).toEqual(expecSymb.image);
-      expect(olIcon.getScale()).toBeCloseTo(expecSymb.size);
+      expect(olIcon.getSize()[0]).toBeCloseTo(expecSymb.size);
+      expect(olIcon.getSize()[1]).toBeCloseTo(expecSymb.size);
       // Rotation in openlayers is radians while we use degree
       expect(olIcon.getRotation()).toBeCloseTo(expecSymb.rotate! * Math.PI / 180);
       expect(olIcon.getOpacity()).toBeCloseTo(expecSymb.opacity);

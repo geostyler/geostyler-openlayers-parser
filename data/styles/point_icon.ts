@@ -8,7 +8,7 @@ const pointSimplePoint: Style = {
       symbolizers: [{
         kind: 'Icon',
         image: 'https://avatars1.githubusercontent.com/u/1849416?s=460&v=4',
-        size: 0.1,
+        size: 2,
         opacity: 0.5,
         rotate: 45,
         offset: [10, 20]
