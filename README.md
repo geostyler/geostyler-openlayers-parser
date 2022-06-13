@@ -8,6 +8,9 @@
 
 ### How to use
 
+The example below shows how to take a raw GeoStyler style, use the OpenLayersParser to parse the style into
+an OpenLayers style, and then apply it to an OpenLayers vector layer.
+
 ES6:
 ```js
 import OpenLayersParser from "geostyler-openlayers-parser";
@@ -56,5 +59,11 @@ var pointSimplePoint = {
 var vectorLayer = new ol.layer.Vector();
 var parser = new GeoStylerOpenlayersParser.OlStyleParser(ol);
 parser.writeStyle(pointSimplePoint)
-.then(({output: olStyle}) => layer.setStyle(olStyle))
+.then(function(style) {
+    if (style.errors) {
+      console.log(style.errors);
+    } else {
+      vectorLayer.setStyle(style.output);
+    }
+});
 ```
