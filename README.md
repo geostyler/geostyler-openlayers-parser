@@ -21,7 +21,7 @@ const pointSimplePoint = {
       symbolizers: [
         {
           kind: "Mark",
-          wellKnownName: "Circle",
+          wellKnownName: "circle",
           color: "#FF0000",
           radius: 6
         }
@@ -35,7 +35,7 @@ const layer = new OlLayerVector();
 
 parser
   .writeStyle(pointSimplePoint)
-  .then(olStyle => layer.setStyle(olStyle))
+  .then(({output: olStyle}) => layer.setStyle(olStyle))
   .catch(error => console.log(error));
 ```
 
@@ -47,7 +47,7 @@ var pointSimplePoint = {
     name: "OL Style Rule 0",
     symbolizers: [{
       kind: "Mark",
-      wellKnownName: "Circle",
+      wellKnownName: "circle",
       color: "#FF0000",
       radius: 6
     }]
@@ -56,7 +56,5 @@ var pointSimplePoint = {
 var vectorLayer = new ol.layer.Vector();
 var parser = new GeoStylerOpenlayersParser.OlStyleParser(ol);
 parser.writeStyle(pointSimplePoint)
-.then(function(style) {
- vectorLayer.setStyle(style);
-});
+.then(({output: olStyle}) => layer.setStyle(olStyle))
 ```
