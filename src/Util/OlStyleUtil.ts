@@ -78,9 +78,9 @@ class OlStyleUtil {
   }
 
   /**
-   * Returns the hex code for a given RGBA array.
+   * Returns the hex code for a given RGB(A) array.
    *
-   * @param colorArr RGBA encoded color
+   * @param colorArr RGB(A) array. e.g. [255,0,0]
    * @return {string} The HEX color representation of the given color
    */
   public static getHexCodeFromRgbArray(colorArr: number[]): string {
