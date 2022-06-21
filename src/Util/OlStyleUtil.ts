@@ -86,9 +86,8 @@ class OlStyleUtil {
   public static getHexCodeFromRgbArray(colorArr: number[]): string {
     return '#' + colorArr.map((x, idx) => {
       const hex = x.toString(16);
-      // skip opacity of available
+      // skip opacity if passed as fourth entry
       if (idx < 3) {
-        // return hex;
         return hex.length === 1 ? '0' + hex : hex;
       }
       return '';
