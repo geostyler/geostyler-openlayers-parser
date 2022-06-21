@@ -38,6 +38,7 @@
     "lint:typecheck:test": "npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
+    "color-name": "^1.1.4",
     "geostyler-style": "^5.0.2",
     "lodash": "^4.17.21"
   },
@@ -52,6 +53,7 @@
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-typescript": "^7.16.7",
     "@terrestris/eslint-config-typescript": "^3.0.0",
+    "@types/color-name": "^1.1.1",
     "@types/jest": "^28.1.0",
     "@types/node": "^16.9.1",
     "@typescript-eslint/eslint-plugin": "^5.22.0",

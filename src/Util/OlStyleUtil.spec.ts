@@ -25,7 +25,7 @@ describe('OlStyleUtil', () => {
       expect(rgba).toEqual(testString);
     });
 
-    it('returns undefined of no valid HEX string passed to function', () => {
+    it('returns undefined if no valid HEX string passed to function', () => {
       const rgba = OlStyleUtil.getRgbaColor('THIS IS NOT A COLOR STRING', 0.9);
       expect(rgba).toBeUndefined();
     });
@@ -51,6 +51,10 @@ describe('OlStyleUtil', () => {
       const hex = OlStyleUtil.getHexColor('rgb(128, 138, 8)');
       expect(hex).toEqual('#808a08');
     });
+    it('transforms named colors correctly', () => {
+      const hex = OlStyleUtil.getHexColor('deepskyblue');
+      expect(hex).toEqual('#00bfff');
+    });
     it('transforms rgba correctly', () => {
       const hex = OlStyleUtil.getHexColor('rgba(128, 138, 8, 0.5)');
       expect(hex).toEqual('#808a08');
@@ -58,6 +62,10 @@ describe('OlStyleUtil', () => {
     it('returns given hex untransformed', () => {
       const hex = OlStyleUtil.getHexColor('#808a08');
       expect(hex).toEqual('#808a08');
+    });
+    it('returns undefined if no valid string is passed', () => {
+      const hex = OlStyleUtil.getHexColor('THIS IS NOT A NAMED COLOR STRING');
+      expect(hex).toBeUndefined();
     });
   });
 
