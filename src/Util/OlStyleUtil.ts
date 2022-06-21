@@ -1,4 +1,5 @@
 import { MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
+import colors from 'color-name';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
@@ -55,7 +56,7 @@ class OlStyleUtil {
   }
 
   /**
-   * Transforms a RGB(A) color value to a HEX encoded notation.
+   * Transforms a RGB(A) or named color value to a HEX encoded notation.
    * If a HEX color is provided it will be returned untransformed.
    *
    * @param {string} inColor The color to transform
@@ -67,19 +68,31 @@ class OlStyleUtil {
       return inColor;
     } else if (inColor.startsWith('rgb')) {
       const colorArr = OlStyleUtil.splitRgbaColor(inColor);
-
-      return '#' + colorArr.map((x, idx) => {
-        const hex = x.toString(16);
-        // skip opacity of available
-        if (idx < 3) {
-          // return hex;
-          return hex.length === 1 ? '0' + hex : hex;
-        }
-        return '';
-      }).join('');
+      return OlStyleUtil.getHexCodeFromRgbArray(colorArr);
+    } else if (colors[inColor.toLocaleLowerCase()] !== undefined) {
+      const rgbColorArr = colors[inColor.toLocaleLowerCase()];
+      return OlStyleUtil.getHexCodeFromRgbArray(rgbColorArr);
     } else {
       return;
     }
+  }
+
+  /**
+   * Returns the hex code for a given RGBA array.
+   *
+   * @param colorArr RGBA encoded color
+   * @return {string} The HEX color representation of the given color
+   */
+  public static getHexCodeFromRgbArray(colorArr: number[]): string {
+    return '#' + colorArr.map((x, idx) => {
+      const hex = x.toString(16);
+      // skip opacity of available
+      if (idx < 3) {
+        // return hex;
+        return hex.length === 1 ? '0' + hex : hex;
+      }
+      return '';
+    }).join('');
   }
 
   /**
