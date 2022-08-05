@@ -17,17 +17,16 @@ class OlStyleUtil {
    * @return {string} the RGB(A) value of the input color
    */
   public static getRgbaColor(colorString: Expression | string, opacity: number | Expression) {
-    if (!(colorString instanceof String)) {
+    if (typeof(colorString) !== 'string') {
       return;
     }
-    const color: string = colorString as unknown as string;
-    if (color.startsWith('rgba(')) {
-      return color;
+    if (colorString.startsWith('rgba(')) {
+      return colorString;
     }
 
     // check if is valid HEX color - see also here
     // https://stackoverflow.com/questions/8027423/how-to-check-if-a-string-is-a-valid-hex-color-representation/8027444
-    const isHexColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(color);
+    const isHexColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorString);
     if (!isHexColor) {
       return;
     }

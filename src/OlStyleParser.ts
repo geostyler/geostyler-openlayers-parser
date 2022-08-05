@@ -627,7 +627,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         return symbolizer.kind === 'Text';
       });
       const hasDynamicIconSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
-        return symbolizer.kind === 'Icon' && symbolizer.image instanceof String && symbolizer.image.includes('{{');
+        return symbolizer.kind === 'Icon' && typeof(symbolizer.image) === 'string' && symbolizer.image.includes('{{');
       });
       if (!hasFilter && !hasScaleDenominator && !hasTextSymbolizer && !hasDynamicIconSymbolizer) {
         if (nrSymbolizers === 1) {
