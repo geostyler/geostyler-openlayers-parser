@@ -627,7 +627,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         return symbolizer.kind === 'Text';
       });
       const hasDynamicIconSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
-        return symbolizer.kind === 'Icon' && symbolizer.image?.includes('{{');
+        return symbolizer.kind === 'Icon' && typeof(symbolizer.image) === 'string' && symbolizer.image.includes('{{');
       });
       if (!hasFilter && !hasScaleDenominator && !hasTextSymbolizer && !hasDynamicIconSymbolizer) {
         if (nrSymbolizers === 1) {
@@ -906,10 +906,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       fill: fill,
       // @ts-ignore
       opacity: markSymbolizer.opacity || 1,
-      radius: markSymbolizer.radius || 5,
-      rotation: markSymbolizer.rotate ? markSymbolizer.rotate * Math.PI / 180 : undefined,
+      radius: markSymbolizer.radius as number || 5,
+      rotation: typeof(markSymbolizer.rotate) === 'number' ? markSymbolizer.rotate * Math.PI / 180 : undefined,
       stroke: stroke,
-      displacement: markSymbolizer.offset
+      displacement: typeof(markSymbolizer.offset) === 'number' ? markSymbolizer.offset : undefined
     };
 
     switch (markSymbolizer.wellKnownName) {
@@ -1072,14 +1072,14 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       opacity: symbolizer.opacity,
       scale: symbolizer.size || 1,
       // Rotation in openlayers is radians while we use degree
-      rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined,
+      rotation: typeof(symbolizer.rotate) === 'number' ? symbolizer.rotate * Math.PI / 180 : undefined,
       displacement: symbolizer.offset
     };
     // check if IconSymbolizer.image contains a placeholder
     const prefix = '\\{\\{';
     const suffix = '\\}\\}';
     const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
-    const regExpRes = symbolizer.image ? symbolizer.image.match(regExp) : null;
+    const regExpRes = typeof(symbolizer.image) === 'string' ? symbolizer.image.match(regExp) : null;
     if (regExpRes) {
       // if it contains a placeholder
       // return olStyleFunction
@@ -1258,7 +1258,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       overflow: symbolizer.allowOverlap,
       offsetX: symbolizer.offset ? symbolizer.offset[0] : 0,
       offsetY: symbolizer.offset ? symbolizer.offset[1] : 0,
-      rotation: symbolizer.rotate ? symbolizer.rotate * Math.PI / 180 : undefined
+      rotation: typeof(symbolizer.rotate) === 'number' ? symbolizer.rotate * Math.PI / 180 : undefined
       // TODO check why props match
       // textAlign: symbolizer.pitchAlignment,
       // textBaseline: symbolizer.anchor

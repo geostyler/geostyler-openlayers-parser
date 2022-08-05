@@ -1,4 +1,4 @@
-import { MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
+import { Expression, MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
 import colors from 'color-name';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
@@ -16,7 +16,10 @@ class OlStyleUtil {
    * @param {number} opacity  Opacity (Betweeen 0 and 1)
    * @return {string} the RGB(A) value of the input color
    */
-  public static getRgbaColor(colorString: string, opacity: number) {
+  public static getRgbaColor(colorString: Expression | string, opacity: number | Expression) {
+    if (typeof(colorString) !== 'string') {
+      return;
+    }
     if (colorString.startsWith('rgba(')) {
       return colorString;
     }
