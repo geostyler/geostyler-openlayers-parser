@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "color-name": "^1.1.4",
-    "geostyler-style": "^5.0.2",
+    "geostyler-style": "^6.0.0",
     "lodash": "^4.17.21"
   },
   "peerDependencies": {

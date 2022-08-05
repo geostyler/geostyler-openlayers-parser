@@ -1,4 +1,4 @@
-import { MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
+import { Expression, MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
 import colors from 'color-name';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
@@ -16,14 +16,18 @@ class OlStyleUtil {
    * @param {number} opacity  Opacity (Betweeen 0 and 1)
    * @return {string} the RGB(A) value of the input color
    */
-  public static getRgbaColor(colorString: string, opacity: number) {
-    if (colorString.startsWith('rgba(')) {
-      return colorString;
+  public static getRgbaColor(colorString: Expression | string, opacity: number | Expression) {
+    if (!(colorString instanceof String)) {
+      return;
+    }
+    const color: string = colorString as unknown as string;
+    if (color.startsWith('rgba(')) {
+      return color;
     }
 
     // check if is valid HEX color - see also here
     // https://stackoverflow.com/questions/8027423/how-to-check-if-a-string-is-a-valid-hex-color-representation/8027444
-    const isHexColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorString);
+    const isHexColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(color);
     if (!isHexColor) {
       return;
     }
