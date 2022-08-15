@@ -55,7 +55,7 @@
     "@terrestris/eslint-config-typescript": "^3.0.0",
     "@types/color-name": "^1.1.1",
     "@types/jest": "^28.1.0",
-    "@types/node": "^16.9.1",
+    "@types/node": "^18.7.3",
     "@typescript-eslint/eslint-plugin": "^5.22.0",
     "@typescript-eslint/eslint-plugin-tslint": "^5.22.0",
     "@typescript-eslint/parser": "^5.22.0",
