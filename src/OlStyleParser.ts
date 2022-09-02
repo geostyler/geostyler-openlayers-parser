@@ -2,6 +2,7 @@ import {
   FillSymbolizer,
   Filter,
   IconSymbolizer,
+  isGeoStylerStringFunction,
   isIconSymbolizer,
   isMarkSymbolizer,
   LineSymbolizer,
@@ -1268,7 +1269,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const prefix = '\\{\\{';
     const suffix = '\\}\\}';
     const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
-    const regExpRes = symbolizer.label ? symbolizer.label.match(regExp) : null;
+    let regExpRes;
+    if (!isGeoStylerStringFunction(symbolizer.label)) {
+      regExpRes = symbolizer.label ? symbolizer.label.match(regExp) : null;
+    }
     if (regExpRes) {
       // if it contains a placeholder
       // return olStyleFunction
