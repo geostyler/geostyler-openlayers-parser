@@ -4,7 +4,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": [ "dom", "es2017"],
+    "lib": ["dom", "es2021"],
     "inlineSources": true,
     "module": "commonjs",
     "moduleResolution": "node",
