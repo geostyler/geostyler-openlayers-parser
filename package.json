@@ -39,10 +39,10 @@
   },
   "dependencies": {
     "color-name": "^1.1.4",
-    "geostyler-style": "^7.0.0"
+    "geostyler-style": "^7.1.0"
   },
   "peerDependencies": {
-    "ol": "^7.0.0"
+    "ol": "^7.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.13",
