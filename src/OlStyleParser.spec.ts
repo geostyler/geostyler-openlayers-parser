@@ -35,6 +35,7 @@ import filter_simplefilter from '../data/styles/filter_simpleFilter';
 import filter_nestedfilter from '../data/styles/filter_nestedFilter';
 import filter_invalidfilter from '../data/styles/filter_invalidFilter';
 import function_marksymbolizer from '../data/styles/function_markSymbolizer';
+import function_nested_fillsymbolizer from '../data/styles/function_nested_fillSymbolizer';
 import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
@@ -48,6 +49,8 @@ import point_styledlabel from '../data/styles/point_styledlabel';
 import point_fontglyph from '../data/styles/point_fontglyph';
 import unsupported_properties from '../data/styles/unsupported_properties';
 
+import ol_function_marksymbolizer from '../data/olStyles/function_markSymbolizer';
+import ol_function_nested_fillsymbolizer from '../data/olStyles/function_nested_fillSymbolizer';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
 import ol_point_icon from '../data/olStyles/point_icon';
 import ol_point_simplesquare from '../data/olStyles/point_simplesquare';
@@ -82,8 +85,8 @@ import {
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
-import olSimpleCross from '../data/olStyles/point_simplecross';
-import olFunctionMark from '../data/olStyles/function_markSymbolizer';
+import function_boolean from '../data/styles/function_boolean';
+import { olBoolean1 as ol_function_boolean_fillsymbolizer1, olBoolean2 as ol_function_boolean_fillsymbolizer2 } from '../data/olStyles/function_boolean';
 
 // reverse calculation of resolution for scale (from ol-util MapUtil)
 function getResolutionForScale (scale, units) {
@@ -1121,12 +1124,39 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(geoStylerStyle).toBeDefined();
     expect(typeof geoStylerStyle === 'function').toBe(true);
     geoStylerStyle = geoStylerStyle as OlParserStyleFct;
-    const dummyFeat = new OlFeature({
-      path: 'image.jpg'
-    });
+    const dummyFeat = new OlFeature();
     const targetStyle = geoStylerStyle(dummyFeat);
     expect(geoStylerStyle.__geoStylerStyle).toEqual(function_marksymbolizer);
-    expect(targetStyle[0]).toEqual(olFunctionMark);
+    expect(targetStyle[0]).toEqual(ol_function_marksymbolizer);
+  });
+
+  it('can write a FillSymbolizer with a nested GeoStylerFunction', async () => {
+    let { output: geoStylerStyle } = await styleParser.writeStyle(function_nested_fillsymbolizer);
+    expect(geoStylerStyle).toBeDefined();
+    expect(typeof geoStylerStyle === 'function').toBe(true);
+    geoStylerStyle = geoStylerStyle as OlParserStyleFct;
+    const dummyFeat = new OlFeature();
+    const targetStyle = geoStylerStyle(dummyFeat);
+    expect(geoStylerStyle.__geoStylerStyle).toEqual(function_nested_fillsymbolizer);
+    expect(targetStyle[0]).toEqual(ol_function_nested_fillsymbolizer);
+  });
+
+  it('can write a Filter with a GeoStylerBooleanFunction', async () => {
+    let { output: geoStylerStyle } = await styleParser.writeStyle(function_boolean);
+    expect(geoStylerStyle).toBeDefined();
+    expect(typeof geoStylerStyle === 'function').toBe(true);
+    geoStylerStyle = geoStylerStyle as OlParserStyleFct;
+    const dummyFeat1 = new OlFeature({
+      testprop: 0.8
+    });
+    const dummyFeat2 = new OlFeature({
+      testprop: 2
+    });
+    const targetStyle1 = geoStylerStyle(dummyFeat1);
+    const targetStyle2 = geoStylerStyle(dummyFeat2);
+    expect(geoStylerStyle.__geoStylerStyle).toEqual(function_boolean);
+    expect(targetStyle1[0]).toEqual(ol_function_boolean_fillsymbolizer1);
+    expect(targetStyle2[0]).toEqual(ol_function_boolean_fillsymbolizer2);
   });
 
   it('adds unsupportedProperties to the write output', async () => {

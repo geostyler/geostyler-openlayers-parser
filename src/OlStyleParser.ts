@@ -109,6 +109,24 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         perpendicularOffset: 'none'
       },
       RasterSymbolizer: 'none'
+    },
+    Function: {
+      atan2: {
+        support: 'none',
+        info: 'Currently returns the first argument'
+      },
+      rint: {
+        support: 'none',
+        info: 'Currently returns the first argument'
+      },
+      numberFormat: {
+        support: 'none',
+        info: 'Currently returns the first argument'
+      },
+      strAbbreviate: {
+        support: 'none',
+        info: 'Currently returns the first argument'
+      }
     }
   };
 
@@ -793,11 +811,11 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
             throw new Error('Cannot parse Filter. Unknown combination or negation operator.');
         }
       } else {
-        let prop: any;
-        if (isGeoStylerStringFunction(filter[1])) {
-          prop = feature.get(OlStyleUtil.evaluateStringFunction(filter[1], feature));
+        let arg1: any;
+        if (isGeoStylerFunction(filter[1])) {
+          arg1 = OlStyleUtil.evaluateFunction(filter[1], feature);
         } else {
-          prop = feature.get(filter[1]);
+          arg1 = feature.get(filter[1]);
         }
         let arg2: any;
         if (isGeoStylerFunction(filter[2])) {
@@ -807,33 +825,33 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         }
         switch (filter[0]) {
           case '==':
-            matchesFilter = ('' + prop) === ('' + arg2);
+            matchesFilter = ('' + arg1) === ('' + arg2);
             break;
           case '*=':
             // inspired by
             // https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/String/includes#Polyfill
-            if (typeof arg2 === 'string' && typeof prop === 'string') {
-              if (arg2.length > prop.length) {
+            if (typeof arg2 === 'string' && typeof arg1 === 'string') {
+              if (arg2.length > arg1.length) {
                 matchesFilter = false;
               } else {
-                matchesFilter = prop.indexOf(arg2) !== -1;
+                matchesFilter = arg1.indexOf(arg2) !== -1;
               }
             }
             break;
           case '!=':
-            matchesFilter = ('' + prop) !== ('' + arg2);
+            matchesFilter = ('' + arg1) !== ('' + arg2);
             break;
           case '<':
-            matchesFilter = parseFloat(prop) < Number(arg2);
+            matchesFilter = Number(arg1) < Number(arg2);
             break;
           case '<=':
-            matchesFilter = parseFloat(prop) <= Number(arg2);
+            matchesFilter = Number(arg1) <= Number(arg2);
             break;
           case '>':
-            matchesFilter = parseFloat(prop) > Number(arg2);
+            matchesFilter = Number(arg1) > Number(arg2);
             break;
           case '>=':
-            matchesFilter = parseFloat(prop) >= Number(arg2);
+            matchesFilter = Number(arg1) >= Number(arg2);
             break;
           default:
             throw new Error('Cannot parse Filter. Unknown comparison operator.');
@@ -1193,9 +1211,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         OlStyleUtil.getRgbaColor(symbolizer.color, symbolizer.opacity) : symbolizer.color
     }) : null;
 
-    const stroke = symbolizer.outlineColor ? new this.OlStyleStrokeConstructor({
-      color: (symbolizer.outlineOpacity !== null && symbolizer.outlineOpacity !== undefined) ?
-        OlStyleUtil.getRgbaColor(symbolizer.outlineColor, symbolizer.outlineOpacity) : symbolizer.outlineColor,
+    const stroke = symbolizer.outlineColor || symbolizer.outlineWidth ? new this.OlStyleStrokeConstructor({
+      color: (symbolizer.outlineColor && Number.isFinite(symbolizer.outlineOpacity))
+        ? OlStyleUtil.getRgbaColor(symbolizer.outlineColor, symbolizer.outlineOpacity as number)
+        : symbolizer.outlineColor,
       width: symbolizer.outlineWidth,
       lineDash: symbolizer.outlineDasharray,
     }) : null;
