@@ -111,6 +111,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       RasterSymbolizer: 'none'
     },
     Function: {
+      double2bool: {
+        support: 'none',
+        info: 'Always returns false'
+      },
       atan2: {
         support: 'none',
         info: 'Currently returns the first argument'

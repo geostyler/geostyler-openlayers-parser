@@ -336,7 +336,8 @@ class OlStyleUtil {
       case 'between':
         return (args[0] as number) >= (args[1] as number) && (args[0] as number) <= (args[2] as number);
       case 'double2bool':
-        return args[0] === 0;
+        // TODO: evaluate this correctly
+        return false;
       case 'in':
         return args.slice(1).includes(args[0]);
       case 'parseBoolean':
@@ -350,7 +351,7 @@ class OlStyleUtil {
       case 'strStartsWith':
         return (args[0] as string).startsWith(args[1] as string);
       default:
-        return true;
+        return false;
     }
   }
 
