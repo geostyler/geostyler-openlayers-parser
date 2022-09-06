@@ -301,8 +301,7 @@ class OlStyleUtil {
   public static evaluateFunction(func: GeoStylerFunction, feature?: OlFeature): PropertyType {
     if (func.name === 'property') {
       if (!feature) {
-        // TODO: throw errror instead
-        return;
+        throw new Error(`Could not evalute 'property' function. Feature ${feature} is not defined.`);
       }
       if (isGeoStylerStringFunction(func.args[0])) {
         return feature?.get(OlStyleUtil.evaluateStringFunction(func.args[0], feature));
