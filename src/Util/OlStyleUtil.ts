@@ -1,5 +1,21 @@
-import { Expression, MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
+import {
+  GeoStylerBooleanFunction,
+  GeoStylerFunction,
+  GeoStylerNumberFunction,
+  GeoStylerStringFunction,
+  GeoStylerUnknownFunction,
+  isGeoStylerBooleanFunction,
+  isGeoStylerFunction,
+  isGeoStylerNumberFunction,
+  isGeoStylerStringFunction,
+  isGeoStylerUnknownFunction,
+  MarkSymbolizer,
+  PropertyType,
+  Style,
+  TextSymbolizer
+} from 'geostyler-style';
 import colors from 'color-name';
+import { Feature as OlFeature } from 'ol';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
@@ -12,11 +28,15 @@ class OlStyleUtil {
   /**
    * Transforms a HEX encoded color and an opacity value to a RGB(A) notation.
    *
-   * @param {string} colorString HEX encoded color
-   * @param {number} opacity  Opacity (Betweeen 0 and 1)
-   * @return {string} the RGB(A) value of the input color
+   * @param colorString HEX encoded color
+   * @param opacity  Opacity (Betweeen 0 and 1)
+   * @return the RGB(A) value of the input color
    */
-  public static getRgbaColor(colorString: Expression | string, opacity: number | Expression) {
+  public static getRgbaColor(colorString: string | GeoStylerStringFunction, opacity: number | GeoStylerNumberFunction) {
+    if (isGeoStylerStringFunction(colorString)) {
+      colorString = OlStyleUtil.evaluateStringFunction(colorString);
+    }
+
     if (typeof(colorString) !== 'string') {
       return;
     }
@@ -34,6 +54,10 @@ class OlStyleUtil {
     const r = parseInt(colorString.slice(1, 3), 16);
     const g = parseInt(colorString.slice(3, 5), 16);
     const b = parseInt(colorString.slice(5, 7), 16);
+
+    if (isGeoStylerNumberFunction(opacity)) {
+      opacity = OlStyleUtil.evaluateNumberFunction(opacity);
+    }
 
     if (opacity < 0) {
       opacity = 1;
@@ -213,20 +237,20 @@ class OlStyleUtil {
    * to "Size of area is 1909 km²" (assuming the feature's attribute AREA_SIZE
    * really exists).
    *
-   * @param {ol.Feature} feature The feature to get the attributes from.
-   * @param {String} template The template string to resolve.
-   * @param {String} [noValueFoundText] The text to apply, if the templated value
+   * @param feature The feature to get the attributes from.
+   * @param template The template string to resolve.
+   * @param [noValueFoundText] The text to apply, if the templated value
    *   could not be found, default is to 'n.v.'.
-   * @param {Function} [valueAdjust] A method that will be called with each
+   * @param [valueAdjust] A method that will be called with each
    *   key/value match, we'll use what this function returns for the actual
    *   replacement. Optional, defaults to a function which will return the raw
    *   value it received. This can be used for last minute adjustments before
    *   replacing happens, e.g. to filter out falsy values or to do number
    *   formatting and such.
-   * @return {String} The resolved template string.
+   * @return The resolved template string.
    */
   static resolveAttributeTemplate(
-    feature: any,
+    feature: OlFeature,
     template: string,
     noValueFoundText: string = 'n.v.',
     valueAdjust: Function = (key: string, val: any) => val
@@ -272,6 +296,208 @@ class OlStyleUtil {
     }
 
     return template;
+  }
+
+  public static evaluateFunction(func: GeoStylerFunction, feature?: OlFeature): PropertyType {
+    if (func.name === 'property') {
+      if (!feature) {
+        throw new Error(`Could not evalute 'property' function. Feature ${feature} is not defined.`);
+      }
+      if (isGeoStylerStringFunction(func.args[0])) {
+        return feature?.get(OlStyleUtil.evaluateStringFunction(func.args[0], feature));
+      } else {
+        return feature?.get(func.args[0]);
+      }
+    }
+
+    if (isGeoStylerStringFunction(func)) {
+      return OlStyleUtil.evaluateStringFunction(func, feature);
+    }
+    if (isGeoStylerNumberFunction(func)) {
+      return OlStyleUtil.evaluateNumberFunction(func, feature);
+    }
+    if (isGeoStylerBooleanFunction(func)) {
+      return OlStyleUtil.evaluateBooleanFunction(func, feature);
+    }
+    if (isGeoStylerUnknownFunction(func)) {
+      return OlStyleUtil.evaluateUnknownFunction(func, feature);
+    }
+    return;
+  }
+
+  public static evaluateBooleanFunction(func: GeoStylerBooleanFunction, feature?: OlFeature): boolean {
+    const args = func.args.map(arg => {
+      if (isGeoStylerFunction(arg)) {
+        return OlStyleUtil.evaluateFunction(arg, feature);
+      }
+      return arg;
+    });
+    switch (func.name) {
+      case 'between':
+        return (args[0] as number) >= (args[1] as number) && (args[0] as number) <= (args[2] as number);
+      case 'double2bool':
+        // TODO: evaluate this correctly
+        return false;
+      case 'in':
+        return args.slice(1).includes(args[0]);
+      case 'parseBoolean':
+        return !!args[0];
+      case 'strEndsWith':
+        return (args[0] as string).endsWith(args[1] as string);
+      case 'strEqualsIgnoreCase':
+        return (args[0] as string).toLowerCase() === (args[1] as string).toLowerCase() ;
+      case 'strMatches':
+        return new RegExp(args[1] as string).test(args[0] as string);
+      case 'strStartsWith':
+        return (args[0] as string).startsWith(args[1] as string);
+      default:
+        return false;
+    }
+  }
+
+  public static evaluateNumberFunction(func: GeoStylerNumberFunction, feature?: OlFeature): number {
+    if (func.name === 'pi') {
+      return Math.PI;
+    }
+    if (func.name === 'random') {
+      return Math.random();
+    }
+    const args = func.args.map(arg => {
+      if (isGeoStylerFunction(arg)) {
+        return OlStyleUtil.evaluateFunction(arg, feature);
+      }
+      return arg;
+    });
+    switch (func.name) {
+      case 'abs':
+        return Math.abs(args[0] as number);
+      case 'acos':
+        return Math.acos(args[0] as number);
+      case 'asin':
+        return Math.asin(args[0] as number);
+      case 'atan':
+        return Math.atan(args[0] as number);
+      case 'atan2':
+        // TODO: evaluate this correctly
+        return args[0] as number;
+      case 'ceil':
+        return Math.ceil(args[0] as number);
+      case 'cos':
+        return Math.cos(args[0] as number);
+      case 'exp':
+        return Math.exp(args[0] as number);
+      case 'floor':
+        return Math.floor(args[0] as number);
+      case 'log':
+        return Math.log(args[0] as number);
+      case 'max':
+        return Math.max(...(args as number[]));
+      case 'min':
+        return Math.min(...(args as number[]));
+      case 'modulo':
+        return (args[0] as number) % (args[1] as number);
+      case 'pow':
+        return Math.pow(args[0] as number, args[1] as number);
+      case 'rint':
+        // TODO: evaluate this correctly
+        return args[0] as number;
+      case 'round':
+        return Math.round(args[0] as number);
+      case 'sin':
+        return Math.sin(args[0] as number);
+      case 'sqrt':
+        return Math.sqrt(args[0] as number);
+      case 'strIndexOf':
+        return (args[0] as string).indexOf(args[1] as string);
+      case 'strLastIndexOf':
+        return (args[0] as string).lastIndexOf(args[1] as string);
+      case 'strLength':
+        return (args[0] as string).length;
+      case 'tan':
+        return Math.tan(args[0] as number);
+      case 'toDegrees':
+        return (args[0] as number) * (180/Math.PI);
+      case 'toRadians':
+        return (args[0] as number) * (Math.PI/180);
+      default:
+        return args[0] as number;
+    }
+  }
+
+  public static evaluateUnknownFunction(func: GeoStylerUnknownFunction, feature?: OlFeature): unknown {
+    const args = func.args.map(arg => {
+      if (isGeoStylerFunction(arg)) {
+        return OlStyleUtil.evaluateFunction(arg, feature);
+      }
+      return arg;
+    });
+    switch (func.name) {
+      case 'property':
+        return feature?.get(args[0] as string);
+      default:
+        return args[0];
+    }
+  }
+
+  public static evaluateStringFunction(func: GeoStylerStringFunction, feature?: OlFeature): string {
+    const args = func.args.map(arg => {
+      if (isGeoStylerFunction(arg)) {
+        return OlStyleUtil.evaluateFunction(arg, feature);
+      }
+      return arg;
+    });
+    switch (func.name) {
+      case 'numberFormat':
+        // TODO: evaluate this correctly
+        return args[0] as string;
+      case 'strAbbreviate':
+        // TODO: evaluate this correctly
+        return args[0] as string;
+      case 'strCapitalize':
+        // https://stackoverflow.com/a/32589289/10342669
+        var splitStr = (args[0] as string).toLowerCase().split(' ');
+        for (let part of splitStr) {
+          part = part.charAt(0).toUpperCase() + part.substring(1);
+        }
+        return splitStr.join(' ');
+      case 'strConcat':
+        return args.join();
+      case 'strDefaultIfBlank':
+        return (args[0] as string)?.length < 1 ? args[1] as string : args[0] as string;
+      case 'strReplace':
+        if (args[3] === true) {
+          return (args[0] as string).replaceAll(args[1] as string, args[2] as string);
+        } else {
+          return (args[0] as string).replace(args[1] as string, args[2] as string);
+        }
+      case 'strStripAccents':
+        // https://stackoverflow.com/a/37511463/10342669
+        return (args[0] as string).normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+      case 'strSubstring':
+        return (args[0] as string).substring(args[1] as number, args[2] as number);
+      case 'strSubstringStart':
+        return (args[0] as string).substring(args[1] as number);
+      case 'strToLowerCase':
+        return (args[0] as string).toLowerCase();
+      case 'strToUpperCase':
+        return (args[0] as string).toUpperCase();
+      case 'strTrim':
+        return (args[0] as string).trim();
+      default:
+        return args[0] as string;
+    }
+  }
+
+  public static containsGeoStylerFunctions(style: Style) {
+    return style.rules.some(rule => {
+      const filterHasFunction = rule.filter?.some(isGeoStylerFunction);
+      const styleHasFunction = rule.symbolizers?.some(symbolizer => {
+        return Object.values(symbolizer).some(isGeoStylerFunction);
+      });
+      const scaleDenominatorHasFunction = isGeoStylerFunction(rule?.scaleDenominator?.max)
+      || isGeoStylerFunction(rule?.scaleDenominator?.min);
+      return filterHasFunction || styleHasFunction || scaleDenominatorHasFunction;
+    });
   }
 }
 
