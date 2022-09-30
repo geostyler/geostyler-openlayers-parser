@@ -12,19 +12,18 @@ import {
   MarkSymbolizer,
   PropertyType,
   Style,
-  TextSymbolizer
-} from 'geostyler-style';
-import colors from 'color-name';
-import { Feature as OlFeature } from 'ol';
+  TextSymbolizer,
+} from "geostyler-style";
+import colors from "color-name";
+import { Feature as OlFeature } from "ol";
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
-export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
+export const DUMMY_MARK_SYMBOLIZER_FONT = "geostyler-mark-symbolizer";
 
 /**
  * Offers some utility functions to work with OpenLayers Styles.
  */
 class OlStyleUtil {
-
   /**
    * Transforms a HEX encoded color and an opacity value to a RGB(A) notation.
    *
@@ -32,15 +31,18 @@ class OlStyleUtil {
    * @param opacity  Opacity (Betweeen 0 and 1)
    * @return the RGB(A) value of the input color
    */
-  public static getRgbaColor(colorString: string | GeoStylerStringFunction, opacity: number | GeoStylerNumberFunction) {
+  public static getRgbaColor(
+    colorString: string | GeoStylerStringFunction,
+    opacity: number | GeoStylerNumberFunction
+  ) {
     if (isGeoStylerStringFunction(colorString)) {
       colorString = OlStyleUtil.evaluateStringFunction(colorString);
     }
 
-    if (typeof(colorString) !== 'string') {
+    if (typeof colorString !== "string") {
       return;
     }
-    if (colorString.startsWith('rgba(')) {
+    if (colorString.startsWith("rgba(")) {
       return colorString;
     }
 
@@ -63,7 +65,7 @@ class OlStyleUtil {
       opacity = 1;
     }
 
-    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + opacity + ')';
+    return "rgba(" + r + ", " + g + ", " + b + ", " + opacity + ")";
   }
 
   /**
@@ -73,7 +75,9 @@ class OlStyleUtil {
    * @return {number[]} Numeric color values as array
    */
   public static splitRgbaColor(rgbaColor: string): number[] {
-    const colorsOnly = rgbaColor.substring(rgbaColor.indexOf('(') + 1, rgbaColor.lastIndexOf(')')).split(/,\s*/);
+    const colorsOnly = rgbaColor
+      .substring(rgbaColor.indexOf("(") + 1, rgbaColor.lastIndexOf(")"))
+      .split(/,\s*/);
     const red = parseInt(colorsOnly[0], 10);
     const green = parseInt(colorsOnly[1], 10);
     const blue = parseInt(colorsOnly[2], 10);
@@ -91,9 +95,9 @@ class OlStyleUtil {
    */
   public static getHexColor(inColor: string): string | undefined {
     // if passing in a hex code we just return it
-    if (inColor.startsWith('#')) {
+    if (inColor.startsWith("#")) {
       return inColor;
-    } else if (inColor.startsWith('rgb')) {
+    } else if (inColor.startsWith("rgb")) {
       const colorArr = OlStyleUtil.splitRgbaColor(inColor);
       return OlStyleUtil.getHexCodeFromRgbArray(colorArr);
     } else if (colors[inColor.toLocaleLowerCase()] !== undefined) {
@@ -111,14 +115,19 @@ class OlStyleUtil {
    * @return {string} The HEX color representation of the given color
    */
   public static getHexCodeFromRgbArray(colorArr: number[]): string {
-    return '#' + colorArr.map((x, idx) => {
-      const hex = x.toString(16);
-      // skip opacity if passed as fourth entry
-      if (idx < 3) {
-        return hex.length === 1 ? '0' + hex : hex;
-      }
-      return '';
-    }).join('');
+    return (
+      "#" +
+      colorArr
+        .map((x, idx) => {
+          const hex = x.toString(16);
+          // skip opacity if passed as fourth entry
+          if (idx < 3) {
+            return hex.length === 1 ? "0" + hex : hex;
+          }
+          return "";
+        })
+        .join("")
+    );
   }
 
   /**
@@ -128,7 +137,7 @@ class OlStyleUtil {
    * @return {string | undefined} The opacity value of the given RGBA color
    */
   public static getOpacity(rgbaColor: string): number | undefined {
-    if (!rgbaColor.startsWith('rgba(')) {
+    if (!rgbaColor.startsWith("rgba(")) {
       return;
     }
 
@@ -147,11 +156,12 @@ class OlStyleUtil {
    * @param symbolizer The TextSymbolizer to derive the font string from
    */
   public static getTextFont(symbolizer: TextSymbolizer) {
-    // since TextSymbolizer has no prop for font weight we use 'Normal' as default
-    const weight = 'Normal';
+    const fontWeight = symbolizer.fontWeight ?? "normal";
+    const fontStyle = symbolizer.fontStyle ?? "normal";
+
     const size = symbolizer.size;
     const font = symbolizer.font;
-    return weight + ' ' + size + 'px ' + font;
+    return fontWeight + " " + fontStyle + " " + size + "px " + font;
   }
 
   /**
@@ -188,10 +198,14 @@ class OlStyleUtil {
   public static getTextFontForMarkSymbolizer(symbolizer: MarkSymbolizer) {
     const parts = symbolizer.wellKnownName.match(WELLKNOWNNAME_TTF_REGEXP);
     if (!parts) {
-      throw new Error(`Could not parse font-based well known name: ${symbolizer.wellKnownName}`);
+      throw new Error(
+        `Could not parse font-based well known name: ${symbolizer.wellKnownName}`
+      );
     }
     const fontFamily = parts[1];
-    return `Normal ${symbolizer.radius || 5}px '${fontFamily}', ${DUMMY_MARK_SYMBOLIZER_FONT}`;
+    return `Normal ${
+      symbolizer.radius || 5
+    }px '${fontFamily}', ${DUMMY_MARK_SYMBOLIZER_FONT}`;
   }
 
   /**
@@ -202,7 +216,9 @@ class OlStyleUtil {
   public static getCharacterForMarkSymbolizer(symbolizer: MarkSymbolizer) {
     const parts = symbolizer.wellKnownName.match(WELLKNOWNNAME_TTF_REGEXP);
     if (!parts) {
-      throw new Error(`Could not parse font-based well known name: ${symbolizer.wellKnownName}`);
+      throw new Error(
+        `Could not parse font-based well known name: ${symbolizer.wellKnownName}`
+      );
     }
     return String.fromCharCode(parseInt(parts[2], 16));
   }
@@ -215,7 +231,9 @@ class OlStyleUtil {
   public static getFontNameFromOlFont(olFont: string) {
     const parts = olFont.match(/(?:\d+\S+) '?"?([^,'"]+)/);
     if (!parts) {
-      throw new Error(`Could not find font family name in the following string: ${olFont}`);
+      throw new Error(
+        `Could not find font family name in the following string: ${olFont}`
+      );
     }
     return parts[1];
   }
@@ -252,15 +270,17 @@ class OlStyleUtil {
   static resolveAttributeTemplate(
     feature: OlFeature,
     template: string,
-    noValueFoundText: string = 'n.v.',
+    noValueFoundText: string = "n.v.",
     valueAdjust: Function = (key: string, val: any) => val
   ) {
-
-    let attributeTemplatePrefix = '\\{\\{';
-    let attributeTemplateSuffix = '\\}\\}';
+    let attributeTemplatePrefix = "\\{\\{";
+    let attributeTemplateSuffix = "\\}\\}";
 
     // Find any character between two braces (including the braces in the result)
-    let regExp = new RegExp(attributeTemplatePrefix + '(.*?)' + attributeTemplateSuffix, 'g');
+    let regExp = new RegExp(
+      attributeTemplatePrefix + "(.*?)" + attributeTemplateSuffix,
+      "g"
+    );
     let regExpRes = template.match(regExp);
 
     // If we have a regex result, it means we found a placeholder in the
@@ -269,7 +289,7 @@ class OlStyleUtil {
       // Iterate over all regex match results and find the proper attribute
       // for the given placeholder, finally set the desired value to the hover.
       // field text
-      regExpRes.forEach(res => {
+      regExpRes.forEach((res) => {
         // We count every non matching candidate. If this count is equal to
         // the objects length, we assume that there is no match at all and
         // set the output value to the value of "noValueFoundText".
@@ -298,13 +318,20 @@ class OlStyleUtil {
     return template;
   }
 
-  public static evaluateFunction(func: GeoStylerFunction, feature?: OlFeature): PropertyType {
-    if (func.name === 'property') {
+  public static evaluateFunction(
+    func: GeoStylerFunction,
+    feature?: OlFeature
+  ): PropertyType {
+    if (func.name === "property") {
       if (!feature) {
-        throw new Error(`Could not evalute 'property' function. Feature ${feature} is not defined.`);
+        throw new Error(
+          `Could not evalute 'property' function. Feature ${feature} is not defined.`
+        );
       }
       if (isGeoStylerStringFunction(func.args[0])) {
-        return feature?.get(OlStyleUtil.evaluateStringFunction(func.args[0], feature));
+        return feature?.get(
+          OlStyleUtil.evaluateStringFunction(func.args[0], feature)
+        );
       } else {
         return feature?.get(func.args[0]);
       }
@@ -325,163 +352,194 @@ class OlStyleUtil {
     return;
   }
 
-  public static evaluateBooleanFunction(func: GeoStylerBooleanFunction, feature?: OlFeature): boolean {
-    const args = func.args.map(arg => {
+  public static evaluateBooleanFunction(
+    func: GeoStylerBooleanFunction,
+    feature?: OlFeature
+  ): boolean {
+    const args = func.args.map((arg) => {
       if (isGeoStylerFunction(arg)) {
         return OlStyleUtil.evaluateFunction(arg, feature);
       }
       return arg;
     });
     switch (func.name) {
-      case 'between':
-        return (args[0] as number) >= (args[1] as number) && (args[0] as number) <= (args[2] as number);
-      case 'double2bool':
+      case "between":
+        return (
+          (args[0] as number) >= (args[1] as number) &&
+          (args[0] as number) <= (args[2] as number)
+        );
+      case "double2bool":
         // TODO: evaluate this correctly
         return false;
-      case 'in':
+      case "in":
         return args.slice(1).includes(args[0]);
-      case 'parseBoolean':
+      case "parseBoolean":
         return !!args[0];
-      case 'strEndsWith':
+      case "strEndsWith":
         return (args[0] as string).endsWith(args[1] as string);
-      case 'strEqualsIgnoreCase':
-        return (args[0] as string).toLowerCase() === (args[1] as string).toLowerCase() ;
-      case 'strMatches':
+      case "strEqualsIgnoreCase":
+        return (
+          (args[0] as string).toLowerCase() ===
+          (args[1] as string).toLowerCase()
+        );
+      case "strMatches":
         return new RegExp(args[1] as string).test(args[0] as string);
-      case 'strStartsWith':
+      case "strStartsWith":
         return (args[0] as string).startsWith(args[1] as string);
       default:
         return false;
     }
   }
 
-  public static evaluateNumberFunction(func: GeoStylerNumberFunction, feature?: OlFeature): number {
-    if (func.name === 'pi') {
+  public static evaluateNumberFunction(
+    func: GeoStylerNumberFunction,
+    feature?: OlFeature
+  ): number {
+    if (func.name === "pi") {
       return Math.PI;
     }
-    if (func.name === 'random') {
+    if (func.name === "random") {
       return Math.random();
     }
-    const args = func.args.map(arg => {
+    const args = func.args.map((arg) => {
       if (isGeoStylerFunction(arg)) {
         return OlStyleUtil.evaluateFunction(arg, feature);
       }
       return arg;
     });
     switch (func.name) {
-      case 'abs':
+      case "abs":
         return Math.abs(args[0] as number);
-      case 'acos':
+      case "acos":
         return Math.acos(args[0] as number);
-      case 'asin':
+      case "asin":
         return Math.asin(args[0] as number);
-      case 'atan':
+      case "atan":
         return Math.atan(args[0] as number);
-      case 'atan2':
+      case "atan2":
         // TODO: evaluate this correctly
         return args[0] as number;
-      case 'ceil':
+      case "ceil":
         return Math.ceil(args[0] as number);
-      case 'cos':
+      case "cos":
         return Math.cos(args[0] as number);
-      case 'exp':
+      case "exp":
         return Math.exp(args[0] as number);
-      case 'floor':
+      case "floor":
         return Math.floor(args[0] as number);
-      case 'log':
+      case "log":
         return Math.log(args[0] as number);
-      case 'max':
+      case "max":
         return Math.max(...(args as number[]));
-      case 'min':
+      case "min":
         return Math.min(...(args as number[]));
-      case 'modulo':
+      case "modulo":
         return (args[0] as number) % (args[1] as number);
-      case 'pow':
+      case "pow":
         return Math.pow(args[0] as number, args[1] as number);
-      case 'rint':
+      case "rint":
         // TODO: evaluate this correctly
         return args[0] as number;
-      case 'round':
+      case "round":
         return Math.round(args[0] as number);
-      case 'sin':
+      case "sin":
         return Math.sin(args[0] as number);
-      case 'sqrt':
+      case "sqrt":
         return Math.sqrt(args[0] as number);
-      case 'strIndexOf':
+      case "strIndexOf":
         return (args[0] as string).indexOf(args[1] as string);
-      case 'strLastIndexOf':
+      case "strLastIndexOf":
         return (args[0] as string).lastIndexOf(args[1] as string);
-      case 'strLength':
+      case "strLength":
         return (args[0] as string).length;
-      case 'tan':
+      case "tan":
         return Math.tan(args[0] as number);
-      case 'toDegrees':
-        return (args[0] as number) * (180/Math.PI);
-      case 'toRadians':
-        return (args[0] as number) * (Math.PI/180);
+      case "toDegrees":
+        return (args[0] as number) * (180 / Math.PI);
+      case "toRadians":
+        return (args[0] as number) * (Math.PI / 180);
       default:
         return args[0] as number;
     }
   }
 
-  public static evaluateUnknownFunction(func: GeoStylerUnknownFunction, feature?: OlFeature): unknown {
-    const args = func.args.map(arg => {
+  public static evaluateUnknownFunction(
+    func: GeoStylerUnknownFunction,
+    feature?: OlFeature
+  ): unknown {
+    const args = func.args.map((arg) => {
       if (isGeoStylerFunction(arg)) {
         return OlStyleUtil.evaluateFunction(arg, feature);
       }
       return arg;
     });
     switch (func.name) {
-      case 'property':
+      case "property":
         return feature?.get(args[0] as string);
       default:
         return args[0];
     }
   }
 
-  public static evaluateStringFunction(func: GeoStylerStringFunction, feature?: OlFeature): string {
-    const args = func.args.map(arg => {
+  public static evaluateStringFunction(
+    func: GeoStylerStringFunction,
+    feature?: OlFeature
+  ): string {
+    const args = func.args.map((arg) => {
       if (isGeoStylerFunction(arg)) {
         return OlStyleUtil.evaluateFunction(arg, feature);
       }
       return arg;
     });
     switch (func.name) {
-      case 'numberFormat':
+      case "numberFormat":
         // TODO: evaluate this correctly
         return args[0] as string;
-      case 'strAbbreviate':
+      case "strAbbreviate":
         // TODO: evaluate this correctly
         return args[0] as string;
-      case 'strCapitalize':
+      case "strCapitalize":
         // https://stackoverflow.com/a/32589289/10342669
-        var splitStr = (args[0] as string).toLowerCase().split(' ');
+        var splitStr = (args[0] as string).toLowerCase().split(" ");
         for (let part of splitStr) {
           part = part.charAt(0).toUpperCase() + part.substring(1);
         }
-        return splitStr.join(' ');
-      case 'strConcat':
+        return splitStr.join(" ");
+      case "strConcat":
         return args.join();
-      case 'strDefaultIfBlank':
-        return (args[0] as string)?.length < 1 ? args[1] as string : args[0] as string;
-      case 'strReplace':
+      case "strDefaultIfBlank":
+        return (args[0] as string)?.length < 1
+          ? (args[1] as string)
+          : (args[0] as string);
+      case "strReplace":
         if (args[3] === true) {
-          return (args[0] as string).replaceAll(args[1] as string, args[2] as string);
+          return (args[0] as string).replaceAll(
+            args[1] as string,
+            args[2] as string
+          );
         } else {
-          return (args[0] as string).replace(args[1] as string, args[2] as string);
+          return (args[0] as string).replace(
+            args[1] as string,
+            args[2] as string
+          );
         }
-      case 'strStripAccents':
+      case "strStripAccents":
         // https://stackoverflow.com/a/37511463/10342669
-        return (args[0] as string).normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
-      case 'strSubstring':
-        return (args[0] as string).substring(args[1] as number, args[2] as number);
-      case 'strSubstringStart':
+        return (args[0] as string)
+          .normalize("NFKD")
+          .replace(/[\u0300-\u036f]/g, "");
+      case "strSubstring":
+        return (args[0] as string).substring(
+          args[1] as number,
+          args[2] as number
+        );
+      case "strSubstringStart":
         return (args[0] as string).substring(args[1] as number);
-      case 'strToLowerCase':
+      case "strToLowerCase":
         return (args[0] as string).toLowerCase();
-      case 'strToUpperCase':
+      case "strToUpperCase":
         return (args[0] as string).toUpperCase();
-      case 'strTrim':
+      case "strTrim":
         return (args[0] as string).trim();
       default:
         return args[0] as string;
@@ -489,14 +547,17 @@ class OlStyleUtil {
   }
 
   public static containsGeoStylerFunctions(style: Style) {
-    return style.rules.some(rule => {
+    return style.rules.some((rule) => {
       const filterHasFunction = rule.filter?.some(isGeoStylerFunction);
-      const styleHasFunction = rule.symbolizers?.some(symbolizer => {
+      const styleHasFunction = rule.symbolizers?.some((symbolizer) => {
         return Object.values(symbolizer).some(isGeoStylerFunction);
       });
-      const scaleDenominatorHasFunction = isGeoStylerFunction(rule?.scaleDenominator?.max)
-      || isGeoStylerFunction(rule?.scaleDenominator?.min);
-      return filterHasFunction || styleHasFunction || scaleDenominatorHasFunction;
+      const scaleDenominatorHasFunction =
+        isGeoStylerFunction(rule?.scaleDenominator?.max) ||
+        isGeoStylerFunction(rule?.scaleDenominator?.min);
+      return (
+        filterHasFunction || styleHasFunction || scaleDenominatorHasFunction
+      );
     });
   }
 }
