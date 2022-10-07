@@ -874,7 +874,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expecSymb.rotate = expecSymb.rotate as number;
     const expecRotation = expecSymb.rotate * Math.PI / 180;
     // openlayers adds default font-style
-    const expecFont = `Normal ${expecSymb.size}px ${expecSymb.font?.join(', ')}`;
+    const expecFont = `normal normal ${expecSymb.size}px ${expecSymb.font?.join(', ')}`;
 
     const style = styles[0] as OlStyle;
     expect(style).toBeDefined();

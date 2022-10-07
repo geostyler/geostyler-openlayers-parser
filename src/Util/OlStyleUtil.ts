@@ -147,12 +147,14 @@ class OlStyleUtil {
    * @param symbolizer The TextSymbolizer to derive the font string from
    */
   public static getTextFont(symbolizer: TextSymbolizer) {
-    // since TextSymbolizer has no prop for font weight we use 'Normal' as default
-    const weight = 'Normal';
+    const fontWeight = symbolizer.fontWeight ?? 'normal';
+    const fontStyle = symbolizer.fontStyle ?? 'normal';
+
     const size = symbolizer.size;
     const font = symbolizer.font;
-    return weight + ' ' + size + 'px ' + font;
+    return fontWeight + ' ' + fontStyle + ' ' + size + 'px ' + font;
   }
+
 
   /**
    * Returns true if the given mark symbolizer is based on a font glyph
