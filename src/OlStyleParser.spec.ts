@@ -1167,12 +1167,9 @@ describe('OlStyleParser implements StyleParser', () => {
     } = await styleParser.writeStyle(unsupported_properties);
     expect(olStyle).toBeDefined();
     const unsupportedGot = {
-      Symbolizer: {
+      Symbolizer: { 
         FillSymbolizer: {
-          fillOpacity: {
-            info: 'Use opacity instead.',
-            support: 'none'
-          }
+          antialias: 'none'
         }
       }
     };
