@@ -63,7 +63,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       MarkSymbolizer: {
         avoidEdges: 'none',
         blur: 'none',
-        fillOpacity: 'none',
         offsetAnchor: 'none',
         pitchAlignment: 'none',
         pitchScale: 'none',
@@ -71,6 +70,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       },
       FillSymbolizer: {
         antialias: 'none',
+        fillOpacity: {
+          support: 'none',
+          info: 'Use opacity instead.'
+        },
         graphicFill: 'none',
         visibility: 'none'
       },

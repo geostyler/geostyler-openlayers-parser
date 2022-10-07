@@ -1,6 +1,5 @@
 import { Style } from 'geostyler-style';
 
-
 const unsupportedProperties: Style = {
   name: 'OL Style',
   rules: [
@@ -9,7 +8,7 @@ const unsupportedProperties: Style = {
       symbolizers: [{
         kind: 'Fill',
         color: '#F1337F',
-        antialias: true
+        fillOpacity: 0.5
       }]
     }
   ]
