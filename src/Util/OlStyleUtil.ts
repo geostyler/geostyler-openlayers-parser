@@ -147,7 +147,7 @@ class OlStyleUtil {
    * @param symbolizer The TextSymbolizer to derive the font string from
    */
   public static getTextFont(symbolizer: TextSymbolizer) {
-    const fontWeight = symbolizer.fontWeight ?? "normal";
+    const fontWeight = symbolizer.fontWeight ?? 'normal';
     const fontStyle = symbolizer.fontStyle ?? 'normal';
 
     const size = symbolizer.size;
