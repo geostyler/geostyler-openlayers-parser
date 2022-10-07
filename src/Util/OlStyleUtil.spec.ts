@@ -99,7 +99,7 @@ describe('OlStyleUtil', () => {
         offset: [0, 5]
       };
       const opac = OlStyleUtil.getTextFont(symb);
-      expect(opac).toEqual('Normal 12px Arial');
+      expect(opac).toEqual('normal normal 12px Arial');
     });
   });
 
