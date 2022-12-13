@@ -86,7 +86,10 @@ import {
 
 import OlStyleUtil from './Util/OlStyleUtil';
 import function_boolean from '../data/styles/function_boolean';
-import { olBoolean1 as ol_function_boolean_fillsymbolizer1, olBoolean2 as ol_function_boolean_fillsymbolizer2 } from '../data/olStyles/function_boolean';
+import {
+  olBoolean1 as ol_function_boolean_fillsymbolizer1,
+  olBoolean2 as ol_function_boolean_fillsymbolizer2
+} from '../data/olStyles/function_boolean';
 
 // reverse calculation of resolution for scale (from ol-util MapUtil)
 function getResolutionForScale (scale, units) {
@@ -132,100 +135,100 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplepoint);
     });
-    it('can read a OpenLayers PointSymbolizer', async () => {
+    it('can read an OpenLayers PointSymbolizer', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplepoint);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplepoint);
     });
-    it('can read a OpenLayers IconSymbolizer', async () => {
+    it('can read an OpenLayers IconSymbolizer', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_icon);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_icon);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName Square', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName Square', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplesquare);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplesquare);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName Star', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName Star', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplestar);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplestar);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName Triangle', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName Triangle', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simpletriangle);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simpletriangle);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName Cross', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName Cross', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplecross);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplecross);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName X', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName X', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplex);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplex);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://slash', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://slash', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simpleslash);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simpleslash);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://backslash', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://backslash', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplebackslash);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplebackslash);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://vertline', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://vertline', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplevertline);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplevertline);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://horline', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://horline', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplehorline);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplehorline);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://carrow', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://carrow', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplecarrow);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplecarrow);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://oarrow', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://oarrow', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simpleoarrow);
       expect(geoStylerStyle).toBeDefined();
       // using point_simplecarrow here since reading OlStyle cannot distinguish
       // between carrow and oarrow
       expect(geoStylerStyle).toEqual(point_simplecarrow);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://dot', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://dot', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simpledot);
       expect(geoStylerStyle).toBeDefined();
       // using point_simplepoint here since reading OlStyle cannot distinguish
       // between circle and dot
       expect(geoStylerStyle).toEqual(point_simplepoint);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://plus', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://plus', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simpleplus);
       expect(geoStylerStyle).toBeDefined();
       // using point_simplecross here since reading OlStyle cannot distinguish
       // between cross and plus
       expect(geoStylerStyle).toEqual(point_simplecross);
     });
-    it('can read a OpenLayers MarkSymbolizer as WellKnownName shape://times', async () => {
+    it('can read an OpenLayers MarkSymbolizer as WellKnownName shape://times', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simpletimes);
       expect(geoStylerStyle).toBeDefined();
       // using point_simplex here since reading OlStyle cannot distinguish
       // between x and times
       expect(geoStylerStyle).toEqual(point_simplex);
     });
-    it('can read a OpenLayers LineSymbolizer', async () => {
+    it('can read an OpenLayers LineSymbolizer', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_line_simpleline);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(line_simpleline);
     });
-    it('can read a OpenLayers PolygonSymbolizer', async () => {
+    it('can read an OpenLayers PolygonSymbolizer', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_polygon_transparentpolygon);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(polygon_transparentpolygon);
@@ -235,12 +238,12 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(multi_simplefillSimpleline);
     });
-    it('can read a OpenLayers TextSymbolizer with static text', async () => {
+    it('can read an OpenLayers TextSymbolizer with static text', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_styledLabel_static);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_styledLabel_static);
     });
-    // it('can read a OpenLayers style with a filter', () => {
+    // it('can read an OpenLayers style with a filter', () => {
     //   expect.assertions(2);
     //   const sld = fs.readFileSync( './data/slds/point_simplepoint_filter.sld', 'utf8');
     //   const { output: geoStylerStyle } = await styleParser.readStyle(sld)
@@ -249,7 +252,7 @@ describe('OlStyleParser implements StyleParser', () => {
     //       expect(geoStylerStyle).toEqual(point_simplepoint_filter);
     //     });
     // });
-    it('can read a OpenLayers MarkSymbolizer based on a font glyph (WellKnownName starts with ttf://)', async () => {
+    it('can read an OpenLayers MarkSymbolizer based on a font glyph (WellKnownName starts with ttf://)', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_fontglyph);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_fontglyph);
@@ -415,7 +418,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(olStyles).toHaveLength(2);
       expect(typeof olStyleFct === 'function').toBe(true);
     });
-    it('can write a OpenLayers PointSymbolizer', async () => {
+    it('can write an OpenLayers PointSymbolizer', async () => {
       let { output: olStyle } = await styleParser.writeStyle(point_simplepoint);
       olStyle = olStyle as OlStyle;
       expect(olStyle).toBeDefined();
@@ -427,7 +430,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(olCircle.getRadius()).toBeCloseTo(expecSymb.radius as number);
       expect(olCircle.getFill().getColor()).toEqual(expecSymb.color);
     });
-    it('can write a OpenLayers IconSymbolizer', async () => {
+    it('can write an OpenLayers IconSymbolizer', async () => {
       let { output: olStyle } = await styleParser.writeStyle(point_icon);
       olStyle = olStyle as OlStyle;
       expect(olStyle).toBeDefined();
@@ -436,7 +439,6 @@ describe('OlStyleParser implements StyleParser', () => {
       const olIcon: OlStyleIcon = olStyle.getImage() as OlStyleIcon;
 
       expect(olIcon.getSrc()).toEqual(expecSymb.image);
-      expect(olIcon.getScale()).toBeCloseTo(expecSymb.size as number);
       // Rotation in openlayers is radians while we use degree
       expect(olIcon.getRotation()).toBeCloseTo((expecSymb.rotate as number) * Math.PI / 180);
       expect(olIcon.getOpacity()).toBeCloseTo(expecSymb.opacity as number);
@@ -460,7 +462,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(olIcon.getSrc()).toEqual(dummyFeat.get('path'));
     });
   });
-  it('can write a OpenLayers RegularShape square', async () => {
+  it('can write an OpenLayers RegularShape square', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplesquare);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -478,7 +480,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olSquareFill).toBeDefined();
     expect(olSquareFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape star', async () => {
+  it('can write an OpenLayers RegularShape star', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplestar);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -500,7 +502,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStarFill).toBeDefined();
     expect(olStarFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape triangle', async () => {
+  it('can write an OpenLayers RegularShape triangle', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpletriangle);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -521,7 +523,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olTriangleFill).toBeDefined();
     expect(olTriangleFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape cross', async () => {
+  it('can write an OpenLayers RegularShape cross', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplecross);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -543,7 +545,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olCrossFill).toBeDefined();
     expect(olCrossFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape x', async () => {
+  it('can write an OpenLayers RegularShape x', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplex);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -565,7 +567,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olXFill).toBeDefined();
     expect(olXFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://slash', async () => {
+  it('can write an OpenLayers RegularShape shape://slash', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpleslash);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -586,7 +588,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olSlashFill).toBeDefined();
     expect(olSlashFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://backslash', async () => {
+  it('can write an OpenLayers RegularShape shape://backslash', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplebackslash);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -607,7 +609,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olBackSlashFill).toBeDefined();
     expect(olBackSlashFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://vertline', async () => {
+  it('can write an OpenLayers RegularShape shape://vertline', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplevertline);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -628,7 +630,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olVertlineFill).toBeDefined();
     expect(olVertlineFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://horline', async () => {
+  it('can write an OpenLayers RegularShape shape://horline', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplehorline);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -649,7 +651,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olHorlineFill).toBeDefined();
     expect(olHorlineFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://carrow', async () => {
+  it('can write an OpenLayers RegularShape shape://carrow', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplecarrow);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -670,7 +672,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olCarrowFill).toBeDefined();
     expect(olCarrowFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://oarrow', async() => {
+  it('can write an OpenLayers RegularShape shape://oarrow', async() => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpleoarrow);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -691,7 +693,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olOarrowFill).toBeDefined();
     expect(olOarrowFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://dot', async () => {
+  it('can write an OpenLayers RegularShape shape://dot', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpledot);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -706,7 +708,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olDot.getRadius()).toBeCloseTo(expecSymb.radius);
     expect(olDot.getFill().getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://plus', async () => {
+  it('can write an OpenLayers RegularShape shape://plus', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpleplus);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -728,7 +730,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olPlusFill).toBeDefined();
     expect(olPlusFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers RegularShape shape://times', async () => {
+  it('can write an OpenLayers RegularShape shape://times', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpletimes);
 
     olStyle = olStyle as OlStyle;
@@ -751,7 +753,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olTimesFill).toBeDefined();
     expect(olTimesFill.getColor()).toEqual(expecSymb.color);
   });
-  it('can write a OpenLayers Style based on a font glyph (WellKnownName starts with ttf://)', async () => {
+  it('can write an OpenLayers Style based on a font glyph (WellKnownName starts with ttf://)', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_fontglyph);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -771,7 +773,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olTextStroke).toBeDefined();
     expect(olTextStroke.getColor()).toEqual(expecSymb.strokeColor);
   });
-  it('can write a OpenLayers LineSymbolizer', async () => {
+  it('can write an OpenLayers LineSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(line_simpleline);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -784,7 +786,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStroke.getWidth()).toBeCloseTo(expecSymb.width as number);
     expect(olStroke.getLineDash()).toEqual(expecSymb.dasharray);
   });
-  it('can write a OpenLayers PolygonSymbolizer', async () => {
+  it('can write an OpenLayers PolygonSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(polygon_transparentpolygon);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -806,7 +808,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
     expect(olStroke.getLineDash()).toEqual(expecSymb.outlineDasharray);
   });
-  it('can write a OpenLayers PolygonSymbolizer with MarkSymbolizer as graphicFill', async () => {
+  it('can write an OpenLayers PolygonSymbolizer with MarkSymbolizer as graphicFill', async () => {
     let { output: olStyle } = await styleParser.writeStyle(polygon_graphicfill_mark);
     olStyle = olStyle as OlStyle;
     expect(olStyle).toBeDefined();
@@ -815,7 +817,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olFill).toBeDefined();
     expect(olFill.getColor()).toBeInstanceOf(CanvasPattern);
   });
-  it('can write a OpenLayers TextSymbolizer', async () => {
+  it('can write an OpenLayers TextSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_styledlabel);
     olStyle = olStyle as OlParserStyleFct;
     expect(olStyle).toBeDefined();
