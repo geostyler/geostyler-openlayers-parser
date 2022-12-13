@@ -1,7 +1,5 @@
 # geostyler-openlayers-parser
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/geostyler/geostyler-openlayers-parser.svg)](https://greenkeeper.io/)
-[![Build Status](https://travis-ci.org/geostyler/geostyler-openlayers-parser.svg?branch=master)](https://travis-ci.org/geostyler/geostyler-openlayers-parser)
 [![Coverage Status](https://coveralls.io/repos/github/geostyler/geostyler-openlayers-parser/badge.svg?branch=master)](https://coveralls.io/github/geostyler/geostyler-openlayers-parser?branch=master)
 
 [GeoStyler Style](https://github.com/geostyler/geostyler) Parser implementation for OpenLayers styles
