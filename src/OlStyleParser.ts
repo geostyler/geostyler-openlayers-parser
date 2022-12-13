@@ -63,7 +63,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       MarkSymbolizer: {
         avoidEdges: 'none',
         blur: 'none',
-        fillOpacity: 'none',
         offsetAnchor: 'none',
         pitchAlignment: 'none',
         pitchScale: 'none',
@@ -943,8 +942,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
 
     const fill = new this.OlStyleFillConstructor({
-      color: (markSymbolizer.color && markSymbolizer.opacity !== undefined) ?
-        OlStyleUtil.getRgbaColor(markSymbolizer.color, markSymbolizer.opacity) : markSymbolizer.color
+      color:
+        markSymbolizer.color &&
+        (markSymbolizer.opacity !== undefined ||
+          markSymbolizer.fillOpacity !== undefined)
+          ? OlStyleUtil.getRgbaColor(
+              markSymbolizer.color,
+              markSymbolizer.opacity ?? markSymbolizer.fillOpacity ?? 1
+            )
+          : markSymbolizer.color,
     });
 
     let olStyle: any;
