@@ -76,7 +76,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           support: 'none',
           info: 'Use opacity instead.'
         },
-        graphicFill: 'none',
         visibility: 'none'
       },
       IconSymbolizer: {
