@@ -89,8 +89,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         keepUpright: 'none',
         offsetAnchor: 'none',
         size: {
-          support: 'none',
-          info: 'ol 7.1.0 does not yet support width/height for style/Icon'
+          support: 'partial',
+          info: 'Will set/get the width of the ol Icon.'
         },
         optional: 'none',
         padding: 'none',
@@ -304,11 +304,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       // icon
       const olIconStyle: any = olStyle.getImage();
       const offset = olIconStyle.getDisplacement() as [number, number];
+      const size = olIconStyle.getWidth();
 
       const iconSymbolizer: IconSymbolizer = {
         kind: 'Icon',
         image: olIconStyle.getSrc() ? olIconStyle.getSrc() : undefined,
         opacity: olIconStyle.getOpacity(),
+        size,
         // Rotation in openlayers is radians while we use degree
         rotate: olIconStyle.getRotation() / Math.PI * 180,
         offset: offset[0] || offset[1] ? offset : undefined
@@ -1126,7 +1128,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @param symbolizer  A GeoStyler-Style IconSymbolizer.
    * @return The OL Style object
    */
-  getOlIconSymbolizerFromIconSymbolizer(symbolizer: IconSymbolizer, feat?: OlFeature): OlStyle | OlStyleIcon | OlStyleFunction {
+  getOlIconSymbolizerFromIconSymbolizer(
+    symbolizer: IconSymbolizer,
+    feat?: OlFeature
+  ): OlStyle | OlStyleIcon | OlStyleFunction {
     for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key])) {
         symbolizer[key] = OlStyleUtil.evaluateFunction(symbolizer[key], feat);
@@ -1137,6 +1142,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       src: symbolizer.image as string,
       crossOrigin: 'anonymous',
       opacity: symbolizer.opacity as number,
+      width: symbolizer.size as number,
       // Rotation in openlayers is radians while we use degree
       rotation: (typeof(symbolizer.rotate) === 'number' ? symbolizer.rotate * Math.PI / 180 : undefined) as number,
       displacement: symbolizer.offset as [number, number]
