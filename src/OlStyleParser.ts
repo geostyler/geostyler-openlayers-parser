@@ -551,7 +551,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         } else {
           olStyle = olStyle as OlStyle | OlStyle[];
           const geoStylerStyle: Style = this.olStyleToGeoStylerStyle(olStyle);
-          const unsupportedProperties = this.checkForUnsupportedProperites(geoStylerStyle);
+          const unsupportedProperties = this.checkForUnsupportedProperties(geoStylerStyle);
           resolve({
             output: geoStylerStyle,
             unsupportedProperties
@@ -581,7 +581,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   writeStyle(geoStylerStyle: Style): Promise<WriteStyleResult<OlStyle | OlStyle[] | OlParserStyleFct>> {
     return new Promise<WriteStyleResult>((resolve) => {
-      const unsupportedProperties = this.checkForUnsupportedProperites(geoStylerStyle);
+      const unsupportedProperties = this.checkForUnsupportedProperties(geoStylerStyle);
       try {
         const olStyle = this.getOlStyleTypeFromGeoStylerStyle(geoStylerStyle);
         resolve({
@@ -597,7 +597,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     });
   }
 
-  checkForUnsupportedProperites(geoStylerStyle: Style): UnsupportedProperties | undefined {
+  checkForUnsupportedProperties(geoStylerStyle: Style): UnsupportedProperties | undefined {
     const capitalizeFirstLetter = (a: string) => a[0].toUpperCase() + a.slice(1);
     const unsupportedProperties: UnsupportedProperties = {};
     geoStylerStyle.rules.forEach(rule => {
