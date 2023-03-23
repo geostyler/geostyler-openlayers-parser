@@ -727,13 +727,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         let minScale = rule?.scaleDenominator?.min;
         let maxScale = rule?.scaleDenominator?.max;
         let isWithinScale = true;
-        if (minScale !== undefined || maxScale !== undefined) {
+        if (minScale || maxScale) {
           minScale = isGeoStylerFunction(minScale) ? OlStyleUtil.evaluateNumberFunction(minScale) : minScale;
           maxScale = isGeoStylerFunction(maxScale) ? OlStyleUtil.evaluateNumberFunction(maxScale) : maxScale;
-          if (minScale !== undefined && scale < minScale) {
+          if (minScale && scale < minScale) {
             isWithinScale = false;
           }
-          if (maxScale !== undefined && scale >= maxScale) {
+          if (maxScale && scale >= maxScale) {
             isWithinScale = false;
           }
         }
