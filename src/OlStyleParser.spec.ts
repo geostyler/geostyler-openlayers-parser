@@ -368,7 +368,7 @@ describe('OlStyleParser implements StyleParser', () => {
         const fontFamily = [
           ['arial', 'sans-serif'],
           ['Georgia', 'serif'],
-          ['"Neue Helvetica"', 'Helvetica', 'sans-serif']
+          ['Neue Helvetica', 'Helvetica', 'sans-serif']
         ];
         const font1 = `bold 5px ${fontFamily[0].join(', ')}`;
         const font2 = `italic bold 12px/30px ${fontFamily[1].join(', ')}`;

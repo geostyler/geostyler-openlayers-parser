@@ -14,7 +14,9 @@ const pointStyledLabel: Style = {
         offset: [0, 5],
         haloColor: '#000000',
         haloWidth: 5,
-        rotate: 45
+        rotate: 45,
+        fontStyle: 'normal',
+        fontWeight: 'normal'
       }]
     }
   ]
