@@ -1,3 +1,5 @@
+import { parseFont } from 'css-font-parser';
+
 import {
   CapType,
   FillSymbolizer,
@@ -403,24 +405,26 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const allowOverlap = olTextStyle.getOverflow() ? olTextStyle.getOverflow() : undefined;
     const text = olTextStyle.getText();
     const label = Array.isArray(text) ? text[0] : text;
-    let fontStyleWeightSize: string;
-    let fontSizePart: string[];
     let fontSize: number = Infinity;
     let fontFamily: string[]|undefined = undefined;
+    let fontWeight: 'normal' | 'bold' | undefined = undefined;
+    let fontStyle: 'normal' | 'italic' | 'oblique' | undefined = undefined;
 
     if (font) {
-      const fontSplit = font.split('px');
-      // font-size is always the first part of font-size/line-height
-      fontStyleWeightSize = fontSplit[0].trim();
-
-      fontSizePart = fontStyleWeightSize.split(' ');
-      // The last element contains font size
-      fontSize = parseInt(fontSizePart[fontSizePart.length - 1], 10);
-      const fontFamilyPart: string = fontSplit.length === 2 ?
-        fontSplit[1] : fontSplit[2];
-      fontFamily = fontFamilyPart.split(',').map((fn: string) => {
-        return fn.startsWith(' ') ? fn.slice(1) : fn;
-      });
+      const fontObj = parseFont(font);
+      if (fontObj['font-weight']) {
+        fontWeight = fontObj['font-weight'];
+      }
+      if (fontObj['font-size']) {
+        fontSize = parseInt(fontObj['font-size'], 10);
+      }
+      if (fontObj['font-family']) {
+        const fontFamilies = fontObj['font-family'];
+        fontFamily = fontFamilies?.map((f: string) => f.includes(' ') ? '"' + f + '"' : f);
+      }
+      if (fontObj['font-style']) {
+        fontStyle = fontObj['font-style'];
+      }
     }
 
     return {
@@ -430,6 +434,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       size: isFinite(fontSize) ? fontSize : undefined,
       font: fontFamily,
+      fontWeight: fontWeight || undefined,
+      fontStyle: fontStyle || undefined,
       offset: (offsetX !== undefined) && (offsetY !== undefined) ? [offsetX, offsetY] : [0, 0],
       haloColor: olStrokeStyle && olStrokeStyle.getColor() ?
         OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,

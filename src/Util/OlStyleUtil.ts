@@ -152,7 +152,7 @@ class OlStyleUtil {
 
     const size = symbolizer.size;
     const font = symbolizer.font;
-    return fontWeight + ' ' + fontStyle + ' ' + size + 'px ' + font;
+    return fontWeight + ' ' + fontStyle + ' ' + size + 'px ' + font?.join(', ');
   }
 
 
