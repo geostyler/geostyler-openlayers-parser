@@ -407,22 +407,23 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const label = Array.isArray(text) ? text[0] : text;
     let fontSize: number = Infinity;
     let fontFamily: string[]|undefined = undefined;
-    let fontWeight: 'normal' | 'bold' = 'normal';
-    let fontStyle: 'normal' | 'italic' | 'oblique' = 'normal';
+    let fontWeight: 'normal' | 'bold' | undefined = undefined;
+    let fontStyle: 'normal' | 'italic' | 'oblique' | undefined = undefined;
 
     if (font) {
       const fontObj = parseFont(font);
       if (fontObj['font-weight']) {
-        fontWeight = fontObj['font-weight'] as 'normal' | 'bold';
+        fontWeight = fontObj['font-weight'];
       }
       if (fontObj['font-size']) {
         fontSize = parseInt(fontObj['font-size'], 10);
       }
       if (fontObj['font-family']) {
-        fontFamily = fontObj['font-family'];
+        const fontFamilies = fontObj['font-family'];
+        fontFamily = fontFamilies?.map((f: string) => f.includes(' ') ? '"' + f + '"' : f);
       }
       if (fontObj['font-style']) {
-        fontStyle = fontObj['font-style'] as 'normal' | 'italic' | 'oblique';
+        fontStyle = fontObj['font-style'];
       }
     }
 
@@ -433,8 +434,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       size: isFinite(fontSize) ? fontSize : undefined,
       font: fontFamily,
-      fontWeight,
-      fontStyle,
+      fontWeight: fontWeight || undefined,
+      fontStyle: fontStyle || undefined,
       offset: (offsetX !== undefined) && (offsetY !== undefined) ? [offsetX, offsetY] : [0, 0],
       haloColor: olStrokeStyle && olStrokeStyle.getColor() ?
         OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) : undefined,
