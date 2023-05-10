@@ -48,6 +48,8 @@ export interface OlParserStyleFct {
   __geoStylerStyle: Style;
 }
 
+type SymbolizerKeyType = keyof UnsupportedProperties['Symbolizer'];
+
 /**
  * This parser can be used with the GeoStyler.
  * It implements the GeoStyler-Style Parser interface to work with OpenLayers styles.
@@ -610,23 +612,24 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       // ScaleDenominator and Filters are completly supported so we just check for symbolizers
       rule.symbolizers.forEach(symbolizer => {
         const key = capitalizeFirstLetter(`${symbolizer.kind}Symbolizer`);
-        const value = this.unsupportedProperties?.Symbolizer?.[key];
+        const value = this.unsupportedProperties?.Symbolizer?.[key as SymbolizerKeyType];
         if (value) {
-          if (typeof value === 'string' || value instanceof String ) {
+          if (typeof value === 'string') {
             if (!unsupportedProperties.Symbolizer) {
               unsupportedProperties.Symbolizer = {};
             }
-            unsupportedProperties.Symbolizer[key] = value;
+            unsupportedProperties.Symbolizer[key as SymbolizerKeyType] = value;
           } else {
             Object.keys(symbolizer).forEach(property => {
               if (value[property]) {
                 if (!unsupportedProperties.Symbolizer) {
                   unsupportedProperties.Symbolizer = {};
                 }
-                if (!unsupportedProperties.Symbolizer[key]) {
-                  unsupportedProperties.Symbolizer[key] = {};
+                if (!unsupportedProperties.Symbolizer[key as SymbolizerKeyType]) {
+                  (unsupportedProperties.Symbolizer as any)[key] = {};
                 }
-                unsupportedProperties.Symbolizer[key][property] = value[property];
+                unsupportedProperties.Symbolizer
+                  [key as SymbolizerKeyType][property] = value[property];
               }
             });
           }
@@ -787,7 +790,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @return boolean true if feature matches filter expression
    */
   geoStylerFilterToOlParserFilter(feature: any, filter: Filter): boolean {
-    const operatorMapping = {
+    const operatorMapping: any = {
       '&&': true,
       '||': true,
       '!': true
@@ -942,8 +945,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     let stroke: any;
 
     for (const key of Object.keys(markSymbolizer)) {
-      if (isGeoStylerFunction(markSymbolizer[key])) {
-        markSymbolizer[key] = OlStyleUtil.evaluateFunction(markSymbolizer[key], feature);
+      if (isGeoStylerFunction(markSymbolizer[key as keyof MarkSymbolizer])) {
+        (markSymbolizer as any)[key] = OlStyleUtil.evaluateFunction((markSymbolizer as any)[key], feature);
       }
     }
 
@@ -1164,8 +1167,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     feat?: OlFeature
   ): OlStyle | OlStyleIcon | OlStyleFunction {
     for (const key of Object.keys(symbolizer)) {
-      if (isGeoStylerFunction(symbolizer[key])) {
-        symbolizer[key] = OlStyleUtil.evaluateFunction(symbolizer[key], feat);
+      if (isGeoStylerFunction(symbolizer[key as keyof IconSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
 
@@ -1231,8 +1234,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   getOlLineSymbolizerFromLineSymbolizer(symbolizer: LineSymbolizer, feat?: OlFeature): OlStyle | OlStyleStroke {
     for (const key of Object.keys(symbolizer)) {
-      if (isGeoStylerFunction(symbolizer[key])) {
-        symbolizer[key] = OlStyleUtil.evaluateFunction(symbolizer[key], feat);
+      if (isGeoStylerFunction(symbolizer[key as keyof LineSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
     const color = symbolizer.color as string;
@@ -1260,8 +1263,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer, feat?: OlFeature): OlStyle | OlStyleFill {
     for (const key of Object.keys(symbolizer)) {
-      if (isGeoStylerFunction(symbolizer[key])) {
-        symbolizer[key] = OlStyleUtil.evaluateFunction(symbolizer[key], feat);
+      if (isGeoStylerFunction(symbolizer[key as keyof FillSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
 
@@ -1375,8 +1378,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     feat?: OlFeature
   ): OlStyle | OlStyleText | OlStyleFunction {
     for (const key of Object.keys(symbolizer)) {
-      if (isGeoStylerFunction(symbolizer[key])) {
-        symbolizer[key] = OlStyleUtil.evaluateFunction(symbolizer[key], feat);
+      if (isGeoStylerFunction(symbolizer[key as keyof TextSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
 

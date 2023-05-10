@@ -1,20 +1,20 @@
 module.exports = {
-  'testEnvironment': 'jsdom',
-  'moduleFileExtensions': [
+  testEnvironment: 'jsdom',
+  moduleFileExtensions: [
     'ts',
     'js'
   ],
-  'setupFilesAfterEnv': [
+  setupFilesAfterEnv: [
     'jest-canvas-mock'
   ],
-  'transform': {
+  transform: {
     '^.+\\.(ts|js)$': '<rootDir>/node_modules/babel-jest'
   },
-  'transformIgnorePatterns': [
-    'node_modules/(?!(ol|@terrestris/*)/)'
+  transformIgnorePatterns: [
+    'node_modules/(?!(ol|color-name|@terrestris/*)/)'
   ],
-  'testRegex': '/src/.*\\.spec.ts$',
-  'collectCoverageFrom': [
+  testRegex: '/src/.*\\.spec.ts$',
+  collectCoverageFrom: [
     'src/*.ts'
   ]
 };
