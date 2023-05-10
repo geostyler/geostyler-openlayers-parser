@@ -329,5 +329,14 @@ describe('OlStyleUtil', () => {
       const match = OlStyleUtil.evaluateBooleanFunction(regExFn, feat);
       expect(match).toEqual(true);
     });
+
+    it('regex with flag matches', () => {
+
+      const feat = new OlFeature();
+      const regExFn: GeoStylerBooleanFunction = {name: 'strMatches', args: ['bank', '/(bus|bank)/i']};
+
+      const match = OlStyleUtil.evaluateBooleanFunction(regExFn, feat);
+      expect(match).toEqual(true);
+    });
   });
 });

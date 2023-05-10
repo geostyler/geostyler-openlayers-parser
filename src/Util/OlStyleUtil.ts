@@ -349,8 +349,13 @@ class OlStyleUtil {
       case 'strEqualsIgnoreCase':
         return (args[0] as string).toLowerCase() === (args[1] as string).toLowerCase() ;
       case 'strMatches':
-        const regEx = (args[1] as string).replace(/^\/|\/$/g, '');
-        return new RegExp(regEx).test(args[0] as string);
+        const regEx = (args[1] as string);
+        const regexArray = regEx.match(/\/(.*?)\/([gimy]{0,4})$/);
+        if (regexArray && regexArray.length === 3){
+          return new RegExp(regexArray[1], regexArray[2]).test(args[0] as string);
+        } else {
+          return false;
+        }
       case 'strStartsWith':
         return (args[0] as string).startsWith(args[1] as string);
       default:
