@@ -1,7 +1,7 @@
 import OlStyleUtil, { DUMMY_MARK_SYMBOLIZER_FONT } from './OlStyleUtil';
 import OlFeature from 'ol/Feature';
 import OlGeomPoint from 'ol/geom/Point';
-import { MarkSymbolizer, TextSymbolizer } from 'geostyler-style';
+import { MarkSymbolizer, TextSymbolizer, GeoStylerBooleanFunction } from 'geostyler-style';
 
 describe('OlStyleUtil', () => {
 
@@ -315,4 +315,28 @@ describe('OlStyleUtil', () => {
     });
   });
 
+  describe('#evaluateBooleanFunction', () => {
+
+    it('is defined', () => {
+      expect(OlStyleUtil.evaluateBooleanFunction).toBeDefined();
+    });
+
+    it('regex matches', () => {
+
+      const feat = new OlFeature();
+      const regExFn: GeoStylerBooleanFunction = {name: 'strMatches', args: ['bank', '/(bus|bank)/']};
+
+      const match = OlStyleUtil.evaluateBooleanFunction(regExFn, feat);
+      expect(match).toEqual(true);
+    });
+
+    it('regex with flag matches', () => {
+
+      const feat = new OlFeature();
+      const regExFn: GeoStylerBooleanFunction = {name: 'strMatches', args: ['bank', '/(bus|bank)/i']};
+
+      const match = OlStyleUtil.evaluateBooleanFunction(regExFn, feat);
+      expect(match).toEqual(true);
+    });
+  });
 });
