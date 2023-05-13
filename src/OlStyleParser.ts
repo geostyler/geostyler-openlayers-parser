@@ -5,6 +5,7 @@ import {
   FillSymbolizer,
   Filter,
   IconSymbolizer,
+  isGeoStylerBooleanFunction,
   isGeoStylerFunction,
   isGeoStylerStringFunction,
   isIconSymbolizer,
@@ -71,16 +72,14 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         blur: 'none',
         offsetAnchor: 'none',
         pitchAlignment: 'none',
-        pitchScale: 'none',
-        visibility: 'none'
+        pitchScale: 'none'
       },
       FillSymbolizer: {
         antialias: 'none',
         fillOpacity: {
           support: 'none',
           info: 'Use opacity instead.'
-        },
-        visibility: 'none'
+        }
       },
       IconSymbolizer: {
         allowOverlap: 'none',
@@ -101,8 +100,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         pitchAlignment: 'none',
         rotationAlignment: 'none',
         textFit: 'none',
-        textFitPadding: 'none',
-        visibility: 'none'
+        textFitPadding: 'none'
       },
       LineSymbolizer: {
         blur: 'none',
@@ -111,7 +109,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         miterLimit: 'none',
         roundLimit: 'none',
         spacing: 'none',
-        visibility: 'none',
         graphicFill: 'none',
         graphicStroke: 'none',
         perpendicularOffset: 'none'
@@ -762,6 +759,17 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         if (isWithinScale && matchesFilter) {
           rule.symbolizers.forEach((symb: Symbolizer) => {
             const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symb, feature);
+
+            if (symb.visibility === false) {
+              return;
+            }
+
+            if (isGeoStylerBooleanFunction(symb.visibility)) {
+              const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
+              if (!visibility) {
+                return;
+              }
+            }
 
             // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
             // of OlStyles, not ol.StyleFunctions.
