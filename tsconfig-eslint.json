@@ -9,6 +9,6 @@
     "webpack",
     "jest",
     "browser",
-    "browser-build.config.js"
+    "vite.config.ts"
   ]
 }

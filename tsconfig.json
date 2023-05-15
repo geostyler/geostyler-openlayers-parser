@@ -30,7 +30,6 @@
     "data",
     "coverage",
     "browser",
-    "browser-build.config.js",
-    "dev-build.config.js"
+    "vite.config.ts"
   ]
 }
