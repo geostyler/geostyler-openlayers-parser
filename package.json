@@ -77,5 +77,6 @@
     "last 4 versions",
     "Firefox ESR",
     "not ie < 9"
-  ]
+  ],
+  "funding": "https://opencollective.com/geostyler"
 }
