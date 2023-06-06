@@ -758,19 +758,18 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
 
         if (isWithinScale && matchesFilter) {
           rule.symbolizers.forEach((symb: Symbolizer) => {
-            const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symb, feature);
-
             if (symb.visibility === false) {
-              return;
+              return null;
             }
 
             if (isGeoStylerBooleanFunction(symb.visibility)) {
               const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
               if (!visibility) {
-                return;
+                return null;
               }
             }
 
+            const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symb, feature);
             // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
             // of OlStyles, not ol.StyleFunctions.
             // So we have to check it and in case of an ol.StyleFunction call that function
