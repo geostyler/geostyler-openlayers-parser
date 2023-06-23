@@ -758,15 +758,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         }
 
         if (isWithinScale && matchesFilter) {
-          rule.symbolizers.forEach((symb: Symbolizer): void => {
+          rule.symbolizers.forEach((symb: Symbolizer) => {
             if (symb.visibility === false) {
-              return;
+              styles.push(null);
             }
 
             if (isGeoStylerBooleanFunction(symb.visibility)) {
               const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
               if (!visibility) {
-                return;
+                styles.push(null);
               }
             }
 
