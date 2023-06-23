@@ -586,9 +586,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   writeStyle(geoStylerStyle: Style): Promise<WriteStyleResult<OlStyle | OlStyle[] | OlParserStyleFct>> {
     return new Promise<WriteStyleResult>((resolve) => {
-      const unsupportedProperties = this.checkForUnsupportedProperties(geoStylerStyle);
+      const clonedStyle = structuredClone(geoStylerStyle);
+      const unsupportedProperties = this.checkForUnsupportedProperties(clonedStyle);
       try {
-        const olStyle = this.getOlStyleTypeFromGeoStylerStyle(geoStylerStyle);
+        const olStyle = this.getOlStyleTypeFromGeoStylerStyle(clonedStyle);
         resolve({
           output: olStyle,
           unsupportedProperties,
@@ -757,15 +758,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         }
 
         if (isWithinScale && matchesFilter) {
-          rule.symbolizers.forEach((symb: Symbolizer) => {
+          rule.symbolizers.forEach((symb: Symbolizer): void => {
             if (symb.visibility === false) {
-              return null;
+              return;
             }
 
             if (isGeoStylerBooleanFunction(symb.visibility)) {
               const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
               if (!visibility) {
-                return null;
+                return;
               }
             }
 
