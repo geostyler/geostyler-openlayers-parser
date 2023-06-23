@@ -719,7 +719,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @return An OlParserStyleFct
    */
   geoStylerStyleToOlParserStyleFct(geoStylerStyle: Style): OlParserStyleFct {
-    const rules = geoStylerStyle.rules;
+    const rules = structuredClone(geoStylerStyle.rules);
     const olStyle = (feature: any, resolution: number): any[] => {
       const styles: any[] = [];
 
