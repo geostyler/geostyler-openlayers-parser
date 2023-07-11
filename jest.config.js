@@ -1,5 +1,5 @@
 module.exports = {
-  testEnvironment: 'jsdom',
+  testEnvironment: './jest/Environment.js',
   moduleFileExtensions: [
     'ts',
     'js'
