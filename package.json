@@ -40,10 +40,10 @@
   "dependencies": {
     "color-name": "^2.0.0",
     "css-font-parser": "^2.0.0",
-    "geostyler-style": "^7.2.0"
+    "geostyler-style": "^7.3.1"
   },
   "peerDependencies": {
-    "ol": ">=7.2"
+    "ol": ">=7.4"
   },
   "devDependencies": {
     "@babel/core": "^7.21.8",
@@ -67,7 +67,7 @@
     "jest-canvas-mock": "^2.5.0",
     "jest-environment-jsdom": "^29.5.0",
     "np": "^7.7.0",
-    "ol": "^7.3.0",
+    "ol": "^7.4.0",
     "regenerator-runtime": "^0.13.11",
     "typescript": "^5.0.4",
     "vite": "4.3.5"

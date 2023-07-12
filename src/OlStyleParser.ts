@@ -307,7 +307,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       // icon
       const olIconStyle: any = olStyle.getImage();
       const offset = olIconStyle.getDisplacement() as [number, number];
-      const size = olIconStyle.getWidth();
+      // initialOptions_ as fallback when image is not yet loaded
+      const size = olIconStyle.getWidth() ?? olIconStyle.initialOptions_.width;
 
       const iconSymbolizer: IconSymbolizer = {
         kind: 'Icon',
@@ -805,6 +806,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     };
 
     let matchesFilter: boolean = true;
+    if (isGeoStylerBooleanFunction(filter)) {
+      return OlStyleUtil.evaluateBooleanFunction(filter, feature);
+    }
+    if (filter === true || filter === false) {
+      return filter;
+    }
     const operator: Operator = filter[0];
     let isNestedFilter: boolean = false;
     if (operatorMapping[operator]) {
