@@ -70,7 +70,7 @@
     "ol": "^7.4.0",
     "regenerator-runtime": "^0.13.11",
     "typescript": "^5.0.4",
-    "vite": "4.3.5"
+    "vite": "4.4.3"
   },
   "browserslist": [
     ">1%",
