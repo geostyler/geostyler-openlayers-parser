@@ -76,9 +76,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       },
       FillSymbolizer: {
         antialias: 'none',
-        fillOpacity: {
+        opacity: {
           support: 'none',
-          info: 'Use opacity instead.'
+          info: 'Use fillOpacity instead.'
         }
       },
       IconSymbolizer: {
@@ -368,8 +368,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     if (olFillStyle) {
       symbolizer.color = OlStyleUtil.getHexColor(olFillStyle.getColor() as string);
     }
-    if (olStrokeStyle) {
-      symbolizer.opacity = OlStyleUtil.getOpacity(olFillStyle.getColor() as string);
+    if (olFillStyle) {
+      symbolizer.fillOpacity = OlStyleUtil.getOpacity(olFillStyle.getColor() as string);
     }
     if (olStrokeStyle) {
       symbolizer.outlineColor = OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string);
@@ -1285,7 +1285,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
 
     const color = symbolizer.color as string;
-    const opacity = symbolizer.opacity as number;
+    const opacity = symbolizer.fillOpacity as number;
     const fColor = color && Number.isFinite(opacity)
       ? OlStyleUtil.getRgbaColor(color, opacity)
       : color;
