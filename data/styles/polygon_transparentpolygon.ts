@@ -8,7 +8,7 @@ const polygonTransparentPolygon: Style = {
       symbolizers: [{
         kind: 'Fill',
         color: '#000080',
-        opacity: 0.5,
+        fillOpacity: 0.5,
         outlineColor: '#ffffff',
         outlineDasharray: [10, 15],
         outlineOpacity: 0.7,

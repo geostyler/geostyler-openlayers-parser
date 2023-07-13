@@ -8,7 +8,7 @@ const unsupportedProperties: Style = {
       symbolizers: [{
         kind: 'Fill',
         color: '#F1337F',
-        fillOpacity: 0.5
+        opacity: 0.5
       }]
     }
   ]

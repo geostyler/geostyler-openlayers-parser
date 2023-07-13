@@ -809,7 +809,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olFill).toBeDefined();
 
     const expecSymbFillCol: string = expecSymb.color as string;
-    const expecSymbFillOpac: number = expecSymb.opacity as number;
+    const expecSymbFillOpac: number = expecSymb.fillOpacity as number;
     expect(olFill.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbFillCol, expecSymbFillOpac));
 
     expect(olStroke.getLineDash()).toEqual(expecSymb.outlineDasharray);
@@ -1199,8 +1199,8 @@ describe('OlStyleParser implements StyleParser', () => {
     const unsupportedGot = {
       Symbolizer: {
         FillSymbolizer: {
-          fillOpacity: {
-            info: 'Use opacity instead.',
+          opacity: {
+            info: 'Use fillOpacity instead.',
             support: 'none'
           }
         }
