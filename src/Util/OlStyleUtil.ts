@@ -549,7 +549,7 @@ class OlStyleUtil {
 
   public static containsGeoStylerFunctions(style: Style) {
     return style.rules.some(rule => {
-      const filterHasFunction = rule.filter?.some(isGeoStylerFunction);
+      const filterHasFunction = Array.isArray(rule.filter) && rule.filter?.some(isGeoStylerFunction);
       const styleHasFunction = rule.symbolizers?.some(symbolizer => {
         return Object.values(symbolizer).some(isGeoStylerFunction);
       });
