@@ -16,8 +16,8 @@ import {
   Style,
   TextSymbolizer
 } from 'geostyler-style';
-import colors from 'color-name';
 import { Feature as OlFeature } from 'ol';
+import { colors } from './colors';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
