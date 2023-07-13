@@ -481,12 +481,15 @@ class OlStyleUtil {
         let match;
         for (let index = 0; index < caseArgs.length; index++) {
           const caseArg = caseArgs[index] as FCaseParameter;
+          // last arg of the case-function-expression is the default value
           if (index === caseArgs.length - 1) {
             match = caseArg;
             break;
+          // the case can be a boolean
           } else if (caseArg.case === true) {
             match = caseArg.value;
             break;
+          // … or a boolean function that has to be evaluated first
           } else if (OlStyleUtil.evaluateBooleanFunction(caseArg.case as GeoStylerBooleanFunction, feature)) {
             match = caseArg.value;
             break;
