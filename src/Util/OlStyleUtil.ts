@@ -357,9 +357,9 @@ class OlStyleUtil {
       case 'in':
         return args.slice(1).includes(args[0]);
       case 'lessThan':
-        return (args[0] as number) > (args[1] as number);
+        return (args[0] as number) < (args[1] as number);
       case 'lessThanOrEqualTo':
-        return (args[0] as number) >= (args[1] as number);
+        return (args[0] as number) <= (args[1] as number);
       case 'not':
         return !args[0];
       case 'notEqualTo':
@@ -479,17 +479,19 @@ class OlStyleUtil {
         };
         const caseArgs: Fcase['args'] = args as Fcase['args'];
         let match;
-        caseArgs.forEach((caseArg: FCaseParameter, index) => {
-          if (index === caseArgs.length) {
+        for (let index = 0; index < caseArgs.length; index++) {
+          const caseArg = caseArgs[index] as FCaseParameter;
+          if (index === caseArgs.length - 1) {
             match = caseArg;
-          }
-          if (caseArg.case === true) {
+            break;
+          } else if (caseArg.case === true) {
             match = caseArg.value;
-          }
-          if (this.evaluateBooleanFunction(caseArg.case as GeoStylerBooleanFunction)) {
+            break;
+          } else if (OlStyleUtil.evaluateBooleanFunction(caseArg.case as GeoStylerBooleanFunction, feature)) {
             match = caseArg.value;
+            break;
           }
-        });
+        }
         return match;
       default:
         return args[0];

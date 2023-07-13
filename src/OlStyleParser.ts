@@ -908,6 +908,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer, feature?: OlFeature): OlStyle {
     let olSymbolizer: any;
+    symbolizer = structuredClone(symbolizer);
 
     switch (symbolizer.kind) {
       case 'Mark':
