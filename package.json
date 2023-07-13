@@ -72,6 +72,9 @@
     "typescript": "^5.1.6",
     "vite": "4.4.3"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "browserslist": [
     ">1%",
     "last 4 versions",
