@@ -1,4 +1,6 @@
 import {
+  Expression,
+  Fcase,
   GeoStylerBooleanFunction,
   GeoStylerFunction,
   GeoStylerNumberFunction,
@@ -312,6 +314,9 @@ class OlStyleUtil {
       }
     }
 
+    if (isGeoStylerUnknownFunction(func)) {
+      return OlStyleUtil.evaluateUnknownFunction(func, feature);
+    }
     if (isGeoStylerStringFunction(func)) {
       return OlStyleUtil.evaluateStringFunction(func, feature);
     }
@@ -320,9 +325,6 @@ class OlStyleUtil {
     }
     if (isGeoStylerBooleanFunction(func)) {
       return OlStyleUtil.evaluateBooleanFunction(func, feature);
-    }
-    if (isGeoStylerUnknownFunction(func)) {
-      return OlStyleUtil.evaluateUnknownFunction(func, feature);
     }
     return;
   }
@@ -335,13 +337,33 @@ class OlStyleUtil {
       return arg;
     });
     switch (func.name) {
+      case 'all':
+        return args.map(arg => this.evaluateBooleanFunction(arg as GeoStylerBooleanFunction, feature))
+          .every(result => result === true);
+      case 'any':
+        return args.map(arg => this.evaluateBooleanFunction(arg as GeoStylerBooleanFunction, feature))
+          .some(result => result === true);
       case 'between':
         return (args[0] as number) >= (args[1] as number) && (args[0] as number) <= (args[2] as number);
       case 'double2bool':
         // TODO: evaluate this correctly
         return false;
+      case 'equalTo':
+        return args[0] === args[1];
+      case 'greaterThan':
+        return (args[0] as number) > (args[1] as number);
+      case 'greaterThanOrEqualTo':
+        return (args[0] as number) >= (args[1] as number);
       case 'in':
         return args.slice(1).includes(args[0]);
+      case 'lessThan':
+        return (args[0] as number) < (args[1] as number);
+      case 'lessThanOrEqualTo':
+        return (args[0] as number) <= (args[1] as number);
+      case 'not':
+        return !args[0];
+      case 'notEqualTo':
+        return args[0] !== args[1];
       case 'parseBoolean':
         return !!args[0];
       case 'strEndsWith':
@@ -381,6 +403,8 @@ class OlStyleUtil {
         return Math.abs(args[0] as number);
       case 'acos':
         return Math.acos(args[0] as number);
+      case 'add':
+        return (args[0] as number) + (args[1] as number);
       case 'asin':
         return Math.asin(args[0] as number);
       case 'atan':
@@ -392,6 +416,8 @@ class OlStyleUtil {
         return Math.ceil(args[0] as number);
       case 'cos':
         return Math.cos(args[0] as number);
+      case 'div':
+        return (args[0] as number) / (args[1] as number);
       case 'exp':
         return Math.exp(args[0] as number);
       case 'floor':
@@ -404,6 +430,8 @@ class OlStyleUtil {
         return Math.min(...(args as number[]));
       case 'modulo':
         return (args[0] as number) % (args[1] as number);
+      case 'mul':
+        return (args[0] as number) * (args[1] as number);
       case 'pow':
         return Math.pow(args[0] as number, args[1] as number);
       case 'rint':
@@ -421,6 +449,8 @@ class OlStyleUtil {
         return (args[0] as string).lastIndexOf(args[1] as string);
       case 'strLength':
         return (args[0] as string).length;
+      case 'sub':
+        return (args[0] as number) - (args[1] as number);
       case 'tan':
         return Math.tan(args[0] as number);
       case 'toDegrees':
@@ -442,6 +472,30 @@ class OlStyleUtil {
     switch (func.name) {
       case 'property':
         return feature?.get(args[0] as string);
+      case 'case':
+        type FCaseParameter = {
+          case: Expression<boolean>;
+          value: Expression<PropertyType>;
+        };
+        const caseArgs: Fcase['args'] = args as Fcase['args'];
+        let match;
+        for (let index = 0; index < caseArgs.length; index++) {
+          const caseArg = caseArgs[index] as FCaseParameter;
+          // last arg of the case-function-expression is the default value
+          if (index === caseArgs.length - 1) {
+            match = caseArg;
+            break;
+          // the case can be a boolean
+          } else if (caseArg.case === true) {
+            match = caseArg.value;
+            break;
+          // … or a boolean function that has to be evaluated first
+          } else if (OlStyleUtil.evaluateBooleanFunction(caseArg.case as GeoStylerBooleanFunction, feature)) {
+            match = caseArg.value;
+            break;
+          }
+        }
+        return match;
       default:
         return args[0];
     }
@@ -498,7 +552,7 @@ class OlStyleUtil {
 
   public static containsGeoStylerFunctions(style: Style) {
     return style.rules.some(rule => {
-      const filterHasFunction = rule.filter?.some(isGeoStylerFunction);
+      const filterHasFunction = Array.isArray(rule.filter) && rule.filter?.some(isGeoStylerFunction);
       const styleHasFunction = rule.symbolizers?.some(symbolizer => {
         return Object.values(symbolizer).some(isGeoStylerFunction);
       });

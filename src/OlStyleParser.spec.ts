@@ -48,6 +48,8 @@ import polygon_simple from '../data/styles/polygon_simple';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import point_fontglyph from '../data/styles/point_fontglyph';
 import unsupported_properties from '../data/styles/unsupported_properties';
+import function_boolean from '../data/styles/function_boolean';
+import function_case from '../data/styles/function_case';
 
 import ol_function_marksymbolizer from '../data/olStyles/function_markSymbolizer';
 import ol_function_nested_fillsymbolizer from '../data/olStyles/function_nested_fillSymbolizer';
@@ -74,6 +76,15 @@ import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimp
 import ol_point_styledLabel_static from '../data/olStyles/point_styledLabel_static';
 import ol_point_fontglyph from '../data/olStyles/point_fontglyph';
 import ol_unsupported_properties from '../data/olStyles/unsupported_properties';
+import {
+  olBoolean1 as ol_function_boolean_fillsymbolizer1,
+  olBoolean2 as ol_function_boolean_fillsymbolizer2
+} from '../data/olStyles/function_boolean';
+import {
+  olCase1 as ol_function_case_1,
+  olCase2 as ol_function_case_2,
+  olCase3 as ol_function_case_3
+} from '../data/olStyles/function_case';
 
 import { METERS_PER_UNIT } from 'ol/proj/Units';
 import {
@@ -85,11 +96,6 @@ import {
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
-import function_boolean from '../data/styles/function_boolean';
-import {
-  olBoolean1 as ol_function_boolean_fillsymbolizer1,
-  olBoolean2 as ol_function_boolean_fillsymbolizer2
-} from '../data/olStyles/function_boolean';
 
 // reverse calculation of resolution for scale (from ol-util MapUtil)
 function getResolutionForScale (scale, units) {
@@ -1130,6 +1136,28 @@ describe('OlStyleParser implements StyleParser', () => {
     const targetStyle = geoStylerStyle(dummyFeat);
     expect(geoStylerStyle.__geoStylerStyle).toEqual(function_marksymbolizer);
     expect(targetStyle[0]).toEqual(ol_function_marksymbolizer);
+  });
+  it('can write a Marksymbolizer with the GeoStylerFunction "case"', async () => {
+    let { output: geoStylerStyle } = await styleParser.writeStyle(function_case);
+    expect(geoStylerStyle).toBeDefined();
+    expect(typeof geoStylerStyle === 'function').toBe(true);
+    geoStylerStyle = geoStylerStyle as OlParserStyleFct;
+    const dummyFeat1 = new OlFeature({
+      population: 49000
+    });
+    const dummyFeat2 = new OlFeature({
+      population: 1000000
+    });
+    const dummyFeat3 = new OlFeature({
+      population: 999999999
+    });
+    const targetStyle1 = geoStylerStyle(dummyFeat1);
+    const targetStyle2 = geoStylerStyle(dummyFeat2);
+    const targetStyle3 = geoStylerStyle(dummyFeat3);
+    expect(geoStylerStyle.__geoStylerStyle).toEqual(function_case);
+    expect(targetStyle1[0]).toEqual(ol_function_case_1);
+    expect(targetStyle2[0]).toEqual(ol_function_case_2);
+    expect(targetStyle3[0]).toEqual(ol_function_case_3);
   });
 
   it('can write a FillSymbolizer with a nested GeoStylerFunction', async () => {
