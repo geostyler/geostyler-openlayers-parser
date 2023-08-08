@@ -67,7 +67,7 @@
     "jest-environment-jsdom": "^29.6.1",
     "np": "^8.0.4",
     "ol": "^7.4.0",
-    "regenerator-runtime": "^0.13.11",
+    "regenerator-runtime": "^0.14.0",
     "typescript": "^5.1.6",
     "vite": "4.4.3"
   },
