@@ -69,7 +69,7 @@
     "ol": "^7.4.0",
     "regenerator-runtime": "^0.13.11",
     "typescript": "^5.1.6",
-    "vite": "4.4.3"
+    "vite": "4.4.9"
   },
   "engines": {
     "node": ">=18"
