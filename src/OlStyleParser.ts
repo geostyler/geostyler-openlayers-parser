@@ -114,7 +114,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         graphicStroke: 'none',
         perpendicularOffset: 'none'
       },
-      RasterSymbolizer: 'none'
+      RasterSymbolizer: 'none',
+      TextSymbolizer: {
+        placement: {
+          support:'partial',
+          info: 'point and line supported. line-center will be mapped to line.'
+        }
+      }
     },
     Function: {
       double2bool: {
@@ -439,13 +445,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const font = olTextStyle.getFont();
     const rotation = olTextStyle.getRotation();
     const allowOverlap = olTextStyle.getOverflow() ? olTextStyle.getOverflow() : undefined;
+    const placement = olTextStyle.getPlacement();
     const text = olTextStyle.getText();
     const label = Array.isArray(text) ? text[0] : text;
     let fontSize: number = Infinity;
     let fontFamily: string[]|undefined = undefined;
     let fontWeight: 'normal' | 'bold' | undefined = undefined;
     let fontStyle: 'normal' | 'italic' | 'oblique' | undefined = undefined;
-
     if (font) {
       const fontObj = parseFont(font);
       if (fontObj['font-weight']) {
@@ -466,6 +472,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     return {
       kind: 'Text',
       label,
+      placement,
       allowOverlap,
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       size: isFinite(fontSize) ? fontSize : undefined,
@@ -1437,8 +1444,18 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
-
     const color = symbolizer.color as string;
+    let placement = symbolizer.placement;
+    if (!placement) {
+      // When setting placement it must not be undefined.
+      // So we set it to the OL default value.
+      placement = 'point';
+    }
+    if (placement === 'line-center') {
+      // line-center not supported by OL.
+      // So we use the closest supported value.
+      placement = 'line';
+    }
     const opacity = symbolizer.opacity as number;
     const fColor = color && Number.isFinite(opacity)
       ? OlStyleUtil.getRgbaColor(color, opacity)
@@ -1449,7 +1466,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const sColor = haloColor && Number.isFinite(opacity)
       ? OlStyleUtil.getRgbaColor(haloColor, opacity)
       : haloColor;
-
     const baseProps: OlStyleTextOptions = {
       font: OlStyleUtil.getTextFont(symbolizer),
       fill: new this.OlStyleFillConstructor({
@@ -1462,7 +1478,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       overflow: symbolizer.allowOverlap as boolean,
       offsetX: (symbolizer.offset ? symbolizer.offset[0] : 0) as number,
       offsetY: (symbolizer.offset ? symbolizer.offset[1] : 0) as number,
-      rotation: typeof(symbolizer.rotate) === 'number' ? symbolizer.rotate * Math.PI / 180 : undefined
+      rotation: typeof(symbolizer.rotate) === 'number' ? symbolizer.rotate * Math.PI / 180 : undefined,
+      placement: placement as 'line' | 'point'
       // TODO check why props match
       // textAlign: symbolizer.pitchAlignment,
       // textBaseline: symbolizer.anchor

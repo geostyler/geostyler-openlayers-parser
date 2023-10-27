@@ -1,27 +1,27 @@
 import { Style } from 'geostyler-style';
 
-const pointStyledLabel: Style = {
+const textStyle: Style = {
   name: 'OL Style',
   rules: [
     {
       name: 'OL Style Rule 0',
       symbolizers: [{
         kind: 'Text',
+        placement:'point',
         allowOverlap: undefined,
         fontStyle: undefined,
         fontWeight: undefined,
-        color: '#000000',
+        color: '#333',
         label: 'name',
-        font: ['Arial'],
-        size: 12,
-        offset: [0, 5],
-        haloColor: '#000000',
+        font: undefined,
+        size: undefined,
+        offset: [0,0],
+        haloColor: undefined,
         haloWidth: 5,
-        rotate: 45,
-        placement: 'point'
+        rotate: undefined
       }]
     }
   ]
 };
 
-export default pointStyledLabel;
+export default textStyle;
