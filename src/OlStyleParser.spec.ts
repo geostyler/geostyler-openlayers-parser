@@ -262,7 +262,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_styledLabel_static);
     });
-    it('can read an OpenLayers Text Placement Point', async () => {
+    it('can read an OpenLayers TextSymbolizer with placement point', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_text_placement_point);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(text_placement_point);
