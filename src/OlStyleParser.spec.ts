@@ -267,7 +267,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(text_placement_point);
     });
-    it('can read an OpenLayers Text Placement line', async () => {
+    it('can read an OpenLayers TextSymbolizer with placement line', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_text_placement_line);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(text_placement_line);
@@ -1163,7 +1163,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(geoStylerStyle).toBeDefined();
     expect(geoStylerStyle).toEqual(ol_polygon_simple);
   });
-  it('can write a text placement point', async () => {
+  it('can write a TextSymbolizer with placement point', async () => {
     let { output: olStyle } = await styleParser.writeStyle(text_placement_point);
     olStyle = olStyle as OlParserStyleFct;
     expect(olStyle).toBeDefined();
@@ -1177,7 +1177,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olPlacement).toEqual('point');
   });
 
-  it('can write a text placement line', async () => {
+  it('can write a TextSymbolizer with placement line', async () => {
     let { output: olStyle } = await styleParser.writeStyle(text_placement_line);
     olStyle = olStyle as OlParserStyleFct;
     expect(olStyle).toBeDefined();
@@ -1191,7 +1191,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olPlacement).toEqual('line');
   });
 
-  it('can write a text placement line-center to line ', async () => {
+  it('can write a TextSymbolizer with placement line-center to line ', async () => {
     let { output: olStyle } = await styleParser.writeStyle(text_placement_line_center);
     olStyle = olStyle as OlParserStyleFct;
     expect(olStyle).toBeDefined();
