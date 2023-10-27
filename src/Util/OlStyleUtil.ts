@@ -176,6 +176,9 @@ class OlStyleUtil {
    * @param font The text font to analyze
    */
   public static getIsMarkSymbolizerFont(font: string) {
+    if (!font) {
+      return false;
+    }
     const search = DUMMY_MARK_SYMBOLIZER_FONT;
     return font.substring(font.length - search.length, font.length) === search;
   }
