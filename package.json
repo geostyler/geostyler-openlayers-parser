@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "css-font-parser": "^2.0.0",
-    "geostyler-style": "^7.3.1"
+    "geostyler-style": "^8.1.0"
   },
   "peerDependencies": {
     "ol": ">=7.4"
@@ -71,7 +71,7 @@
     "jest": "^29.6.1",
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.6.1",
-    "ol": "^7.4.0",
+    "ol": "^8.2.0",
     "regenerator-runtime": "^0.14.0",
     "typescript": "^5.1.6",
     "vite": "4.4.9"
