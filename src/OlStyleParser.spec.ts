@@ -15,6 +15,7 @@ import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
 
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_icon from '../data/styles/point_icon';
+import point_icon_sprite from '../data/styles/point_icon_sprite';
 import point_dynamic_icon from '../data/styles/point_dynamic_icon';
 import point_simplesquare from '../data/styles/point_simplesquare';
 import point_simplestar from '../data/styles/point_simplestar';
@@ -55,6 +56,7 @@ import ol_function_marksymbolizer from '../data/olStyles/function_markSymbolizer
 import ol_function_nested_fillsymbolizer from '../data/olStyles/function_nested_fillSymbolizer';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
 import ol_point_icon from '../data/olStyles/point_icon';
+import ol_point_icon_sprite from '../data/olStyles/point_icon_sprite';
 import ol_point_simplesquare from '../data/olStyles/point_simplesquare';
 import ol_point_simplestar from '../data/olStyles/point_simplestar';
 import ol_point_simpletriangle from '../data/olStyles/point_simpletriangle';
@@ -92,10 +94,12 @@ import {
   FillSymbolizer,
   TextSymbolizer,
   IconSymbolizer,
-  MarkSymbolizer
+  MarkSymbolizer,
+  Sprite
 } from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
+import exp from 'constants';
 
 // reverse calculation of resolution for scale (from ol-util MapUtil)
 function getResolutionForScale (scale, units) {
@@ -149,7 +153,11 @@ describe('OlStyleParser implements StyleParser', () => {
     it('can read an OpenLayers IconSymbolizer', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_icon);
       expect(geoStylerStyle).toBeDefined();
-      expect(geoStylerStyle).toEqual(point_icon);
+    });
+    it('can read an OpenLayers IconSymbolizer with a sprite', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_icon_sprite);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_icon_sprite);
     });
     it('can read an OpenLayers MarkSymbolizer as WellKnownName Square', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplesquare);
@@ -434,7 +442,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
       expect(olCircle).toBeDefined();
       expect(olCircle.getRadius()).toBeCloseTo(expecSymb.radius as number);
-      expect(olCircle.getFill().getColor()).toEqual(expecSymb.color);
+      expect(olCircle.getFill()?.getColor()).toEqual(expecSymb.color);
     });
     it('can write an OpenLayers IconSymbolizer', async () => {
       let { output: olStyle } = await styleParser.writeStyle(point_icon);
@@ -450,6 +458,21 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(olIcon.getOpacity()).toBeCloseTo(expecSymb.opacity as number);
 
       expect(olIcon).toBeDefined();
+    });
+    it('can write an OpenLayers IconSymbolizer with a sprite', async () => {
+      let { output: olStyle } = await styleParser.writeStyle(point_icon_sprite);
+      olStyle = olStyle as OlStyle;
+      expect(olStyle).toBeDefined();
+
+      const expecSymb = point_icon_sprite.rules[0].symbolizers[0] as IconSymbolizer;
+      const image = expecSymb.image as Sprite;
+      const olIcon: OlStyleIcon = olStyle.getImage() as OlStyleIcon;
+
+      expect(olIcon).toBeDefined();
+      expect(olIcon.getSrc()).toEqual(image.source);
+      expect(olIcon.getSize()).toEqual(image.size);
+      // @ts-ignore
+      expect(olIcon.offset_).toEqual(image.position);
     });
     it('can write an OpenLayers IconSymbolizer with feature attribute based src', async () => {
       let { output: olStyle } = await styleParser.writeStyle(point_dynamic_icon);
@@ -482,9 +505,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olSquare.getAngle()).toBeCloseTo(45 * Math.PI / 180);
     expect(olSquare.getRotation()).toBeCloseTo((expecSymb.rotate as number) * Math.PI / 180);
 
-    const olSquareFill: OlStyleFill = olSquare.getFill();
+    const olSquareFill = olSquare.getFill();
     expect(olSquareFill).toBeDefined();
-    expect(olSquareFill.getColor()).toEqual(expecSymb.color);
+    expect(olSquareFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape star', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplestar);
@@ -504,9 +527,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStar.getAngle()).toBeCloseTo(0);
     expect(olStar.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olStarFill: OlStyleFill = olStar.getFill();
+    const olStarFill = olStar.getFill();
     expect(olStarFill).toBeDefined();
-    expect(olStarFill.getColor()).toEqual(expecSymb.color);
+    expect(olStarFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape triangle', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpletriangle);
@@ -525,9 +548,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olTriangle.getAngle()).toBeCloseTo(0);
     expect(olTriangle.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olTriangleFill: OlStyleFill = olTriangle.getFill();
+    const olTriangleFill = olTriangle.getFill();
     expect(olTriangleFill).toBeDefined();
-    expect(olTriangleFill.getColor()).toEqual(expecSymb.color);
+    expect(olTriangleFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape cross', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplecross);
@@ -547,9 +570,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olCross.getAngle()).toBeCloseTo(0);
     expect(olCross.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olCrossFill: OlStyleFill = olCross.getFill();
+    const olCrossFill = olCross.getFill();
     expect(olCrossFill).toBeDefined();
-    expect(olCrossFill.getColor()).toEqual(expecSymb.color);
+    expect(olCrossFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape x', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplex);
@@ -569,9 +592,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olX.getAngle()).toBeCloseTo(45 * Math.PI / 180);
     expect(olX.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olXFill: OlStyleFill = olX.getFill();
+    const olXFill = olX.getFill();
     expect(olXFill).toBeDefined();
-    expect(olXFill.getColor()).toEqual(expecSymb.color);
+    expect(olXFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://slash', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpleslash);
@@ -590,9 +613,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olSlash.getAngle()).toBeCloseTo(Math.PI / 4);
     expect(olSlash.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olSlashFill: OlStyleFill = olSlash.getFill();
+    const olSlashFill = olSlash.getFill();
     expect(olSlashFill).toBeDefined();
-    expect(olSlashFill.getColor()).toEqual(expecSymb.color);
+    expect(olSlashFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://backslash', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplebackslash);
@@ -611,9 +634,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olBackSlash.getAngle()).toBeCloseTo(2 * Math.PI - (Math.PI / 4));
     expect(olBackSlash.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olBackSlashFill: OlStyleFill = olBackSlash.getFill();
+    const olBackSlashFill = olBackSlash.getFill();
     expect(olBackSlashFill).toBeDefined();
-    expect(olBackSlashFill.getColor()).toEqual(expecSymb.color);
+    expect(olBackSlashFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://vertline', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplevertline);
@@ -632,9 +655,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olVertline.getAngle()).toBeCloseTo(0, 0);
     expect(olVertline.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olVertlineFill: OlStyleFill = olVertline.getFill();
+    const olVertlineFill = olVertline.getFill();
     expect(olVertlineFill).toBeDefined();
-    expect(olVertlineFill.getColor()).toEqual(expecSymb.color);
+    expect(olVertlineFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://horline', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplehorline);
@@ -653,9 +676,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olHorline.getAngle()).toBeCloseTo(Math.PI / 2);
     expect(olHorline.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olHorlineFill: OlStyleFill = olHorline.getFill();
+    const olHorlineFill = olHorline.getFill();
     expect(olHorlineFill).toBeDefined();
-    expect(olHorlineFill.getColor()).toEqual(expecSymb.color);
+    expect(olHorlineFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://carrow', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplecarrow);
@@ -674,9 +697,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olCarrow.getAngle()).toBeCloseTo(Math.PI / 2);
     expect(olCarrow.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olCarrowFill: OlStyleFill = olCarrow.getFill();
+    const olCarrowFill = olCarrow.getFill();
     expect(olCarrowFill).toBeDefined();
-    expect(olCarrowFill.getColor()).toEqual(expecSymb.color);
+    expect(olCarrowFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://oarrow', async() => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpleoarrow);
@@ -695,9 +718,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olOarrow.getAngle()).toBeCloseTo(Math.PI / 2);
     expect(olOarrow.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olOarrowFill: OlStyleFill = olOarrow.getFill();
+    const olOarrowFill = olOarrow.getFill();
     expect(olOarrowFill).toBeDefined();
-    expect(olOarrowFill.getColor()).toEqual(expecSymb.color);
+    expect(olOarrowFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://dot', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpledot);
@@ -712,7 +735,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
     expect(olDot).toBeDefined();
     expect(olDot.getRadius()).toBeCloseTo(expecSymb.radius);
-    expect(olDot.getFill().getColor()).toEqual(expecSymb.color);
+    expect(olDot.getFill()?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://plus', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpleplus);
@@ -732,9 +755,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olPlus.getAngle()).toBeCloseTo(0);
     expect(olPlus.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olPlusFill: OlStyleFill = olPlus.getFill();
+    const olPlusFill = olPlus.getFill();
     expect(olPlusFill).toBeDefined();
-    expect(olPlusFill.getColor()).toEqual(expecSymb.color);
+    expect(olPlusFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers RegularShape shape://times', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpletimes);
@@ -755,9 +778,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olTimes.getAngle()).toBeCloseTo(45 * Math.PI / 180);
     expect(olTimes.getRotation()).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olTimesFill: OlStyleFill = olTimes.getFill();
+    const olTimesFill = olTimes.getFill();
     expect(olTimesFill).toBeDefined();
-    expect(olTimesFill.getColor()).toEqual(expecSymb.color);
+    expect(olTimesFill?.getColor()).toEqual(expecSymb.color);
   });
   it('can write an OpenLayers Style based on a font glyph (WellKnownName starts with ttf://)', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_fontglyph);
@@ -765,19 +788,19 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStyle).toBeDefined();
 
     const expecSymb = point_fontglyph.rules[0].symbolizers[0] as MarkSymbolizer;
-    const olText: OlStyleText = olStyle.getText();
+    const olText = olStyle.getText();
     expect(olText).toBeDefined();
 
-    expect(olText.getFont()).toBe('Normal 12px \'My Font Name\', geostyler-mark-symbolizer');
-    expect(olText.getText()).toBe('|');
+    expect(olText?.getFont()).toBe('Normal 12px \'My Font Name\', geostyler-mark-symbolizer');
+    expect(olText?.getText()).toBe('|');
 
-    const olTextFill: OlStyleFill = olText.getFill();
+    const olTextFill = olText?.getFill();
     expect(olTextFill).toBeDefined();
-    expect(olTextFill.getColor()).toEqual(expecSymb.color);
+    expect(olTextFill?.getColor()).toEqual(expecSymb.color);
 
-    const olTextStroke: OlStyleStroke = olText.getStroke();
+    const olTextStroke = olText?.getStroke();
     expect(olTextStroke).toBeDefined();
-    expect(olTextStroke.getColor()).toEqual(expecSymb.strokeColor);
+    expect(olTextStroke?.getColor()).toEqual(expecSymb.strokeColor);
   });
   it('can write an OpenLayers LineSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(line_simpleline);
@@ -788,9 +811,9 @@ describe('OlStyleParser implements StyleParser', () => {
     const olStroke = olStyle.getStroke();
 
     expect(olStroke).toBeDefined();
-    expect(olStroke.getColor()).toEqual(expecSymb.color);
-    expect(olStroke.getWidth()).toBeCloseTo(expecSymb.width as number);
-    expect(olStroke.getLineDash()).toEqual(expecSymb.dasharray);
+    expect(olStroke?.getColor()).toEqual(expecSymb.color);
+    expect(olStroke?.getWidth()).toBeCloseTo(expecSymb.width as number);
+    expect(olStroke?.getLineDash()).toEqual(expecSymb.dasharray);
   });
   it('can write an OpenLayers PolygonSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(polygon_transparentpolygon);
@@ -803,16 +826,16 @@ describe('OlStyleParser implements StyleParser', () => {
 
     const expecSymbOutlCol: string = expecSymb.outlineColor as string;
     const expecSymbOutlOpac: number = expecSymb.outlineOpacity as number;
-    expect(olStroke.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbOutlCol, expecSymbOutlOpac));
+    expect(olStroke?.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbOutlCol, expecSymbOutlOpac));
 
     const olFill = olStyle.getFill();
     expect(olFill).toBeDefined();
 
     const expecSymbFillCol: string = expecSymb.color as string;
     const expecSymbFillOpac: number = expecSymb.fillOpacity as number;
-    expect(olFill.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbFillCol, expecSymbFillOpac));
+    expect(olFill?.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbFillCol, expecSymbFillOpac));
 
-    expect(olStroke.getLineDash()).toEqual(expecSymb.outlineDasharray);
+    expect(olStroke?.getLineDash()).toEqual(expecSymb.outlineDasharray);
   });
   it('can write an OpenLayers PolygonSymbolizer with MarkSymbolizer as graphicFill', async () => {
     let { output: olStyle } = await styleParser.writeStyle(polygon_graphicfill_mark);
@@ -821,7 +844,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
     const olFill = olStyle.getFill();
     expect(olFill).toBeDefined();
-    expect(olFill.getColor()).toBeInstanceOf(CanvasPattern);
+    expect(olFill?.getColor()).toBeInstanceOf(CanvasPattern);
   });
   it('can write an OpenLayers TextSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_styledlabel);
@@ -839,28 +862,28 @@ describe('OlStyleParser implements StyleParser', () => {
     const olText = style.getText();
     expect(olText).toBeDefined();
 
-    const olTextStroke = olText.getStroke();
+    const olTextStroke = olText?.getStroke();
     expect(olTextStroke).toBeDefined();
-    expect(olTextStroke.getColor()).toEqual(expecSymb.haloColor);
-    expect(olTextStroke.getWidth()).toBeCloseTo(expecSymb.haloWidth as number);
+    expect(olTextStroke?.getColor()).toEqual(expecSymb.haloColor);
+    expect(olTextStroke?.getWidth()).toBeCloseTo(expecSymb.haloWidth as number);
 
-    const olTextFill = olText.getFill();
+    const olTextFill = olText?.getFill();
     expect(olTextFill).toBeDefined();
-    expect(olTextFill.getColor()).toEqual(expecSymb.color);
+    expect(olTextFill?.getColor()).toEqual(expecSymb.color);
 
-    const olTextFont = olText.getFont();
+    const olTextFont = olText?.getFont();
     expect(olTextFont).toEqual(OlStyleUtil.getTextFont(expecSymb));
 
-    const olTextContent = olText.getText();
+    const olTextContent = olText?.getText();
     expect(olTextContent).toEqual(testFeature.get('name'));
 
     expecSymb.rotate = expecSymb.rotate as number;
 
-    const olTextRotation = olText.getRotation();
+    const olTextRotation = olText?.getRotation();
     expect(olTextRotation).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
 
-    const olTextOffsetX = olText.getOffsetX();
-    const olTextOffsetY = olText.getOffsetY();
+    const olTextOffsetX = olText?.getOffsetX();
+    const olTextOffsetY = olText?.getOffsetY();
     const expectedOffsetX = expecSymb.offset ? expecSymb.offset[0] : null;
     const expectedOffsetY = expecSymb.offset ? expecSymb.offset[1] : null;
     expect(olTextOffsetX).toBeCloseTo(expectedOffsetX as number);
@@ -875,7 +898,6 @@ describe('OlStyleParser implements StyleParser', () => {
     const styles = olStyle(testFeature, 1);
     expect(styles).toHaveLength(1);
 
-
     const expecSymb = point_styledLabel_static.rules[0].symbolizers[0] as TextSymbolizer;
     const expecText = expecSymb.label;
     const expecOffset = expecSymb.offset;
@@ -889,23 +911,23 @@ describe('OlStyleParser implements StyleParser', () => {
     const olTextStyle = style.getText();
     expect(olTextStyle).toBeDefined();
 
-    const olText = olTextStyle.getText();
+    const olText = olTextStyle?.getText();
     expect(olText).toBeDefined();
     expect(olText).toEqual(expecText);
 
-    const olFont = olTextStyle.getFont();
+    const olFont = olTextStyle?.getFont();
     expect(olFont).toBeDefined();
     expect(olFont).toEqual(expecFont);
 
-    const olRotation = olTextStyle.getRotation();
+    const olRotation = olTextStyle?.getRotation();
     expect(olRotation).toBeDefined();
     expect(olRotation).toBeCloseTo(expecRotation);
 
-    const olOffsetX = olTextStyle.getOffsetX();
+    const olOffsetX = olTextStyle?.getOffsetX();
     expect(olOffsetX).toBeDefined();
     expect(olOffsetX).toBeCloseTo(expecOffset?.[0] as number);
 
-    const olOffsetY = olTextStyle.getOffsetY();
+    const olOffsetY = olTextStyle?.getOffsetY();
     expect(olOffsetY).toBeDefined();
     expect(olOffsetY).toBeCloseTo(expecOffset?.[1] as number);
   });
@@ -943,12 +965,12 @@ describe('OlStyleParser implements StyleParser', () => {
     const olCircle1 = styles[0].getImage() as OlStyleCircle;
     expect(olCircle1).toBeDefined();
     expect(olCircle1.getRadius()).toBeCloseTo(expecSymb1.radius as number);
-    expect(olCircle1.getFill().getColor()).toEqual(expecSymb1.color);
+    expect(olCircle1.getFill()?.getColor()).toEqual(expecSymb1.color);
 
     const olCircle2 = styles[1].getImage() as OlStyleCircle;
     expect(olCircle2).toBeDefined();
     expect(olCircle2.getRadius()).toBeCloseTo(expecSymb2.radius as number);
-    expect(olCircle2.getFill().getColor()).toEqual(expecSymb2.color);
+    expect(olCircle2.getFill()?.getColor()).toEqual(expecSymb2.color);
   });
   it('transforms labels values based on fields to string ', async () => {
     // change the field as base for the label text to a numeric one
@@ -1016,16 +1038,16 @@ describe('OlStyleParser implements StyleParser', () => {
     const expecFirst = scaleDenomLineCircle.rules[0].symbolizers[0] as LineSymbolizer;
     const olStroke = styleFirst.getStroke();
     expect(olStroke).toBeDefined();
-    expect(olStroke.getColor()).toEqual(expecFirst.color);
-    expect(olStroke.getWidth()).toBeCloseTo(expecFirst.width as number);
-    expect(olStroke.getLineDash()).toEqual(expecFirst.dasharray);
+    expect(olStroke?.getColor()).toEqual(expecFirst.color);
+    expect(olStroke?.getWidth()).toBeCloseTo(expecFirst.width as number);
+    expect(olStroke?.getLineDash()).toEqual(expecFirst.dasharray);
 
     const styleSecond: OlStyle = styleWithinSecond[0];
     const expecSecond = scaleDenomLineCircle.rules[1].symbolizers[0] as MarkSymbolizer;
     const olCircle: OlStyleCircle = styleSecond.getImage() as OlStyleCircle;
     expect(olCircle).toBeDefined();
     expect(olCircle.getRadius()).toBeCloseTo(expecSecond.radius as number);
-    expect(olCircle.getFill().getColor()).toEqual(expecSecond.color);
+    expect(olCircle.getFill()?.getColor()).toEqual(expecSecond.color);
   });
   it('returns styles of all rules that lie within scaleDenominator', async () => {
     let { output: olStyle } = await styleParser.writeStyle(scaleDenomLineCircleOverlap);
