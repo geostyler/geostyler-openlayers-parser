@@ -51,6 +51,9 @@ import point_fontglyph from '../data/styles/point_fontglyph';
 import unsupported_properties from '../data/styles/unsupported_properties';
 import function_boolean from '../data/styles/function_boolean';
 import function_case from '../data/styles/function_case';
+import text_placement_point from '../data/styles/text_placement_point';
+import text_placement_line from '../data/styles/text_placement_line';
+import text_placement_line_center from '../data/styles/text_palcement_line_center';
 
 import ol_function_marksymbolizer from '../data/olStyles/function_markSymbolizer';
 import ol_function_nested_fillsymbolizer from '../data/olStyles/function_nested_fillSymbolizer';
@@ -78,6 +81,8 @@ import ol_multi_simplefillSimpleline from '../data/olStyles/multi_simplefillSimp
 import ol_point_styledLabel_static from '../data/olStyles/point_styledLabel_static';
 import ol_point_fontglyph from '../data/olStyles/point_fontglyph';
 import ol_unsupported_properties from '../data/olStyles/unsupported_properties';
+import ol_text_placement_point from '../data/olStyles/text_placement_point';
+import ol_text_placement_line from '../data/olStyles/text_placement_line';
 import {
   olBoolean1 as ol_function_boolean_fillsymbolizer1,
   olBoolean2 as ol_function_boolean_fillsymbolizer2
@@ -256,6 +261,16 @@ describe('OlStyleParser implements StyleParser', () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_styledLabel_static);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_styledLabel_static);
+    });
+    it('can read an OpenLayers TextSymbolizer with placement point', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(ol_text_placement_point);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(text_placement_point);
+    });
+    it('can read an OpenLayers TextSymbolizer with placement line', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(ol_text_placement_line);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(text_placement_line);
     });
     // it('can read an OpenLayers style with a filter', () => {
     //   expect.assertions(2);
@@ -1147,6 +1162,47 @@ describe('OlStyleParser implements StyleParser', () => {
     const { output: geoStylerStyle } = await styleParser.writeStyle(polygon_simple);
     expect(geoStylerStyle).toBeDefined();
     expect(geoStylerStyle).toEqual(ol_polygon_simple);
+  });
+  it('can write a TextSymbolizer with placement point', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(text_placement_point);
+    olStyle = olStyle as OlParserStyleFct;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({name: 'GeoStyler'});
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
+
+    const style: OlStyle = styles[0];
+    const olPlacement = style.getText().getPlacement();
+    expect(olPlacement).toEqual('point');
+  });
+
+  it('can write a TextSymbolizer with placement line', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(text_placement_line);
+    olStyle = olStyle as OlParserStyleFct;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({name: 'GeoStyler'});
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
+
+    const style: OlStyle = styles[0];
+    const olPlacement = style.getText().getPlacement();
+    expect(olPlacement).toEqual('line');
+  });
+
+  it('can write a TextSymbolizer with placement line-center to line ', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(text_placement_line_center);
+    olStyle = olStyle as OlParserStyleFct;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({name: 'GeoStyler'});
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
+
+    const style: OlStyle = styles[0];
+    const olPlacement = style.getText().getPlacement();
+    expect(olPlacement).toEqual('line');
   });
 
   it('can write a Marksymbolizer with GeoStylerFunction', async () => {
