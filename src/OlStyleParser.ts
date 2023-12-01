@@ -10,6 +10,7 @@ import {
   isGeoStylerStringFunction,
   isIconSymbolizer,
   isMarkSymbolizer,
+  isSprite,
   JoinType,
   LineSymbolizer,
   MarkSymbolizer,
@@ -305,23 +306,55 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       } as MarkSymbolizer;
     } else {
       // icon
-      const olIconStyle: any = olStyle.getImage();
-      const offset = olIconStyle.getDisplacement() as [number, number];
+      const olIconStyle = olStyle.getImage() as OlStyleIcon;
+      const displacement = olIconStyle.getDisplacement() as [number, number];
       // initialOptions_ as fallback when image is not yet loaded
-      const size = olIconStyle.getWidth() ?? olIconStyle.initialOptions_.width;
+      const image = this.getImageFromIconStyle(olIconStyle);
+      // this always gets calculated from ol so this might not have been set initially
+      let size = olIconStyle.getWidth();
+      const rotation = olIconStyle.getRotation() / Math.PI * 180;
+      const opacity = olIconStyle.getOpacity();
 
       const iconSymbolizer: IconSymbolizer = {
         kind: 'Icon',
-        image: olIconStyle.getSrc() ? olIconStyle.getSrc() : undefined,
-        opacity: olIconStyle.getOpacity(),
+        image,
+        opacity: opacity < 1 ? opacity : undefined,
         size,
         // Rotation in openlayers is radians while we use degree
-        rotate: olIconStyle.getRotation() / Math.PI * 180,
-        offset: offset[0] || offset[1] ? offset : undefined
+        rotate: rotation !== 0 ? rotation : undefined,
+        offset: displacement[0] || displacement[1] ? displacement : undefined
       };
       pointSymbolizer = iconSymbolizer;
     }
     return pointSymbolizer;
+  }
+
+  /**
+   *
+   * @param olIconStyle An ol style Icon representation
+   * @returns A string or Sprite configuration
+   */
+  getImageFromIconStyle(olIconStyle: OlStyleIcon): IconSymbolizer['image'] {
+    const size = olIconStyle.getSize();
+    if (Array.isArray(size)) {
+      // TODO: create getters (and setters?) in openlayers
+      // @ts-ignore
+      let position = olIconStyle.offset_ as [number, number];
+      // @ts-ignore
+      const offsetOrigin = olIconStyle.offsetOrigin_ as string;
+      if (offsetOrigin && offsetOrigin !== 'top-left') {
+        throw new Error(`Offset origin ${offsetOrigin} not supported`);
+      }
+
+      return {
+        source: olIconStyle.getSrc()!,
+        position,
+        size: size as [number, number]
+      };
+    } else {
+      return olIconStyle.getSrc() ? olIconStyle.getSrc() : undefined;
+    }
+
   }
 
   /**
@@ -396,6 +429,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   getTextSymbolizerFromOlStyle(olStyle: OlStyle): TextSymbolizer {
     const olTextStyle = olStyle.getText();
+    if (!olTextStyle) {
+      throw new Error('Could not get text from olStyle.');
+    }
     const olFillStyle = olTextStyle.getFill();
     const olStrokeStyle = olTextStyle.getStroke();
     const offsetX = olTextStyle.getOffsetX();
@@ -1189,14 +1225,17 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
 
     const baseProps: OlStyleIconOptions = {
-      src: symbolizer.image as string,
+      src: isSprite(symbolizer.image) ? symbolizer.image.source as string : symbolizer.image as string,
       crossOrigin: 'anonymous',
       opacity: symbolizer.opacity as number,
       width: symbolizer.size as number,
       // Rotation in openlayers is radians while we use degree
       rotation: (typeof(symbolizer.rotate) === 'number' ? symbolizer.rotate * Math.PI / 180 : undefined) as number,
-      displacement: symbolizer.offset as [number, number]
+      displacement: symbolizer.offset as [number, number],
+      size: isSprite(symbolizer.image) ? symbolizer.image.size as [number, number] : undefined,
+      offset: isSprite(symbolizer.image) ? symbolizer.image.position as [number, number] : undefined,
     };
+
     // check if IconSymbolizer.image contains a placeholder
     const prefix = '\\{\\{';
     const suffix = '\\}\\}';
