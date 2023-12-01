@@ -321,7 +321,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         opacity: opacity < 1 ? opacity : undefined,
         size,
         // Rotation in openlayers is radians while we use degree
-        rotate: rotation > 0 ? rotation : undefined,
+        rotate: rotation !== 0 ? rotation : undefined,
         offset: displacement[0] || displacement[1] ? displacement : undefined
       };
       pointSymbolizer = iconSymbolizer;
