@@ -898,7 +898,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         }
         let arg2: any;
         if (isGeoStylerFunction(filter[2])) {
-          arg2 = feature.get(OlStyleUtil.evaluateFunction(filter[2], feature));
+          arg2 = OlStyleUtil.evaluateFunction(filter[2], feature);
         } else {
           arg2 = filter[2];
         }

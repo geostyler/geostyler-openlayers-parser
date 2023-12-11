@@ -54,6 +54,7 @@ import function_case from '../data/styles/function_case';
 import text_placement_point from '../data/styles/text_placement_point';
 import text_placement_line from '../data/styles/text_placement_line';
 import text_placement_line_center from '../data/styles/text_palcement_line_center';
+import filter_comparison_propertyFunction from "../data/styles/filter_comparison_propertyFunction";
 
 import ol_function_marksymbolizer from '../data/olStyles/function_markSymbolizer';
 import ol_function_nested_fillsymbolizer from '../data/olStyles/function_nested_fillSymbolizer';
@@ -1265,6 +1266,41 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(geoStylerStyle.__geoStylerStyle).toEqual(function_boolean);
     expect(targetStyle1[0]).toEqual(ol_function_boolean_fillsymbolizer1);
     expect(targetStyle2[0]).toEqual(ol_function_boolean_fillsymbolizer2);
+  });
+
+  it('can write a comparison filter where the first and second arguments are property functions', async () => {
+    let { output: geoStylerStyle } = await styleParser.writeStyle(filter_comparison_propertyFunction);
+    expect(geoStylerStyle).toBeDefined();
+    expect(typeof geoStylerStyle === 'function').toBe(true);
+    geoStylerStyle = geoStylerStyle as OlParserStyleFct;
+    const inBetweenLabel = (filter_comparison_propertyFunction.rules[0].symbolizers[0] as TextSymbolizer).label;
+    const aboveLabel = (filter_comparison_propertyFunction.rules[1].symbolizers[0] as TextSymbolizer).label;
+    const belowLabel = (filter_comparison_propertyFunction.rules[2].symbolizers[0] as TextSymbolizer).label;
+
+    const inBetweenFeat = new OlFeature({
+      value: 0.8,
+      max: 1,
+      min: 0.5
+    });
+    const aboveFeat = new OlFeature({
+      value: 2,
+      max: 1,
+      min: 0.5
+    });
+    const belowFeat = new OlFeature({
+      value: 0.2,
+      max: 1,
+      min: 0.5
+    });
+
+    const inBetweenOLStyle  = geoStylerStyle(inBetweenFeat);
+    const aboveOLStyle = geoStylerStyle(aboveFeat);
+    const belowOLStyle = geoStylerStyle(belowFeat);
+
+    expect(inBetweenOLStyle[0].getText().getText()).toBe(inBetweenLabel);
+    expect(aboveOLStyle[0].getText().getText()).toBe(aboveLabel);
+    expect(belowOLStyle[0].getText().getText()).toBe(belowLabel);
+
   });
 
   it('adds unsupportedProperties to the write output', async () => {
