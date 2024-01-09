@@ -862,10 +862,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
     try {
       if (isNestedFilter) {
+        let intermediate: boolean;
+        let restFilter: any;
         switch (filter[0]) {
           case '&&':
-            let intermediate = true;
-            let restFilter = filter.slice(1);
+            intermediate = true;
+            restFilter = filter.slice(1);
             restFilter.forEach((f: Filter) => {
               if (!this.geoStylerFilterToOlParserFilter(feature, f)) {
                 intermediate = false;
