@@ -4,6 +4,10 @@
 [![License](https://img.shields.io/github/license/geostyler/geostyler-openlayers-parser)](https://github.com/geostyler/geostyler-openlayers-parser/blob/master/LICENSE)
 [![npm version](https://badge.fury.io/js/geostyler-openlayers-parser.svg)](https://www.npmjs.com/package/geostyler-openlayers-parser)
 
+## :rocket: GeoStyler Code Sprint 2024
+
+We are happy to announce the third GeoStyler Code Sprint from **17.-21.06.2024** in Paris. Be part of it! More infos on https://geostyler.org/.
+
 [GeoStyler Style](https://github.com/geostyler/geostyler) Parser implementation for OpenLayers styles
 
 ### How to use
