@@ -1,5 +1,5 @@
 module.exports = {
-  testEnvironment: './jest/Environment.js',
+  testEnvironment: './jest/Environment.cjs',
   moduleFileExtensions: [
     'ts',
     'js'

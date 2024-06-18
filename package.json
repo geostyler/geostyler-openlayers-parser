@@ -2,12 +2,17 @@
   "name": "geostyler-openlayers-parser",
   "version": "4.3.0",
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
-  "main": "build/dist/OlStyleParser.js",
-  "types": "build/dist/OlStyleParser.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/OlStyleParser.d.ts",
+      "import": "./dist/OlStyleParser.js",
+      "browser": "./dist/olStyleParser.iife.js"
+    }
+  },
   "files": [
-    "build",
-    "index.d.ts",
-    "browser"
+    "dist",
+    "index.d.ts"
   ],
   "repository": {
     "type": "git",
@@ -27,9 +32,9 @@
   "homepage": "https://github.com/geostyler/geostyler-openlayers-parser#readme",
   "scripts": {
     "build:browser": "vite build",
-    "build": "tsc -p tsconfig.json && npm run build:browser",
+    "build": "npm run build:browser && tsc -p tsconfig.json",
     "typecheck": " tsc --noEmit --project tsconfig.json",
-    "lint": "eslint -c .eslintrc.js --ext .ts",
+    "lint": "eslint -c .eslintrc.cjs --ext .ts",
     "prepublishOnly": "npm run build",
     "test:watch": "jest --watchAll",
     "test": "jest --coverage",
