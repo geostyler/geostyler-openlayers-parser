@@ -1,3 +1,10 @@
+## [5.0.0-next.3](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.0-next.2...v5.0.0-next.3) (2024-06-19)
+
+
+### Bug Fixes
+
+* cleanup imports ([605ccc7](https://github.com/geostyler/geostyler-openlayers-parser/commit/605ccc78159aaf38d36f6b864125a1f70d3dcdd7))
+
 ## [5.0.0-next.2](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.0-next.1...v5.0.0-next.2) (2024-06-19)
 
 
