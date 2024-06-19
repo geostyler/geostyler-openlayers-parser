@@ -1,3 +1,25 @@
+## [5.0.0-next.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v4.3.0...v5.0.0-next.1) (2024-06-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* You may need to adapt your imports, your bundler
+config or other configs when using this module to make sure your
+tooling knows this is now an esm module.
+* you may need to adjust your imports as some
+of the paths have been changed
+
+### Features
+
+* switch to esm build ([71502fb](https://github.com/geostyler/geostyler-openlayers-parser/commit/71502fbd32d7c7bf21dd2308ec036da2dc646465))
+* use esm build & update geostyler-style ([4da7581](https://github.com/geostyler/geostyler-openlayers-parser/commit/4da75810f52cc62a99b9c84532f16b1b39d10475))
+
+
+### Bug Fixes
+
+* move variable declaration ([6837cf8](https://github.com/geostyler/geostyler-openlayers-parser/commit/6837cf88d9b1f6e4761885e313a071c3396e99da))
+* parsing of property functions in filter args ([484bb8c](https://github.com/geostyler/geostyler-openlayers-parser/commit/484bb8cda05d81d63afe654974af3cdb5c5701ca))
+
 ## [4.3.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v4.2.1...v4.3.0) (2023-12-04)
 
 
