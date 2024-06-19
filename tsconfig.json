@@ -4,9 +4,9 @@
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["dom", "ES2022"],
     "inlineSources": true,
-    "module": "ES2022",
+    "lib": ["dom", "ES2022"],
+    "module": "Preserve",
     "moduleResolution": "Bundler",
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -14,10 +14,9 @@
     "noUnusedLocals": true,
     "outDir": "dist",
     "rootDir": "src",
-    "skipLibCheck": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "target": "ES2022"
+    "target": "ES2022",
   },
   "exclude": [
     "node_modules",
