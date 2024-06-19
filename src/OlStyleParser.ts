@@ -46,7 +46,7 @@ import { METERS_PER_UNIT } from 'ol/proj/Units';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 import { toContext } from 'ol/render';
-import { Feature as OlFeature } from 'ol';
+import OlFeature from 'ol/Feature';
 
 export interface OlParserStyleFct {
   (feature?: any, resolution?: number): any;
