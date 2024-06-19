@@ -4,6 +4,7 @@
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
   "type": "module",
   "main": "dist/OlStyleParser.js",
+  "module": "dist/OlStyleParser.js",
   "types": "dist/OlStyleParser.d.ts",
   "browser": "dist/olStyleParser.iife.js",
   "files": [
@@ -77,7 +78,7 @@
     "vite": "4.4.9"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.6.0"
   },
   "browserslist": [
     ">1%",
