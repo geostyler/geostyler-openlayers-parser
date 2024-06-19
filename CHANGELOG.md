@@ -1,3 +1,10 @@
+## [5.0.0-next.4](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.0-next.3...v5.0.0-next.4) (2024-06-19)
+
+
+### Bug Fixes
+
+* use preserve module strategy ([cd83ecc](https://github.com/geostyler/geostyler-openlayers-parser/commit/cd83ecc80312a11ded64d10715237ef7f4cb2513))
+
 ## [5.0.0-next.3](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.0-next.2...v5.0.0-next.3) (2024-06-19)
 
 
