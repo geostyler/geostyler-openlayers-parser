@@ -5,7 +5,6 @@ import OlStyle, {
 } from 'ol/style/Style';
 import OlStyleCircle from 'ol/style/Circle';
 import OlStyleRegularshape from 'ol/style/RegularShape';
-import OlStyleStroke from 'ol/style/Stroke';
 import OlStyleIcon from 'ol/style/Icon';
 import OlStyleText, { Options as TextOptions } from 'ol/style/Text';
 import OlStyleFill, { Options as FillOptions } from 'ol/style/Fill';
@@ -54,7 +53,7 @@ import function_case from '../data/styles/function_case';
 import text_placement_point from '../data/styles/text_placement_point';
 import text_placement_line from '../data/styles/text_placement_line';
 import text_placement_line_center from '../data/styles/text_palcement_line_center';
-import filter_comparison_propertyFunction from "../data/styles/filter_comparison_propertyFunction";
+import filter_comparison_propertyFunction from '../data/styles/filter_comparison_propertyFunction';
 
 import ol_function_marksymbolizer from '../data/olStyles/function_markSymbolizer';
 import ol_function_nested_fillsymbolizer from '../data/olStyles/function_nested_fillSymbolizer';
@@ -102,7 +101,7 @@ import {
   IconSymbolizer,
   MarkSymbolizer,
   Sprite
-} from 'geostyler-style';
+} from 'geostyler-style/dist/style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 import exp from 'constants';
@@ -1174,7 +1173,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(styles).toHaveLength(1);
 
     const style: OlStyle = styles[0];
-    const olPlacement = style.getText().getPlacement();
+    const olPlacement = style.getText()?.getPlacement();
     expect(olPlacement).toEqual('point');
   });
 
@@ -1188,7 +1187,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(styles).toHaveLength(1);
 
     const style: OlStyle = styles[0];
-    const olPlacement = style.getText().getPlacement();
+    const olPlacement = style.getText()?.getPlacement();
     expect(olPlacement).toEqual('line');
   });
 
@@ -1202,7 +1201,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(styles).toHaveLength(1);
 
     const style: OlStyle = styles[0];
-    const olPlacement = style.getText().getPlacement();
+    const olPlacement = style.getText()?.getPlacement();
     expect(olPlacement).toEqual('line');
   });
 

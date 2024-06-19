@@ -5,12 +5,6 @@ import {
   FillSymbolizer,
   Filter,
   IconSymbolizer,
-  isGeoStylerBooleanFunction,
-  isGeoStylerFunction,
-  isGeoStylerStringFunction,
-  isIconSymbolizer,
-  isMarkSymbolizer,
-  isSprite,
   JoinType,
   LineSymbolizer,
   MarkSymbolizer,
@@ -25,7 +19,16 @@ import {
   TextSymbolizer,
   UnsupportedProperties,
   WriteStyleResult
-} from 'geostyler-style';
+} from 'geostyler-style/dist/style';
+
+import {
+  isGeoStylerBooleanFunction,
+  isGeoStylerFunction,
+  isGeoStylerStringFunction,
+  isIconSymbolizer,
+  isMarkSymbolizer,
+  isSprite
+} from 'geostyler-style/dist/typeguards';
 
 import OlImageState from 'ol/ImageState';
 

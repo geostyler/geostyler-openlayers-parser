@@ -3,13 +3,9 @@
   "version": "5.0.0-next.1",
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/OlStyleParser.d.ts",
-      "import": "./dist/OlStyleParser.js",
-      "browser": "./dist/olStyleParser.iife.js"
-    }
-  },
+  "main": "dist/OlStyleParser.js",
+  "types": "dist/OlStyleParser.d.ts",
+  "browser": "dist/olStyleParser.iife.js",
   "files": [
     "dist",
     "index.d.ts"
