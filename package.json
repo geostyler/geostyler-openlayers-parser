@@ -4,9 +4,6 @@
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
   "type": "module",
   "main": "dist/OlStyleParser.js",
-  "module": "dist/OlStyleParser.js",
-  "types": "dist/OlStyleParser.d.ts",
-  "browser": "dist/olStyleParser.iife.js",
   "files": [
     "dist",
     "index.d.ts"
@@ -40,7 +37,7 @@
   },
   "dependencies": {
     "css-font-parser": "^2.0.0",
-    "geostyler-style": "9.0.0-next.1"
+    "geostyler-style": "9.0.0-next.5"
   },
   "peerDependencies": {
     "ol": ">=7.4"
