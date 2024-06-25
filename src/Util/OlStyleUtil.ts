@@ -1,22 +1,29 @@
 import {
   Expression,
+  MarkSymbolizer,
+  PropertyType,
+  Style,
+  TextSymbolizer
+} from 'geostyler-style/dist/style';
+
+import {
   Fcase,
   GeoStylerBooleanFunction,
   GeoStylerFunction,
   GeoStylerNumberFunction,
   GeoStylerStringFunction,
   GeoStylerUnknownFunction,
+} from 'geostyler-style/dist/functions';
+
+import {
   isGeoStylerBooleanFunction,
   isGeoStylerFunction,
   isGeoStylerNumberFunction,
   isGeoStylerStringFunction,
-  isGeoStylerUnknownFunction,
-  MarkSymbolizer,
-  PropertyType,
-  Style,
-  TextSymbolizer
-} from 'geostyler-style';
-import { Feature as OlFeature } from 'ol';
+  isGeoStylerUnknownFunction
+} from 'geostyler-style/dist/typeguards';
+
+import OlFeature from 'ol/Feature';
 import { colors } from './colors';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;

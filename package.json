@@ -1,13 +1,12 @@
 {
   "name": "geostyler-openlayers-parser",
-  "version": "4.3.0",
+  "version": "5.0.0-next.6",
   "description": "GeoStyler Style Parser implementation for OpenLayers styles",
-  "main": "build/dist/OlStyleParser.js",
-  "types": "build/dist/OlStyleParser.d.ts",
+  "type": "module",
+  "main": "dist/OlStyleParser.js",
   "files": [
-    "build",
-    "index.d.ts",
-    "browser"
+    "dist",
+    "index.d.ts"
   ],
   "repository": {
     "type": "git",
@@ -27,9 +26,9 @@
   "homepage": "https://github.com/geostyler/geostyler-openlayers-parser#readme",
   "scripts": {
     "build:browser": "vite build",
-    "build": "tsc -p tsconfig.json && npm run build:browser",
+    "build": "npm run build:browser && tsc -p tsconfig.json",
     "typecheck": " tsc --noEmit --project tsconfig.json",
-    "lint": "eslint -c .eslintrc.js --ext .ts",
+    "lint": "eslint -c .eslintrc.cjs --ext .ts",
     "prepublishOnly": "npm run build",
     "test:watch": "jest --watchAll",
     "test": "jest --coverage",
@@ -38,7 +37,7 @@
   },
   "dependencies": {
     "css-font-parser": "^2.0.0",
-    "geostyler-style": "^8.1.0"
+    "geostyler-style": "^9.0.1"
   },
   "peerDependencies": {
     "ol": ">=7.4"
@@ -72,11 +71,11 @@
     "ol": "^8.2.0",
     "regenerator-runtime": "^0.14.0",
     "semantic-release": "^22.0.8",
-    "typescript": "^5.1.6",
+    "typescript": "^5.4.5",
     "vite": "4.4.9"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.6.0"
   },
   "browserslist": [
     ">1%",
