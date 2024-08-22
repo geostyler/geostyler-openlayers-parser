@@ -1046,7 +1046,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       radius: radius ?? 5,
       rotation: typeof(markSymbolizer.rotate) === 'number' ? markSymbolizer.rotate * Math.PI / 180 : undefined,
       stroke: stroke,
-      displacement: typeof(markSymbolizer.offset) === 'number' ? markSymbolizer.offset : undefined
+      displacement: Array.isArray(markSymbolizer.offset) ? markSymbolizer.offset.map(Number) : undefined
     };
 
     switch (markSymbolizer.wellKnownName) {
