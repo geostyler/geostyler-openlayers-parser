@@ -13,6 +13,7 @@ import OlFeature from 'ol/Feature';
 import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
 
 import point_simplepoint from '../data/styles/point_simplepoint';
+import point_simpleoffset from '../data/styles/point_simpleoffset';
 import point_icon from '../data/styles/point_icon';
 import point_icon_sprite from '../data/styles/point_icon_sprite';
 import point_dynamic_icon from '../data/styles/point_dynamic_icon';
@@ -58,6 +59,7 @@ import filter_comparison_propertyFunction from '../data/styles/filter_comparison
 import ol_function_marksymbolizer from '../data/olStyles/function_markSymbolizer';
 import ol_function_nested_fillsymbolizer from '../data/olStyles/function_nested_fillSymbolizer';
 import ol_point_simplepoint from '../data/olStyles/point_simplepoint';
+import ol_point_simpleoffset from '../data/olStyles/point_simpleoffset';
 import ol_point_icon from '../data/olStyles/point_icon';
 import ol_point_icon_sprite from '../data/olStyles/point_icon_sprite';
 import ol_point_simplesquare from '../data/olStyles/point_simplesquare';
@@ -154,6 +156,11 @@ describe('OlStyleParser implements StyleParser', () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simplepoint);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplepoint);
+    });
+    it('can read an OpenLayers PointSymbolizer with displacement', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_simpleoffset);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simpleoffset);
     });
     it('can read an OpenLayers IconSymbolizer', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_point_icon);
@@ -458,6 +465,17 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(olCircle).toBeDefined();
       expect(olCircle.getRadius()).toBeCloseTo(expecSymb.radius as number);
       expect(olCircle.getFill()?.getColor()).toEqual(expecSymb.color);
+    });
+    it('can write an OpenLayers PointSymbolizer with displacement', async () => {
+      let { output: olStyle } = await styleParser.writeStyle(point_simpleoffset);
+      olStyle = olStyle as OlStyle;
+      expect(olStyle).toBeDefined();
+
+      const expecSymb = point_simpleoffset.rules[0].symbolizers[0] as MarkSymbolizer;
+      const olCircle: OlStyleCircle = olStyle.getImage() as OlStyleCircle;
+
+      expect(olCircle).toBeDefined();
+      expect(olCircle.getDisplacement()).toEqual(expecSymb.offset);
     });
     it('can write an OpenLayers IconSymbolizer', async () => {
       let { output: olStyle } = await styleParser.writeStyle(point_icon);
