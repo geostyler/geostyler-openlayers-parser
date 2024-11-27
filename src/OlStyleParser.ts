@@ -119,6 +119,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       },
       RasterSymbolizer: 'none',
       TextSymbolizer: {
+        anchor: 'none',
         placement: {
           support:'partial',
           info: 'point and line supported. line-center will be mapped to line.'
