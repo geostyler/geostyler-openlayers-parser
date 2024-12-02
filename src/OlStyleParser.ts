@@ -1239,7 +1239,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
 
     const baseProps: OlStyleIconOptions = {
       src: isSprite(symbolizer.image) ? symbolizer.image.source as string : symbolizer.image as string,
-      crossOrigin: null,
+      crossOrigin: 'anonymous',
       opacity: symbolizer.opacity as number,
       width: symbolizer.size as number,
       // Rotation in openlayers is radians while we use degree

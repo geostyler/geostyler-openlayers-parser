@@ -9,7 +9,8 @@ const unsupportedFill = new OlStyle({
 });
 const unsupportedImage = new OlStyle({
   image: new OlStyleIcon({
-    src: 'peter.png'
+    src: 'peter.png',
+    crossOrigin: 'anonymous'
   })
 });
 
