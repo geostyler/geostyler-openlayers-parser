@@ -1,3 +1,11 @@
+## [5.0.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.0...v5.0.1) (2024-12-02)
+
+
+### Bug Fixes
+
+* add missing "anchor" to unsupportedProperties ([d1d9bfe](https://github.com/geostyler/geostyler-openlayers-parser/commit/d1d9bfecac5371e9840c65141867805777746424))
+* check if Array instead of number ([dc0ebfa](https://github.com/geostyler/geostyler-openlayers-parser/commit/dc0ebfa35333b0c683c49bf5fd0c765211d5626c))
+
 ## [5.0.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v4.3.0...v5.0.0) (2024-06-25)
 
 
