@@ -773,7 +773,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       const inchesPerMeter = 39.37;
       const scale = resolution * mpu * inchesPerMeter * dpi;
 
-      rules.forEach((rule: Rule) => {
+      for (let rule of rules){
         // handling scale denominator
         let minScale = rule?.scaleDenominator?.min;
         let maxScale = rule?.scaleDenominator?.max;
@@ -826,8 +826,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
               styles.push(styleFromFct);
             }
           });
+          return styles;
         }
-      });
+      };
       return styles;
     };
     const olStyleFct: OlParserStyleFct = olStyle as OlParserStyleFct;
