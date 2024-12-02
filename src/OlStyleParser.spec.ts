@@ -1334,7 +1334,10 @@ describe('OlStyleParser implements StyleParser', () => {
             info: 'Use fillOpacity instead.',
             support: 'none'
           }
-        }
+        },
+        IconSymbolizer: {
+          anchor: 'none',
+        },
       }
     };
     const warningsGot = ['Your style contains unsupportedProperties!'];

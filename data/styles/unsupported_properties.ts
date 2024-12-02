@@ -9,6 +9,10 @@ const unsupportedProperties: Style = {
         kind: 'Fill',
         color: '#F1337F',
         opacity: 0.5
+      }, {
+        kind: 'Icon',
+        image: 'peter.png',
+        anchor: 'bottom-left'
       }]
     }
   ]
