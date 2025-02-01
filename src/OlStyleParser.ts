@@ -752,10 +752,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           return await this.geoStylerStyleToOlStyleArray(geoStylerStyle);
         }
       } else {
-        return await this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
+        return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
       }
     } else {
-      return await this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
+      return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
     }
   }
 
@@ -794,9 +794,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @param geoStylerStyle A GeoStyler-Style Style.
    * @return An OlParserStyleFct
    */
-  async geoStylerStyleToOlParserStyleFct(geoStylerStyle: Style): Promise<OlParserStyleFct> {
+  geoStylerStyleToOlParserStyleFct(geoStylerStyle: Style): OlParserStyleFct {
     const rules = structuredClone(geoStylerStyle.rules);
-    const olStyle = async (feature: any, resolution: number): Promise<any[]> => {
+    const olStyle = async (feature: any, resolution: any): Promise<any[]> => {
       const styles: any[] = [];
 
       // calculate scale for resolution (from ol-util MapUtil)
@@ -862,8 +862,18 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       };
       return styles;
     };
-    const olStyleFct: OlParserStyleFct = olStyle as OlParserStyleFct;
+
+    const olStyleFct: OlParserStyleFct = (feature, resolution) => {
+      olStyle(feature, resolution).then(result => {
+        // This is called once the async styles are ready
+        feature.setStyle(result);
+        feature.changed();
+      });
+      return []; // Return immediately, to avoid an OpenLayers error when trying to render the function
+    };
+
     olStyleFct.__geoStylerStyle = geoStylerStyle;
+
     return olStyleFct;
   }
 
@@ -1257,7 +1267,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     });
 
     if (symbolizer.graphicFill) {
-      const pattern = this.getOlPatternFromGraphicFill(symbolizer.graphicFill);
+      const pattern = await this.getOlPatternFromGraphicFill(symbolizer.graphicFill);
       if (!fill) {
         fill = new this.OlStyleFillConstructor({});
       }
@@ -1288,7 +1298,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       let scaleFactor = 1;
       if (isIconSymbolizer(graphicFill)) {
         graphicFillStyle = await this.getOlIconSymbolizerFromIconSymbolizer(graphicFill);
-        iconSize = graphicFillStyle.getSize();
+        iconSize = graphicFillStyle?.getSize() || iconSize;
       } else if (isMarkSymbolizer(graphicFill)) {
         graphicFillStyle = await this.getOlPointSymbolizerFromMarkSymbolizer(graphicFill);
         const iconSvg = OlStyleUtil.getBase64DecodedSvg(graphicFillStyle.getImage().getSrc());
