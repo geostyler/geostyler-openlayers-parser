@@ -27,7 +27,11 @@ import OlFeature from 'ol/Feature';
 import { colors } from './colors';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
+const SVG_URI_SCHEME = 'data:image/svg+xml;utf8,';
+export const LINE_WELLKNOWNNAMES = ['horline', 'vertline', 'line'];
+export const NOFILL_WELLKNOWNNAMES = ['horline', 'vertline', 'line', 'cross', 'cross2', 'slash', 'backslash', 'oarrow'];
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
+export const DEGREES_TO_RADIANS = Math.PI / 180;
 
 /**
  * Offers some utility functions to work with OpenLayers Styles.
@@ -151,6 +155,18 @@ class OlStyleUtil {
   }
 
   /**
+   * Checks if the given opacity value is valid.
+   * A valid opacity is a number between 0 and 1.
+   * Value 1 is ignored as this the default value.
+   * If the value is not valid, false is returned.
+   * @param opacity The opacity value to check
+   * @return true if the opacity is valid, false otherwise
+   */
+  public static checkOpacity(opacity: number | string | undefined): boolean {
+    return typeof opacity === 'number' && opacity >= 0 && opacity < 1;
+  }
+
+  /**
    * Returns an OL compliant font string.
    *
    * @param symbolizer The TextSymbolizer to derive the font string from
@@ -243,6 +259,26 @@ class OlStyleUtil {
   public static getSizeFromOlFont(olFont: string) {
     const parts = olFont.match(/(?:(\d+)px)/);
     return parts ? parseInt(parts[1], 10) : 0;
+  }
+
+  /**
+   * Encodes the given SVG string using URI encoding to remove special characters.
+   *
+   * @param svgString the SVG string to encode
+   * @returns the URI encoded SVG string
+   */
+  public static getEncodedSvg(svgString: string) {
+    return SVG_URI_SCHEME + encodeURIComponent(svgString);
+  }
+
+  /**
+   * Decodes a URI encoded SVG string.
+   *
+   * @param svgEncodedString The URI encoded SVG string to decode.
+   * @returns The decoded SVG string.
+   */
+  public static getDecodedSvg(svgEncodedString: string) {
+    return decodeURIComponent(svgEncodedString).replace(SVG_URI_SCHEME, '');
   }
 
   /**
@@ -464,9 +500,9 @@ class OlStyleUtil {
       case 'tan':
         return Math.tan(args[0] as number);
       case 'toDegrees':
-        return (args[0] as number) * (180/Math.PI);
+        return (args[0] as number) / DEGREES_TO_RADIANS;
       case 'toRadians':
-        return (args[0] as number) * (Math.PI/180);
+        return (args[0] as number) * DEGREES_TO_RADIANS;
       default:
         return args[0] as number;
     }

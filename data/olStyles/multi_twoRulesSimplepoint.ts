@@ -1,22 +1,29 @@
 import OlStyle from 'ol/style/Style';
-import OlStyleCircle from 'ol/style/Circle';
-import OlStyleFill from 'ol/style/Fill';
+import OlStyleIcon  from 'ol/style/Icon';
+import OlStyleUtil from '../../src/Util/OlStyleUtil';
+import { getShapeSvg } from '../../src/Util/OlSvgPoints';
+
+let svg = getShapeSvg('circle', {
+  fill: '#FF0000',
+  dimensions: 12
+});
 
 const olSimplePoint1 = new OlStyle({
-  image: new OlStyleCircle({
-    radius: 6,
-    fill: new OlStyleFill({
-      color: '#FF0000'
-    })
+  image: new OlStyleIcon({
+    src: OlStyleUtil.getEncodedSvg(svg),
+    crossOrigin: 'anonymous'
   })
 });
 
+svg = getShapeSvg('circle', {
+  fill: '#FF1111',
+  dimensions: 8
+});
+
 const olSimplePoint2 = new OlStyle({
-  image: new OlStyleCircle({
-    radius: 4,
-    fill: new OlStyleFill({
-      color: '#FF1111'
-    })
+  image: new OlStyleIcon({
+    src: OlStyleUtil.getEncodedSvg(svg),
+    crossOrigin: 'anonymous'
   })
 });
 

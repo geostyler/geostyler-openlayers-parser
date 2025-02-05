@@ -3,18 +3,20 @@ import OlStyleIcon  from 'ol/style/Icon';
 import OlStyleUtil from '../../src/Util/OlStyleUtil';
 import { getShapeSvg, removeDuplicateShapes } from '../../src/Util/OlSvgPoints';
 
-const shape = removeDuplicateShapes('cross');
+const shape = removeDuplicateShapes('star');
 
 const svg = getShapeSvg(shape, {
   stroke: '#FF0000',
+  fill: '#00FF00',
+  fillOpacity: 0,
   dimensions: 12
 });
 
-const olSimpleCross = new OlStyle({
+const olSimpleStar = new OlStyle({
   image: new OlStyleIcon({
     src: OlStyleUtil.getEncodedSvg(svg),
     crossOrigin: 'anonymous'
   })
 });
 
-export default olSimpleCross;
+export default olSimpleStar;

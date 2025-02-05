@@ -1,23 +1,23 @@
-import {Fproperty, Style} from "geostyler-style";
+import {Fproperty, Style} from 'geostyler-style';
 
 const value: Fproperty = {
-  name: "property",
+  name: 'property',
   args: [
-    "value"
+    'value'
   ]
 };
 
 const min: Fproperty = {
-  name: "property",
+  name: 'property',
   args: [
-    "min"
+    'min'
   ]
 }
 
 const max: Fproperty = {
-  name: "property",
+  name: 'property',
   args: [
-    "max"
+    'max'
   ]
 }
 
@@ -25,52 +25,52 @@ const filterComparisonPropertyFunction: Style = {
   name: 'OL Style',
   rules: [
     {
-      name: "between min and max",
+      name: 'between min and max',
       filter: [
-        "&&",
+        '&&',
         [
-          ">=",
+          '>=',
           value, min
 
         ],
         [
-          "<=",
+          '<=',
           value,
           max
         ]
       ],
       symbolizers: [
         {
-          kind: "Text",
-          label: "between min and max",
+          kind: 'Text',
+          label: 'between min and max',
         }
       ]
     },
     {
       name: 'above max',
       filter: [
-        ">",
+        '>',
         value,
         max
       ],
       symbolizers: [
         {
-          kind: "Text",
-          label: "above max"
+          kind: 'Text',
+          label: 'above max'
         }
       ]
     },
     {
-      name: "below min",
+      name: 'below min',
       filter: [
-        "<",
+        '<',
         value,
         min
       ],
       symbolizers: [
         {
-          kind: "Text",
-          label: "below min",
+          kind: 'Text',
+          label: 'below min',
         }
       ]
     }

@@ -8,9 +8,8 @@ const pointSimpleTriangle: Style = {
       symbolizers: [{
         kind: 'Mark',
         wellKnownName: 'triangle',
-        color: '#FF0000',
+        strokeColor: '#FF0000',
         radius: 6,
-        rotate: 0,
         offset: [10, 20]
       }]
     }
