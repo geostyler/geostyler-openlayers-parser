@@ -1,7 +1,7 @@
 import OlStyle from 'ol/style/Style';
 import OlStyleIcon  from 'ol/style/Icon';
 import OlStyleUtil from '../../src/Util/OlStyleUtil';
-import { getShapeSvg } from '../../src/Util/svgs';
+import { getShapeSvg } from '../../src/Util/OlSvgPoints';
 
 let svg = getShapeSvg('circle', {
   fill: '#FF0000',
@@ -10,7 +10,7 @@ let svg = getShapeSvg('circle', {
 
 export const olCase1 = new OlStyle({
   image: new OlStyleIcon({
-    src: OlStyleUtil.getBase64EncodedSvg(svg),
+    src: OlStyleUtil.getEncodedSvg(svg),
     crossOrigin: 'anonymous'
   })
 });
@@ -22,7 +22,7 @@ svg = getShapeSvg('circle', {
 
 export const olCase2 = new OlStyle({
   image: new OlStyleIcon({
-    src: OlStyleUtil.getBase64EncodedSvg(svg),
+    src: OlStyleUtil.getEncodedSvg(svg),
     crossOrigin: 'anonymous'
   })
 });
@@ -34,7 +34,7 @@ svg = getShapeSvg('circle', {
 
 export const olCase3 = new OlStyle({
   image: new OlStyleIcon({
-    src: OlStyleUtil.getBase64EncodedSvg(svg),
+    src: OlStyleUtil.getEncodedSvg(svg),
     crossOrigin: 'anonymous'
   })
 });

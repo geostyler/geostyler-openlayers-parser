@@ -43,6 +43,7 @@ import scaleDenomLine from '../data/styles/scaleDenom_line';
 import scaleDenomLineCircle from '../data/styles/scaleDenom_line_circle';
 import scaleDenomLineCircleOverlap from '../data/styles/scaleDenom_line_circle_overlap';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
+import polygon_graphicfill_mark from '../data/styles/polygon_graphicFill_mark';
 import polygon_simple from '../data/styles/polygon_simple';
 import point_styledlabel from '../data/styles/point_styledlabel';
 import point_fontglyph from '../data/styles/point_fontglyph';
@@ -104,8 +105,8 @@ import {
   Sprite
 } from 'geostyler-style/dist/style';
 
-import OlStyleUtil from './Util/OlStyleUtil';
-import { getSvgProperties, removeDuplicateShapes } from './Util/svgs';
+import OlStyleUtil, { DEGREES_TO_RADIANS } from './Util/OlStyleUtil';
+import { getSvgProperties, removeDuplicateShapes } from './Util/OlSvgPoints';
 
 // reverse calculation of resolution for scale (from ol-util MapUtil)
 function getResolutionForScale (scale, units) {
@@ -114,28 +115,6 @@ function getResolutionForScale (scale, units) {
   let inchesPerMeter = 39.37;
 
   return parseFloat(scale) / (mpu * inchesPerMeter * dpi);
-}
-
-// function to enable testing of async assertions
-async function waitForCondition(
-  condition: () => boolean,
-  timeout = 5000,
-  interval = 50
-): Promise<void> {
-  const startTime = Date.now();
-
-  return new Promise((resolve, reject) => {
-    const checkCondition = () => {
-      if (condition()) {
-        resolve();
-      } else if (Date.now() - startTime >= timeout) {
-        reject(new Error('Timeout waiting for condition'));
-      } else {
-        setTimeout(checkCondition, interval);
-      }
-    };
-    checkCondition();
-  });
 }
 
 it('OlStyleParser is defined', () => {
@@ -165,7 +144,7 @@ describe('OlStyleParser implements StyleParser', () => {
     });
     it('can read an OpenLayers Style Function', async () => {
       const styleFct: OlParserStyleFct = (feature, resolution) => {
-        return [ol_point_simplepoint];
+        return ol_point_simplepoint;
       };
       styleFct.__geoStylerStyle = point_simplepoint;
 
@@ -424,7 +403,7 @@ describe('OlStyleParser implements StyleParser', () => {
         expect(result.offset).toHaveLength(2);
         expect(result.offset?.[0]).toBeCloseTo(offsetX);
         expect(result.offset?.[1]).toBeCloseTo(offsetY);
-        expect(result.rotate).toBeCloseTo(rotation / Math.PI * 180);
+        expect(result.rotate).toBeCloseTo(rotation / DEGREES_TO_RADIANS);
       });
 
       it('generates correct TextSymbolizer for sophisticated fonst styles', () => {
@@ -491,7 +470,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
       expect(olSimplePoint).toBeDefined();
 
-      const svgString = OlStyleUtil.getBase64DecodedSvg(olSimplePoint.getSrc() as string);
+      const svgString = OlStyleUtil.getDecodedSvg(olSimplePoint.getSrc() as string);
       const { id, dimensions, fill } = getSvgProperties(svgString);
 
       expect(id).toEqual(expecSymb.wellKnownName);
@@ -519,7 +498,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
       expect(olIcon.getSrc()).toEqual(expecSymb.image);
       // Rotation in openlayers is radians while we use degree
-      expect(olIcon.getRotation()).toBeCloseTo((expecSymb.rotate as number) * Math.PI / 180);
+      expect(olIcon.getRotation()).toBeCloseTo(expecSymb.rotate as number * DEGREES_TO_RADIANS);
       expect(olIcon.getOpacity()).toBeCloseTo(expecSymb.opacity as number);
 
       expect(olIcon).toBeDefined();
@@ -547,14 +526,11 @@ describe('OlStyleParser implements StyleParser', () => {
         path: 'image.jpg'
       });
 
-      await olStyle(dummyFeat, 1);
+      const styles = olStyle(dummyFeat, 1);
+      expect(styles).toBeDefined();
+      expect(styles).toHaveLength(1);
 
-      await waitForCondition(() => !!dummyFeat.getStyle());
-
-      expect(dummyFeat.getStyle()).toBeDefined();
-      expect(dummyFeat.getStyle()).toHaveLength(1);
-
-      const olIcon: OlStyleIcon = dummyFeat.getStyle()?.[0].getImage() as OlStyleIcon;
+      const olIcon: OlStyleIcon = styles[0].getImage() as OlStyleIcon;
       expect(olIcon).toBeDefined();
       expect(olIcon.getSrc()).toEqual(dummyFeat.get('path'));
     });
@@ -568,7 +544,7 @@ describe('OlStyleParser implements StyleParser', () => {
     const olSquare = olStyle.getImage() as OlStyleIcon;
     expect(olSquare).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olSquare.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olSquare.getSrc() as string);
     const { id, dimensions, fill } = getSvgProperties(svgString);
 
     expect(id).toEqual(expecSymb.wellKnownName);
@@ -585,7 +561,7 @@ describe('OlStyleParser implements StyleParser', () => {
     const olStar = olStyle.getImage() as OlStyleIcon;
     expect(olStar).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olStar.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olStar.getSrc() as string);
     const { id, dimensions, fill } = getSvgProperties(svgString);
 
     expect(id).toEqual(expecSymb.wellKnownName);
@@ -602,7 +578,7 @@ describe('OlStyleParser implements StyleParser', () => {
     const olStarTransparentFill = olStyle.getImage() as OlStyleIcon;
     expect(olStarTransparentFill).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olStarTransparentFill.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olStarTransparentFill.getSrc() as string);
     const { id, dimensions, fill, fillOpacity } = getSvgProperties(svgString);
 
     expect(id).toEqual(expecSymb.wellKnownName);
@@ -620,7 +596,7 @@ describe('OlStyleParser implements StyleParser', () => {
     const olTriangle = olStyle.getImage() as OlStyleIcon;
     expect(olTriangle).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olTriangle.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olTriangle.getSrc() as string);
     const { id, dimensions, fill } = getSvgProperties(svgString);
 
     expect(id).toEqual(expecSymb.wellKnownName);
@@ -637,7 +613,7 @@ describe('OlStyleParser implements StyleParser', () => {
     const olCross = olStyle.getImage() as OlStyleIcon;
     expect(olCross).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olCross.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olCross.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(expecSymb.wellKnownName);
@@ -654,13 +630,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const olX = olStyle.getImage() as OlStyleIcon;
     expect(olX).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olX.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olX.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
     expect((dimensions / 2)).toBeCloseTo(expecSymb.radius as number);
     expect(stroke).toEqual(expecSymb.strokeColor);
-    expect(JSON.stringify(ol_point_simplex).replace('cross2', 'x')).toEqual(JSON.stringify(olStyle));
+    expect(JSON.stringify(ol_point_simplex).replace('%22x%22', '%22cross2%22')).toEqual(JSON.stringify(olStyle));
   });
   it('can write an OpenLayers Marker shape://slash', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simpleslash);
@@ -671,13 +647,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const olSlash = olStyle.getImage() as OlStyleIcon;
     expect(olSlash).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olSlash.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olSlash.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
     expect((dimensions / 2)).toBeCloseTo(expecSymb.radius as number);
     expect(stroke).toEqual(expecSymb.strokeColor);
-    expect(JSON.stringify(ol_point_simpleslash).replace('slash', 'shape://slash')).toEqual(JSON.stringify(olStyle));
+    expect(JSON.stringify(ol_point_simpleslash).replace('shape://slash', 'slash')).toEqual(JSON.stringify(olStyle));
   });
   it('can write an OpenLayers Marker shape://backslash', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplebackslash);
@@ -688,13 +664,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const olBackSlash = olStyle.getImage() as OlStyleIcon;
     expect(olBackSlash).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olBackSlash.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olBackSlash.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
     expect((dimensions / 2)).toBeCloseTo(expecSymb.radius as number);
     expect(stroke).toEqual(expecSymb.strokeColor);
-    expect(JSON.stringify(ol_point_simplebackslash).replace('backslash', 'shape://backslash'))
+    expect(JSON.stringify(ol_point_simplebackslash).replace('shape://backslash', 'backslash'))
       .toEqual(JSON.stringify(olStyle));
   });
   it('can write an OpenLayers Marker shape://vertline', async () => {
@@ -706,13 +682,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const olVertline = olStyle.getImage() as OlStyleIcon;
     expect(olVertline).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olVertline.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olVertline.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
     expect((dimensions / 2)).toBeCloseTo(expecSymb.radius as number);
     expect(stroke).toEqual(expecSymb.strokeColor);
-    expect(JSON.stringify(ol_point_simplevertline).replace('line', 'shape://vertline'))
+    expect(JSON.stringify(ol_point_simplevertline).replace('shape://line', 'vertline'))
       .toEqual(JSON.stringify(olStyle));
   });
   it('can write an OpenLayers Marker shape://horline', async () => {
@@ -724,13 +700,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const olHorline = olStyle.getImage() as OlStyleIcon;
     expect(olHorline).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olHorline.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olHorline.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
     expect((dimensions / 2)).toBeCloseTo(expecSymb.radius as number);
     expect(stroke).toEqual(expecSymb.strokeColor);
-    expect(JSON.stringify(ol_point_simplehorline).replace('horline', 'shape://horline'))
+    expect(JSON.stringify(ol_point_simplehorline).replace('shape://horline', 'horline'))
       .toEqual(JSON.stringify(olStyle));
   });
   it('can write an OpenLayers Marker shape://carrow', async () => {
@@ -742,13 +718,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const olCarrow = olStyle.getImage() as OlStyleIcon;
     expect(olCarrow).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olCarrow.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olCarrow.getSrc() as string);
     const { id, dimensions, fill } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
     expect((dimensions / 2)).toBeCloseTo(expecSymb.radius as number);
     expect(fill).toEqual(expecSymb.color);
-    expect(JSON.stringify(ol_point_simplecarrow).replace('carrow', 'shape://carrow'))
+    expect(JSON.stringify(ol_point_simplecarrow).replace('shape://carrow', 'carrow'))
       .toEqual(JSON.stringify(olStyle));
   });
   it('can write an OpenLayers Marker shape://oarrow', async() => {
@@ -760,13 +736,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const olOarrow = olStyle.getImage() as OlStyleIcon;
     expect(olOarrow).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olOarrow.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olOarrow.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
     expect((dimensions / 2)).toBeCloseTo(expecSymb.radius as number);
     expect(stroke).toEqual(expecSymb.strokeColor);
-    expect(JSON.stringify(ol_point_simpleoarrow).replace('oarrow', 'shape://oarrow'))
+    expect(JSON.stringify(ol_point_simpleoarrow).replace('shape://oarrow', 'oarrow'))
       .toEqual(JSON.stringify(olStyle));
   });
   it('can write an OpenLayers Marker shape://dot', async () => {
@@ -778,7 +754,7 @@ describe('OlStyleParser implements StyleParser', () => {
     const olDot = olStyle.getImage() as OlStyleIcon;
     expect(olDot).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olDot.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olDot.getSrc() as string);
     const { id, dimensions, fill } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
@@ -795,7 +771,7 @@ describe('OlStyleParser implements StyleParser', () => {
     const olPlus = olStyle.getImage() as OlStyleIcon;
     expect(olPlus).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olPlus.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olPlus.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
@@ -812,13 +788,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const olTimes = olStyle.getImage() as OlStyleIcon;
     expect(olTimes).toBeDefined();
 
-    const svgString = OlStyleUtil.getBase64DecodedSvg(olTimes.getSrc() as string);
+    const svgString = OlStyleUtil.getDecodedSvg(olTimes.getSrc() as string);
     const { id, dimensions, stroke } = getSvgProperties(svgString);
 
     expect(id).toEqual(removeDuplicateShapes(expecSymb.wellKnownName));
     expect((dimensions / 2)).toBeCloseTo(expecSymb.radius as number);
     expect(stroke).toEqual(expecSymb.strokeColor);
-    expect(JSON.stringify(ol_point_simpletimes).replace('cross2', 'shape://times'))
+    expect(JSON.stringify(ol_point_simpletimes))
       .toEqual(JSON.stringify(olStyle));
   });
   it('can write an OpenLayers Style based on a font glyph (WellKnownName starts with ttf://)', async () => {
@@ -876,32 +852,27 @@ describe('OlStyleParser implements StyleParser', () => {
 
     expect(olStroke?.getLineDash()).toEqual(expecSymb.outlineDasharray);
   });
-  // The graphicFill fill pattern is now built using a HTMLImageElement which doesn't appear to be fully
-  // supported for testing using Jest.  It hangs while attempting to load the image.
-  // it('can write an OpenLayers PolygonSymbolizer with MarkSymbolizer as graphicFill', async () => {
-  //   let { output: olStyle } = await styleParser.writeStyle(polygon_graphicfill_mark);
-  //   olStyle = olStyle as OlStyle;
-  //   expect(olStyle).toBeDefined();
+  it('can write an OpenLayers PolygonSymbolizer with MarkSymbolizer as graphicFill', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(polygon_graphicfill_mark);
+    olStyle = olStyle as OlStyle;
+    expect(olStyle).toBeDefined();
 
-  //   const olFill = olStyle.getFill();
-  //   expect(olFill).toBeDefined();
-  //   expect(olFill?.getColor()).toBeInstanceOf(CanvasPattern);
-  // });
+    const olFill = olStyle.getFill();
+    expect(olFill).toBeDefined();
+    expect(olFill?.getColor()).toBeInstanceOf(CanvasPattern);
+  });
   it('can write an OpenLayers TextSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_styledlabel);
     olStyle = olStyle as OlParserStyleFct;
     expect(olStyle).toBeDefined();
 
     const testFeature = new OlFeature({name: 'GeoStyler'});
-    await olStyle(testFeature, 1);
-
-    await waitForCondition(() => !!testFeature.getStyle());
-
-    expect(testFeature.getStyle()).toHaveLength(1);
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
 
     const expecSymb = point_styledlabel.rules[0].symbolizers[0] as TextSymbolizer;
 
-    const style: OlStyle = testFeature.getStyle()?.[0];
+    const style: OlStyle = styles[0];
 
     const olText = style.getText();
     expect(olText).toBeDefined();
@@ -924,7 +895,7 @@ describe('OlStyleParser implements StyleParser', () => {
     expecSymb.rotate = expecSymb.rotate as number;
 
     const olTextRotation = olText?.getRotation();
-    expect(olTextRotation).toBeCloseTo(expecSymb.rotate * Math.PI / 180);
+    expect(olTextRotation).toBeCloseTo(expecSymb.rotate * DEGREES_TO_RADIANS);
 
     const olTextOffsetX = olText?.getOffsetX();
     const olTextOffsetY = olText?.getOffsetY();
@@ -939,21 +910,18 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStyle).toBeDefined();
 
     const testFeature = new OlFeature();
-    await olStyle(testFeature, 1);
-
-    await waitForCondition(() => !!testFeature.getStyle());
-
-    expect(testFeature.getStyle()).toHaveLength(1);
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
 
     const expecSymb = point_styledLabel_static.rules[0].symbolizers[0] as TextSymbolizer;
     const expecText = expecSymb.label;
     const expecOffset = expecSymb.offset;
     expecSymb.rotate = expecSymb.rotate as number;
-    const expecRotation = expecSymb.rotate * Math.PI / 180;
+    const expecRotation = expecSymb.rotate * DEGREES_TO_RADIANS;
     // openlayers adds default font-style
     const expecFont = `normal normal ${expecSymb.size}px ${expecSymb.font?.join(', ')}`;
 
-    const style = testFeature.getStyle()?.[0] as OlStyle;
+    const style = styles[0] as OlStyle;
     expect(style).toBeDefined();
     const olTextStyle = style.getText();
     expect(olTextStyle).toBeDefined();
@@ -1003,27 +971,28 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStyle).toBeDefined();
 
     const testFeature = new OlFeature();
-    await olStyle(testFeature, 1);
-
-    await waitForCondition(() => !!testFeature.getStyle());
-
-    expect(testFeature.getStyle()).toHaveLength(2);
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(2);
 
     const expecSymb1 = multi_twoRulesSimplepoint.rules[0].symbolizers[0] as MarkSymbolizer;
     const expecSymb2 = multi_twoRulesSimplepoint.rules[1].symbolizers[0] as MarkSymbolizer;
 
-    const olCircle1 = testFeature.getStyle()?.[0].getImage() as OlStyleIcon;
-    const olCircle1Svg = OlStyleUtil.getBase64DecodedSvg(olCircle1.getSrc() as string);
+    const olCircle1 = styles[0].getImage() as OlStyleIcon;
     expect(olCircle1).toBeDefined();
-    let { dimensions, fill } = getSvgProperties(olCircle1Svg);
-    expect(dimensions / 2).toBeCloseTo(expecSymb1.radius as number);
+    const svgString = OlStyleUtil.getDecodedSvg(olCircle1.getSrc() as string);
+    let { id, dimensions, fill } = getSvgProperties(svgString);
+
+    expect(id).toEqual(expecSymb1.wellKnownName);
+    expect((dimensions / 2)).toBeCloseTo(expecSymb1.radius as number);
     expect(fill).toEqual(expecSymb1.color);
 
-    const olCircle2 = testFeature.getStyle()?.[1].getImage() as OlStyleIcon;
-    const olCircle2Svg = OlStyleUtil.getBase64DecodedSvg(olCircle2.getSrc() as string);
+    const olCircle2 = styles[1].getImage() as OlStyleIcon;
     expect(olCircle2).toBeDefined();
-    ({ dimensions, fill } = getSvgProperties(olCircle2Svg));
-    expect(dimensions / 2).toBeCloseTo(expecSymb2.radius as number);
+    const svgString2 = OlStyleUtil.getDecodedSvg(olCircle2.getSrc() as string);
+    ({ id, dimensions, fill } = getSvgProperties(svgString2));
+
+    expect(id).toEqual(expecSymb2.wellKnownName);
+    expect((dimensions / 2)).toBeCloseTo(expecSymb2.radius as number);
     expect(fill).toEqual(expecSymb2.color);
   });
   it('transforms labels values based on fields to string ', async () => {
@@ -1038,14 +1007,11 @@ describe('OlStyleParser implements StyleParser', () => {
       id: 1
     });
 
-    await olStyle(dummyFeat, 1);
+    const styles = olStyle(dummyFeat, 1);
+    expect(styles).toBeDefined();
+    expect(styles).toHaveLength(1);
 
-    await waitForCondition(() => !!dummyFeat.getStyle());
-
-    expect(dummyFeat.getStyle()).toBeDefined();
-    expect(dummyFeat.getStyle()).toHaveLength(1);
-
-    const olText = dummyFeat.getStyle()?.[0].getText();
+    const olText = styles[0].getText();
     const olTextContent = olText.getText();
     expect(typeof olTextContent).toEqual('string');
     expect(olTextContent).toEqual(dummyFeat.get('id') + '');
@@ -1061,16 +1027,12 @@ describe('OlStyleParser implements StyleParser', () => {
     const resolutionRuleOne = getResolutionForScale(withinScale, 'm');
     const resolutionRuleTwo = getResolutionForScale(beyondScale, 'm');
 
-    const dummyFeat1 = new OlFeature();
-    const dummyFeat2 = new OlFeature();
+    const dummyFeat = new OlFeature();
+    const styleWithinScale = olStyle(dummyFeat, resolutionRuleOne);
+    const styleBeyondScale = olStyle(dummyFeat, resolutionRuleTwo);
 
-    await olStyle(dummyFeat1, resolutionRuleOne);
-    await olStyle(dummyFeat2, resolutionRuleTwo);
-
-    await waitForCondition(() => !!dummyFeat1.getStyle() && !!dummyFeat2.getStyle());
-
-    expect(dummyFeat1.getStyle()).toHaveLength(1);
-    expect(dummyFeat2.getStyle()).toHaveLength(0);
+    expect(styleWithinScale).toHaveLength(1);
+    expect(styleBeyondScale).toHaveLength(0);
   });
   it('returns right style based on scaleDenominators', async () => {
     let { output: olStyle } = await styleParser.writeStyle(scaleDenomLineCircle);
@@ -1085,21 +1047,16 @@ describe('OlStyleParser implements StyleParser', () => {
     const resolutionWithinSecond = getResolutionForScale(scaleWithinSecond, 'm');
     const resolutionBeyond = getResolutionForScale(scaleBeyond, 'm');
 
-    const dummyFeat1 = new OlFeature();
-    const dummyFeat2 = new OlFeature();
-    const dummyFeat3 = new OlFeature();
+    const dummyFeat = new OlFeature();
+    const styleWithinFirst = olStyle(dummyFeat, resolutionWithinFirst);
+    const styleWithinSecond = olStyle(dummyFeat, resolutionWithinSecond);
+    const styleBeyond = olStyle(dummyFeat, resolutionBeyond);
 
-    await olStyle(dummyFeat1, resolutionWithinFirst);
-    await olStyle(dummyFeat2, resolutionWithinSecond);
-    await olStyle(dummyFeat3, resolutionBeyond);
+    expect(styleWithinFirst).toHaveLength(1);
+    expect(styleWithinSecond).toHaveLength(1);
+    expect(styleBeyond).toHaveLength(0);
 
-    await waitForCondition(() => !!dummyFeat1.getStyle() && !!dummyFeat2.getStyle() && !!dummyFeat3.getStyle());
-
-    expect(dummyFeat1.getStyle()).toHaveLength(1);
-    expect(dummyFeat2.getStyle()).toHaveLength(1);
-    expect(dummyFeat3.getStyle()).toHaveLength(0);
-
-    const styleFirst: OlStyle = dummyFeat1.getStyle()?.[0];
+    const styleFirst: OlStyle = styleWithinFirst[0];
     const expecFirst = scaleDenomLineCircle.rules[0].symbolizers[0] as LineSymbolizer;
     const olStroke = styleFirst.getStroke();
     expect(olStroke).toBeDefined();
@@ -1107,11 +1064,11 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStroke?.getWidth()).toBeCloseTo(expecFirst.width as number);
     expect(olStroke?.getLineDash()).toEqual(expecFirst.dasharray);
 
-    const styleSecond: OlStyle = dummyFeat2.getStyle()?.[0];
+    const styleSecond: OlStyle = styleWithinSecond[0];
     const expecSecond = scaleDenomLineCircle.rules[1].symbolizers[0] as MarkSymbolizer;
     const olCircle = styleSecond.getImage() as OlStyleIcon;
     expect(olCircle).toBeDefined();
-    const olCircleSvg = OlStyleUtil.getBase64DecodedSvg(olCircle.getSrc() as string);
+    const olCircleSvg = OlStyleUtil.getDecodedSvg(olCircle.getSrc() as string);
     const { dimensions, fill } = getSvgProperties(olCircleSvg);
     expect(dimensions / 2).toBeCloseTo(expecSecond.radius as number);
     expect(fill).toEqual(expecSecond.color);
@@ -1129,19 +1086,14 @@ describe('OlStyleParser implements StyleParser', () => {
     const resolutionOverlap = getResolutionForScale(scaleOverlap, 'm');
     const resolutionOnlySecond = getResolutionForScale(scaleOnlySecond, 'm');
 
-    const dummyFeat1 = new OlFeature();
-    const dummyFeat2 = new OlFeature();
-    const dummyFeat3 = new OlFeature();
+    const dummyFeat = new OlFeature();
+    const styleOnlyFirst = olStyle(dummyFeat, resolutionOnlyFirst);
+    const styleOverlap = olStyle(dummyFeat, resolutionOverlap);
+    const styleOnlySecond = olStyle(dummyFeat, resolutionOnlySecond);
 
-    await olStyle(dummyFeat1, resolutionOnlyFirst);
-    await olStyle(dummyFeat2, resolutionOverlap);
-    await olStyle(dummyFeat3, resolutionOnlySecond);
-
-    await waitForCondition(() => !!dummyFeat1.getStyle() && !!dummyFeat2.getStyle() && !!dummyFeat3.getStyle());
-
-    expect(dummyFeat1.getStyle()).toHaveLength(1);
-    expect(dummyFeat2.getStyle()).toHaveLength(2);
-    expect(dummyFeat3.getStyle()).toHaveLength(1);
+    expect(styleOnlyFirst).toHaveLength(1);
+    expect(styleOverlap).toHaveLength(2);
+    expect(styleOnlySecond).toHaveLength(1);
   });
   it('can write an OpenLayers style with a simple filter', async () => {
     let { output: olStyle } = await styleParser.writeStyle(filter_simplefilter);
@@ -1150,26 +1102,20 @@ describe('OlStyleParser implements StyleParser', () => {
 
     const bonnFeat = new OlFeature();
     bonnFeat.set('Name', 'Bonn');
-    await olStyle(bonnFeat, 1);
-
-    await waitForCondition(() => !!bonnFeat.getStyle());
-
-    expect(bonnFeat.getStyle()).toBeDefined();
-    const bonnFilterIcon = bonnFeat.getStyle()?.[0].getImage() as OlStyleIcon;
-    const bonnFilterSvg = OlStyleUtil.getBase64DecodedSvg(bonnFilterIcon.getSrc() as string);
+    const bonnStyle = olStyle(bonnFeat, 1);
+    expect(bonnStyle).toBeDefined();
+    const bonnFilterIcon = bonnStyle[0].getImage();
+    const bonnFilterSvg = OlStyleUtil.getDecodedSvg(bonnFilterIcon.getSrc() as string);
     let { dimensions } = getSvgProperties(bonnFilterSvg);
     const expecBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[0].symbolizers[0] as MarkSymbolizer;
     expect(dimensions / 2).toBeCloseTo(expecBonnSymbolizer.radius as number);
 
     const notBonnFeat = new OlFeature();
     notBonnFeat.set('Name', 'Koblenz');
-    await olStyle(notBonnFeat, 1);
-
-    await waitForCondition(() => !!notBonnFeat.getStyle());
-
-    expect(notBonnFeat.getStyle()).toBeDefined();
-    const notBonnFilterIcon = notBonnFeat.getStyle()?.[0].getImage() as OlStyleIcon;
-    const notBonnFilterSvg = OlStyleUtil.getBase64DecodedSvg(notBonnFilterIcon.getSrc() as string);
+    const notBonnStyle = olStyle(notBonnFeat, 1);
+    expect(notBonnStyle).toBeDefined();
+    const notBonnFilterIcon = notBonnStyle[0].getImage() as OlStyleIcon;
+    const notBonnFilterSvg = OlStyleUtil.getDecodedSvg(notBonnFilterIcon.getSrc() as string);
     ({ dimensions } = getSvgProperties(notBonnFilterSvg));
     const expecNotBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[1].symbolizers[0] as MarkSymbolizer;
     expect(dimensions / 2).toBeCloseTo(expecNotBonnSymbolizer.radius as number);
@@ -1183,13 +1129,10 @@ describe('OlStyleParser implements StyleParser', () => {
     matchFilterFeat.set('state', 'germany');
     matchFilterFeat.set('population', 100000);
     matchFilterFeat.set('name', 'Dortmund');
-    await olStyle(matchFilterFeat, 1);
-
-    await waitForCondition(() => !!matchFilterFeat.getStyle());
-
-    expect(matchFilterFeat.getStyle()).toBeDefined();
-    const matchFilterIcon = matchFilterFeat.getStyle()?.[0].getImage() as OlStyleIcon;
-    const matchFilterSvg = OlStyleUtil.getBase64DecodedSvg(matchFilterIcon.getSrc() as string);
+    const matchStyle = olStyle(matchFilterFeat, 1);
+    expect(matchStyle).toBeDefined();
+    const matchFilterIcon = matchStyle[0].getImage() as OlStyleIcon;
+    const matchFilterSvg = OlStyleUtil.getDecodedSvg(matchFilterIcon.getSrc() as string);
     let { dimensions } = getSvgProperties(matchFilterSvg);
     const expecMatchSymbolizer: MarkSymbolizer = filter_nestedfilter.rules[0].symbolizers[0] as MarkSymbolizer;
     expect(dimensions / 2).toBeCloseTo(expecMatchSymbolizer.radius as number);
@@ -1198,13 +1141,10 @@ describe('OlStyleParser implements StyleParser', () => {
     noMatchFilterFeat.set('state', 'germany');
     noMatchFilterFeat.set('population', 100000);
     noMatchFilterFeat.set('name', 'Schalke');
-    await olStyle(noMatchFilterFeat, 1);
-
-    await waitForCondition(() => !!noMatchFilterFeat.getStyle());
-
-    expect(noMatchFilterFeat.getStyle()?.[0]).toBeDefined();
-    const noMatchFilterIcon = noMatchFilterFeat.getStyle()?.[0].getImage() as OlStyleIcon;
-    const noMatchFilterSvg = OlStyleUtil.getBase64DecodedSvg(noMatchFilterIcon.getSrc() as string);
+    const noMatchStyle = olStyle(noMatchFilterFeat, 1);
+    expect(noMatchStyle).toBeDefined();
+    const noMatchFilterIcon = noMatchStyle[0].getImage() as OlStyleIcon;
+    const noMatchFilterSvg = OlStyleUtil.getDecodedSvg(noMatchFilterIcon.getSrc() as string);
     ({ dimensions } = getSvgProperties(noMatchFilterSvg));
     const expecNoMatchSymbolizer: MarkSymbolizer = filter_nestedfilter.rules[1].symbolizers[0] as MarkSymbolizer;
     expect(dimensions / 2).toBeCloseTo(expecNoMatchSymbolizer.radius as number);
@@ -1213,13 +1153,10 @@ describe('OlStyleParser implements StyleParser', () => {
     noMatchFilterFeat2.set('state', 'germany');
     noMatchFilterFeat2.set('population', '100000');
     noMatchFilterFeat2.set('name', 'Schalke');
-    await olStyle(noMatchFilterFeat2, 1);
-
-    await waitForCondition(() => !!noMatchFilterFeat2.getStyle());
-
-    expect(noMatchFilterFeat2.getStyle()).toBeDefined();
-    const noMatchFilter2Icon = noMatchFilterFeat2.getStyle()?.[0].getImage() as OlStyleIcon;
-    const noMatchFilter2Svg = OlStyleUtil.getBase64DecodedSvg(noMatchFilter2Icon.getSrc() as string);
+    const noMatchStyle2 = olStyle(noMatchFilterFeat2, 1);
+    expect(noMatchStyle2).toBeDefined();
+    const noMatchFilter2Icon = noMatchStyle2[0].getImage() as OlStyleIcon;
+    const noMatchFilter2Svg = OlStyleUtil.getDecodedSvg(noMatchFilter2Icon.getSrc() as string);
     ({ dimensions } = getSvgProperties(noMatchFilter2Svg));
     const expecNoMatch2Symbolizer: MarkSymbolizer = filter_nestedfilter.rules[1].symbolizers[0] as MarkSymbolizer;
     expect(dimensions / 2).toBeCloseTo(expecNoMatch2Symbolizer.radius as number);
@@ -1233,15 +1170,10 @@ describe('OlStyleParser implements StyleParser', () => {
     noMatchFilterFeat.set('state', 'germany');
     noMatchFilterFeat.set('population', 100000);
     noMatchFilterFeat.set('name', 'Schalke');
-    await olStyle(noMatchFilterFeat, 1);
-
-    await waitForCondition(() => !!noMatchFilterFeat.getStyle());
-
-    expect(noMatchFilterFeat.getStyle()).toHaveLength(1);
-
-    expect(noMatchFilterFeat.getStyle()).toBeDefined();
-    const noMatchFilterIcon = noMatchFilterFeat.getStyle()?.[0].getImage() as OlStyleIcon;
-    const noMatchFilterSvg = OlStyleUtil.getBase64DecodedSvg(noMatchFilterIcon.getSrc() as string);
+    const noMatchStyle = olStyle(noMatchFilterFeat, 1);
+    expect(noMatchStyle).toBeDefined();
+    const noMatchFilterIcon = noMatchStyle[0].getImage() as OlStyleIcon;
+    const noMatchFilterSvg = OlStyleUtil.getDecodedSvg(noMatchFilterIcon.getSrc() as string);
     const { dimensions } = getSvgProperties(noMatchFilterSvg);
     const expecNoMatchSymbolizer: MarkSymbolizer = filter_invalidfilter.rules[1].symbolizers[0] as MarkSymbolizer;
     expect(dimensions / 2).toBeCloseTo(expecNoMatchSymbolizer.radius as number);
@@ -1258,14 +1190,10 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStyle).toBeDefined();
 
     const testFeature = new OlFeature({name: 'GeoStyler'});
-    await olStyle(testFeature, 1);
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
 
-    await waitForCondition(() => !!testFeature.getStyle());
-
-    expect(testFeature.getStyle()).toHaveLength(1);
-
-    const style: OlStyle = testFeature.getStyle()?.[0];
-
+    const style: OlStyle = styles[0];
     const olPlacement = style.getText()?.getPlacement();
     expect(olPlacement).toEqual('point');
   });
@@ -1276,13 +1204,10 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStyle).toBeDefined();
 
     const testFeature = new OlFeature({name: 'GeoStyler'});
-    await olStyle(testFeature, 1);
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
 
-    await waitForCondition(() => !!testFeature.getStyle());
-
-    expect(testFeature.getStyle()).toHaveLength(1);
-
-    const style: OlStyle = testFeature.getStyle()?.[0];
+    const style: OlStyle = styles[0];
     const olPlacement = style.getText()?.getPlacement();
     expect(olPlacement).toEqual('line');
   });
@@ -1293,13 +1218,10 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStyle).toBeDefined();
 
     const testFeature = new OlFeature({name: 'GeoStyler'});
-    await olStyle(testFeature, 1);
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
 
-    await waitForCondition(() => !!testFeature.getStyle());
-
-    expect(testFeature.getStyle()).toHaveLength(1);
-
-    const style: OlStyle = testFeature.getStyle()?.[0];
+    const style: OlStyle = styles[0];
     const olPlacement = style.getText()?.getPlacement();
     expect(olPlacement).toEqual('line');
   });
@@ -1310,12 +1232,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(typeof geoStylerStyle === 'function').toBe(true);
     geoStylerStyle = geoStylerStyle as OlParserStyleFct;
     const dummyFeat = new OlFeature();
-    await geoStylerStyle(dummyFeat);
-
-    await waitForCondition(() => !!dummyFeat.getStyle());
-
+    const targetStyle = geoStylerStyle(dummyFeat);
     expect(geoStylerStyle.__geoStylerStyle).toEqual(function_marksymbolizer);
-    expect(dummyFeat.getStyle()?.[0]).toEqual(ol_function_marksymbolizer);
+    expect(targetStyle[0]).toEqual(ol_function_marksymbolizer);
   });
   it('can write a Marksymbolizer with the GeoStylerFunction "case"', async () => {
     let { output: geoStylerStyle } = await styleParser.writeStyle(function_case);
@@ -1331,16 +1250,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const dummyFeat3 = new OlFeature({
       population: 999999999
     });
-    await geoStylerStyle(dummyFeat1);
-    await geoStylerStyle(dummyFeat2);
-    await geoStylerStyle(dummyFeat3);
-
-    await waitForCondition(() => !!dummyFeat1.getStyle() && !!dummyFeat2.getStyle() && !!dummyFeat3.getStyle());
-
+    const targetStyle1 = geoStylerStyle(dummyFeat1);
+    const targetStyle2 = geoStylerStyle(dummyFeat2);
+    const targetStyle3 = geoStylerStyle(dummyFeat3);
     expect(geoStylerStyle.__geoStylerStyle).toEqual(function_case);
-    expect(dummyFeat1.getStyle()?.[0]).toEqual(ol_function_case_1);
-    expect(dummyFeat2.getStyle()?.[0]).toEqual(ol_function_case_2);
-    expect(dummyFeat3.getStyle()?.[0]).toEqual(ol_function_case_3);
+    expect(targetStyle1[0]).toEqual(ol_function_case_1);
+    expect(targetStyle2[0]).toEqual(ol_function_case_2);
+    expect(targetStyle3[0]).toEqual(ol_function_case_3);
   });
 
   it('can write a FillSymbolizer with a nested GeoStylerFunction', async () => {
@@ -1349,12 +1265,9 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(typeof geoStylerStyle === 'function').toBe(true);
     geoStylerStyle = geoStylerStyle as OlParserStyleFct;
     const dummyFeat = new OlFeature();
-    await geoStylerStyle(dummyFeat);
-
-    await waitForCondition(() => !!dummyFeat.getStyle());
-
+    const targetStyle = geoStylerStyle(dummyFeat);
     expect(geoStylerStyle.__geoStylerStyle).toEqual(function_nested_fillsymbolizer);
-    expect(dummyFeat.getStyle()?.[0]).toEqual(ol_function_nested_fillsymbolizer);
+    expect(targetStyle[0]).toEqual(ol_function_nested_fillsymbolizer);
   });
 
   it('can write a Filter with a GeoStylerBooleanFunction', async () => {
@@ -1368,14 +1281,11 @@ describe('OlStyleParser implements StyleParser', () => {
     const dummyFeat2 = new OlFeature({
       testprop: 2
     });
-    await geoStylerStyle(dummyFeat1);
-    await geoStylerStyle(dummyFeat2);
-
-    await waitForCondition(() => !!dummyFeat1.getStyle() && !!dummyFeat2.getStyle());
-
+    const targetStyle1 = geoStylerStyle(dummyFeat1);
+    const targetStyle2 = geoStylerStyle(dummyFeat2);
     expect(geoStylerStyle.__geoStylerStyle).toEqual(function_boolean);
-    expect(dummyFeat1.getStyle()?.[0]).toEqual(ol_function_boolean_fillsymbolizer1);
-    expect(dummyFeat2.getStyle()?.[0]).toEqual(ol_function_boolean_fillsymbolizer2);
+    expect(targetStyle1[0]).toEqual(ol_function_boolean_fillsymbolizer1);
+    expect(targetStyle2[0]).toEqual(ol_function_boolean_fillsymbolizer2);
   });
 
   it('can write a comparison filter where the first and second arguments are property functions', async () => {
@@ -1403,15 +1313,13 @@ describe('OlStyleParser implements StyleParser', () => {
       min: 0.5
     });
 
-    await geoStylerStyle(inBetweenFeat);
-    await geoStylerStyle(aboveFeat);
-    await geoStylerStyle(belowFeat);
+    const inBetweenOLStyle  = geoStylerStyle(inBetweenFeat);
+    const aboveOLStyle = geoStylerStyle(aboveFeat);
+    const belowOLStyle = geoStylerStyle(belowFeat);
 
-    await waitForCondition(() => !!inBetweenFeat.getStyle() && !!aboveFeat.getStyle() && !!belowFeat.getStyle());
-
-    expect(inBetweenFeat.getStyle()?.[0].getText().getText()).toBe(inBetweenLabel);
-    expect(aboveFeat.getStyle()?.[0].getText().getText()).toBe(aboveLabel);
-    expect(belowFeat.getStyle()?.[0].getText().getText()).toBe(belowLabel);
+    expect(inBetweenOLStyle[0].getText().getText()).toBe(inBetweenLabel);
+    expect(aboveOLStyle[0].getText().getText()).toBe(aboveLabel);
+    expect(belowOLStyle[0].getText().getText()).toBe(belowLabel);
   });
 
   it('adds unsupportedProperties to the write output', async () => {

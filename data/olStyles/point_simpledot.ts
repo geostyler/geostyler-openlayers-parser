@@ -1,7 +1,7 @@
 import OlStyle from 'ol/style/Style';
 import OlStyleIcon  from 'ol/style/Icon';
 import OlStyleUtil from '../../src/Util/OlStyleUtil';
-import { getShapeSvg, removeDuplicateShapes } from '../../src/Util/svgs';
+import { getShapeSvg, removeDuplicateShapes } from '../../src/Util/OlSvgPoints';
 
 const shape = removeDuplicateShapes('shape://dot');
 
@@ -12,7 +12,7 @@ const svg = getShapeSvg(shape, {
 
 const olSimpleDot = new OlStyle({
   image: new OlStyleIcon({
-    src: OlStyleUtil.getBase64EncodedSvg(svg),
+    src: OlStyleUtil.getEncodedSvg(svg),
     crossOrigin: 'anonymous'
   })
 });

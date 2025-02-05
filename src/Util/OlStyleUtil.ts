@@ -26,12 +26,12 @@ import {
 import OlFeature from 'ol/Feature';
 import { colors } from './colors';
 
-import { Base64 } from 'js-base64';
-
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
-const SVG_URI_SCHEME = 'data:image/svg+xml;base64,';
+const SVG_URI_SCHEME = 'data:image/svg+xml;utf8,';
 export const LINE_WELLKNOWNNAMES = ['horline', 'vertline', 'line'];
+export const NOFILL_WELLKNOWNNAMES = ['horline', 'vertline', 'line', 'cross', 'cross2', 'slash', 'backslash', 'oarrow'];
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
+export const DEGREES_TO_RADIANS = Math.PI / 180;
 
 /**
  * Offers some utility functions to work with OpenLayers Styles.
@@ -262,23 +262,23 @@ class OlStyleUtil {
   }
 
   /**
-   * Encodes the given SVG string using base64 encoding.
+   * Encodes the given SVG string using URI encoding to remove special characters.
    *
    * @param svgString the SVG string to encode
-   * @returns the base64 encoded SVG string
+   * @returns the URI encoded SVG string
    */
-  public static getBase64EncodedSvg(svgString: string) {
-    return SVG_URI_SCHEME + Base64.encode(svgString);
+  public static getEncodedSvg(svgString: string) {
+    return SVG_URI_SCHEME + encodeURIComponent(svgString);
   }
 
   /**
-   * Decodes a base64 encoded SVG string.
+   * Decodes a URI encoded SVG string.
    *
-   * @param svgBase64String The base64 encoded SVG string to decode.
-   * @returns The decoded SVG string in UTF-8 format.
+   * @param svgEncodedString The URI encoded SVG string to decode.
+   * @returns The decoded SVG string.
    */
-  public static getBase64DecodedSvg(svgBase64String: string) {
-    return Base64.decode(svgBase64String.replace(SVG_URI_SCHEME, ''));
+  public static getDecodedSvg(svgEncodedString: string) {
+    return decodeURIComponent(svgEncodedString).replace(SVG_URI_SCHEME, '');
   }
 
   /**
@@ -500,9 +500,9 @@ class OlStyleUtil {
       case 'tan':
         return Math.tan(args[0] as number);
       case 'toDegrees':
-        return (args[0] as number) * (180/Math.PI);
+        return (args[0] as number) / DEGREES_TO_RADIANS;
       case 'toRadians':
-        return (args[0] as number) * (Math.PI/180);
+        return (args[0] as number) * DEGREES_TO_RADIANS;
       default:
         return args[0] as number;
     }
