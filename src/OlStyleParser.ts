@@ -1126,8 +1126,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       const shapeOpts: Partial<OlStyleRegularshapeOptions> = {
         radius,
         ...radius2 && { radius2 },
-        ...fill && { fill },
-        ...stroke && { stroke },
+        ...fillColor && { fill },
+        ...strokeWidth && strokeColor && { stroke },
         ...strokeWidth && { strokeWidth },
         ...rotation && { rotation }
       };
