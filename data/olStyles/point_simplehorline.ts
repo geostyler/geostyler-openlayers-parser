@@ -6,7 +6,7 @@ import { getShapeSvg, removeDuplicateShapes } from '../../src/Util/OlSvgPoints';
 const shape = removeDuplicateShapes('shape://horline');
 
 const svg = getShapeSvg(shape, {
-  stroke: '#FF0000',
+  fill: '#FF0000',
   dimensions: 12
 });
 

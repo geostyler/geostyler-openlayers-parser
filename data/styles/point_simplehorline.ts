@@ -8,7 +8,7 @@ const pointSimpleHorline: Style = {
       symbolizers: [{
         kind: 'Mark',
         wellKnownName: 'shape://horline',
-        strokeColor: '#FF0000',
+        color: '#FF0000',
         radius: 6
       }]
     }
