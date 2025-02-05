@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "css-font-parser": "^2.0.0",
-    "geostyler-style": "^9.0.1"
+    "geostyler-style": "^10.0.0"
   },
   "peerDependencies": {
     "ol": ">=7.4"
