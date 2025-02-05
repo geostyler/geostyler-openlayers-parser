@@ -13,7 +13,7 @@ export const staticRegularShapeOptions: regularShapeOptions = {
   equilateral_triangle: { points: 3, angle: 0 },
   pentagon: { points: 5, angle: 0 },
   hexagon: { points: 6, angle: 0 },
-  octagon: { points: 6, angle: 0 },
+  octagon: { points: 8, angle: 0 },
   decagon: { points: 10, angle: 0 },
   star: { points: 5, angle: 0 },
   star_diamond: { points: 4, angle: 0 },
