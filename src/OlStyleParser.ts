@@ -1337,8 +1337,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   getOlPatternFromGraphicFill(graphicFill: PointSymbolizer): CanvasPattern | null {
     let graphicFillStyle: any;
     let iconSize: [number, number] = [16, 16];
-    let iconSpacing = 1;
-    let scaleFactor = 1;
 
     if (isIconSymbolizer(graphicFill)) {
       graphicFillStyle = this.getOlIconSymbolizerFromIconSymbolizer(graphicFill);
@@ -1352,24 +1350,11 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       graphicFillStyle = this.getOlPointSymbolizerFromMarkSymbolizer(graphicFill, undefined, false);
       const diameter = graphicFill.radius as number * 2;
       iconSize = [diameter, diameter];
-      // Hack to try to join lines for hatch patterns, but space out icon patterns.
-      // Diagonal lines still do not render nicely in the corners, due to tiling.
-      // TODO: Maybe use VendorOption's to control spacing?
-      if (LINE_WELLKNOWNNAMES.includes(String(graphicFill.wellKnownName))) {
-        const iconRotation = graphicFill.rotate as number || 0;
-        // Extend lines that aren't horizontal or vertical to be full size of the canvas
-        const isNotVerticalOrHorizontal = (iconRotation / DEGREES_TO_RADIANS) % 1 !== 0;
-        if (isNotVerticalOrHorizontal) {
-          scaleFactor = Math.sin(iconRotation * DEGREES_TO_RADIANS);
-        }
-      } else {
-        iconSpacing = 2;
-      };
     } else {
       return null;
     }
     iconSize = graphicFillStyle.getImage().getSize();
-    const canvasSize = iconSize.map(item  => item * iconSpacing * scaleFactor);
+    const canvasSize = iconSize.map(item  => item);
 
     // Temporary canvas.
     // TODO: Can/should we reuse an pre-existing one for efficiency?
