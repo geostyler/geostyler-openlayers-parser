@@ -9,8 +9,7 @@ const pointSimpleHorline: Style = {
         kind: 'Mark',
         wellKnownName: 'shape://horline',
         color: '#FF0000',
-        radius: 6,
-        rotate: 0
+        radius: 6
       }]
     }
   ]
