@@ -1,3 +1,9 @@
+## [5.0.2](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.1...v5.0.2) (2025-03-12)
+
+### Bug Fixes
+
+* **deps:** update dependency css-font-parser to v2.0.1 ([4f0037d](https://github.com/geostyler/geostyler-openlayers-parser/commit/4f0037d91beabf44d3b186075c6c4a9a54c10c86))
+
 ## [5.0.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.0...v5.0.1) (2024-12-02)
 
 
