@@ -70,7 +70,7 @@
     "jest-environment-jsdom": "^29.6.1",
     "ol": "^10.0.0",
     "regenerator-runtime": "^0.14.0",
-    "semantic-release": "^22.0.8",
+    "semantic-release": "^24.0.0",
     "typescript": "^5.4.5",
     "vite": "4.5.3"
   },
