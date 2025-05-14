@@ -133,15 +133,23 @@ class OlStyleUtil {
   /**
    * Returns the opacity value of a RGB(A) color value.
    *
-   * @param rgbaColor RGBA encoded color
+   * @param color RGBA or hex encoded color
    * @return {string | undefined} The opacity value of the given RGBA color
    */
-  public static getOpacity(rgbaColor: string): number | undefined {
-    if (!rgbaColor.startsWith('rgba(')) {
+  public static getOpacity(color: string): number | undefined {
+    const isRgba = color.startsWith('rgba(');
+    const isHexWithAlpha = color.startsWith('#') && color.length > 7;
+    if (!isRgba && !isHexWithAlpha) {
       return;
     }
 
-    const colorArr = OlStyleUtil.splitRgbaColor(rgbaColor);
+    let colorArr;
+    if (isRgba) {
+      colorArr = OlStyleUtil.splitRgbaColor(color);
+    } else {
+      const hexOpacity = parseInt(color.slice(7, 9), 16) / 255;
+      colorArr = [undefined, undefined, undefined, hexOpacity];
+    }
 
     if (colorArr.length === 4) {
       return colorArr[3];
