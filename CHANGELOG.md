@@ -1,3 +1,9 @@
+## [5.1.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.2...v5.1.0) (2025-05-14)
+
+### Features
+
+* add OlFlatStyleParser ([c3626be](https://github.com/geostyler/geostyler-openlayers-parser/commit/c3626beedb039801543b6b4bbea717ac3a421c88))
+
 ## [5.0.2](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.1...v5.0.2) (2025-03-12)
 
 ### Bug Fixes
