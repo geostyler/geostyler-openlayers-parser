@@ -9,6 +9,7 @@ import pointIconSimple from '../data/styles/point_icon_simple';
 import pointSimplePoint from '../data/styles/point_simplepoint';
 import multiTwoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import filterSimpleFilter from '../data/styles/filter_simpleFilter';
+import filterNestedFilter from '../data/styles/filter_nestedFilter';
 
 import ol_polygon_simple from '../data/olFlatStyles/polygon_simple';
 import ol_line_simpleline from '../data/olFlatStyles/line_simpleline';
@@ -17,6 +18,7 @@ import ol_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import ol_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
 import ol_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
 import ol_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
+import ol_filter_nestedFilter from '../data/olFlatStyles/filter_nestedFilter';
 
 it('OlFlatStyleParser is defined', () => {
   expect(OlFlatStyleParser).toBeDefined();
@@ -74,6 +76,12 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: geostylerStyle } = await styleParser.readStyle(ol_filter_simpleFilter);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(filterSimpleFilter);
+    });
+
+    it('reads a nested filter', async () => {
+      const { output: geostylerStyle } = await styleParser.readStyle(ol_filter_nestedFilter);
+      expect(geostylerStyle).toBeDefined();
+      expect(geostylerStyle).toEqual(filterNestedFilter);
     });
   });
 });

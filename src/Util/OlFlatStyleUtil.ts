@@ -23,7 +23,7 @@ import OlStyleUtil from './OlStyleUtil';
 
 export type Expression = any[];
 
-const filterNames = [
+const comparisonFilterNames = [
   '==',
   '!=',
   '<',
@@ -31,10 +31,17 @@ const filterNames = [
   '>',
   '>=',
   'between',
+];
+
+const filterNames = [
+  ...comparisonFilterNames,
   'all',
   'any',
   '!'
 ];
+
+export type FilterExpression = [typeof filterNames[number], ...any[]];
+export type ComparisonFilterExpression = [typeof comparisonFilterNames[number], ...any[]];
 
 // TODO continue here
 const filterNameMap: Record<Operator, typeof filterNames[number] | null> = {
@@ -222,6 +229,30 @@ class OlFlatStyleUtil {
     return hasOperator && isExpressionName;
   }
 
+  public static isFilter(flatStyleProp: any): flatStyleProp is FilterExpression {
+    const isUndefined = flatStyleProp === undefined;
+    const isArray = Array.isArray(flatStyleProp);
+    if (isUndefined || !isArray) {
+      return false;
+    }
+
+    const hasOperator = typeof flatStyleProp[0] == 'string';
+    const isFilterName = filterNames.includes(flatStyleProp[0]);
+    return hasOperator && isFilterName;
+  }
+
+  public static isComparisonFilter(filter: FilterExpression): filter is  ComparisonFilterExpression {
+    const isUndefined = filter === undefined;
+    const isArray = Array.isArray(filter);
+    if (isUndefined || !isArray) {
+      return false;
+    }
+
+    const hasOperator = typeof filter[0] == 'string';
+    const isComparisonFilterName = comparisonFilterNames.includes(filter[0]);
+    return hasOperator && isComparisonFilterName;
+  }
+
   public static getColorAndOpacity(
     flatStyleProp: ColorExpression | undefined
   ): [string | StyleExpression<string> | undefined, number | undefined] {
@@ -382,18 +413,35 @@ class OlFlatStyleUtil {
   }
 
   public static olFilterToGsFilter(olFilter: any): Filter | undefined {
-    if (!OlFlatStyleUtil.isExpression(olFilter)) {
+    const isExpression = OlFlatStyleUtil.isExpression(olFilter);
+    const isFilter = OlFlatStyleUtil.isFilter(olFilter);
+    const isComparisonFilter = OlFlatStyleUtil.isComparisonFilter(olFilter);
+    if (!isFilter && !isExpression) {
       return olFilter;
     }
 
-    const olExpressionName = olFilter[0] as typeof filterNames[number];
-    const filterName = invertedFilterMap[olExpressionName];
-    const args = olFilter.slice(1);
+    let filter: Filter;
+    if (isFilter) {
+      const olExpressionName = olFilter[0] as typeof filterNames[number];
+      const filterName = invertedFilterMap[olExpressionName];
+      const args = olFilter.slice(1);
 
-    const filter: Filter = [
-      filterName,
-      ...args.map(OlFlatStyleUtil.olFilterToGsFilter)
-    ] as Filter;
+      let propertyName: string | StyleExpression<string> = args.shift();
+      // In GeoStyler, the first argument of a comparison filter
+      // is the property name as plain string. So if the first argument
+      // is a 'get' expression, we extract the property name from it.
+      if (isComparisonFilter && Array.isArray(propertyName) && propertyName[0] === 'get') {
+        propertyName = propertyName[1];
+      }
+
+      filter = [
+        filterName,
+        OlFlatStyleUtil.olFilterToGsFilter(propertyName),
+        ...args.map(OlFlatStyleUtil.olFilterToGsFilter)
+      ] as Filter;
+    } else {
+      filter = OlFlatStyleUtil.olExpressionToGsExpression(olFilter);
+    }
 
     return filter;
   }
