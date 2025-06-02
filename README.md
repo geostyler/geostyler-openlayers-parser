@@ -1,10 +1,14 @@
 # geostyler-openlayers-parser
 
-[![Coverage Status](https://coveralls.io/repos/github/geostyler/geostyler-openlayers-parser/badge.svg?branch=master)](https://coveralls.io/github/geostyler/geostyler-openlayers-parser?branch=master)
-[![License](https://img.shields.io/github/license/geostyler/geostyler-openlayers-parser)](https://github.com/geostyler/geostyler-openlayers-parser/blob/master/LICENSE)
+[![Coverage Status](https://coveralls.io/repos/github/geostyler/geostyler-openlayers-parser/badge.svg?branch=main)](https://coveralls.io/github/geostyler/geostyler-openlayers-parser?branch=main)
+[![License](https://img.shields.io/github/license/geostyler/geostyler-openlayers-parser)](https://github.com/geostyler/geostyler-openlayers-parser/blob/main/LICENSE)
 [![npm version](https://badge.fury.io/js/geostyler-openlayers-parser.svg)](https://www.npmjs.com/package/geostyler-openlayers-parser)
 
 [GeoStyler Style](https://github.com/geostyler/geostyler) Parser implementation for OpenLayers styles
+
+## :rocket: GeoStyler Code Sprint 2025
+
+We are happy to announce the next GeoStyler Code Sprint from **02.-06.06.2025** in Switzerland. Be part of it! More infos on https://geostyler.org/.
 
 ### How to use
 

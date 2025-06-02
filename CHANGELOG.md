@@ -1,3 +1,21 @@
+## [5.1.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.1.0...v5.1.1) (2025-05-16)
+
+### Bug Fixes
+
+* **OlFlatStyleParser:** properly parse expressions in FlatRule filters ([c2399e5](https://github.com/geostyler/geostyler-openlayers-parser/commit/c2399e5408ce870644de0b5f65732474135dc6b3))
+
+## [5.1.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.2...v5.1.0) (2025-05-14)
+
+### Features
+
+* add OlFlatStyleParser ([c3626be](https://github.com/geostyler/geostyler-openlayers-parser/commit/c3626beedb039801543b6b4bbea717ac3a421c88))
+
+## [5.0.2](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.1...v5.0.2) (2025-03-12)
+
+### Bug Fixes
+
+* **deps:** update dependency css-font-parser to v2.0.1 ([4f0037d](https://github.com/geostyler/geostyler-openlayers-parser/commit/4f0037d91beabf44d3b186075c6c4a9a54c10c86))
+
 ## [5.0.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.0.0...v5.0.1) (2024-12-02)
 
 
