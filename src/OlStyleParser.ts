@@ -40,15 +40,22 @@ import OlStyleText, { Options as OlStyleTextOptions }  from 'ol/style/Text';
 import OlStyleCircle from 'ol/style/Circle';
 import OlStyleFill from 'ol/style/Fill';
 import OlStyleIcon, { Options as OlStyleIconOptions }  from 'ol/style/Icon';
-import OlStyleRegularshape, { Options as OlStyleRegularshapeOptions } from 'ol/style/RegularShape';
+import OlStyleRegularshape from 'ol/style/RegularShape';
 import { METERS_PER_UNIT } from 'ol/proj/Units';
 
-import OlStyleUtil, { DEGREES_TO_RADIANS, LINE_WELLKNOWNNAMES, NOFILL_WELLKNOWNNAMES } from './Util/OlStyleUtil';
-import { getShapeSvg, getSvgProperties, isPointDefinedAsSvg, removeDuplicateShapes,
-  SvgOptions } from './Util/OlSvgPoints';
+import OlStyleUtil, { DEGREES_TO_RADIANS } from './Util/OlStyleUtil';
+import { cleanWellKnownName, getPointSvg, isPointDefinedAsSvg } from './Util/OlSvgPoints';
 import { toContext } from 'ol/render';
 import OlFeature from 'ol/Feature';
-import { getRegularShapeDefinition, isPointDefinedAsRegularShape } from './Util/OlRegularShapePoints';
+import { fillPatternSvg } from './Util/OlSvgPatterns';
+import {
+  drawSvgToCanvas,
+  getDecodedSvg,
+  getEncodedSvg,
+  getSvgProperties,
+  LINE_WELLKNOWNNAMES,
+  NOFILL_WELLKNOWNNAMES
+} from './Util/OlSvgUtil';
 
 export interface OlParserStyleFct {
   (feature?: any, resolution?: number): any;
@@ -341,44 +348,33 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       const rotation = olIconStyle.getRotation() / DEGREES_TO_RADIANS;
       const opacity = olIconStyle.getOpacity();
 
-      // If the image is an SVG string try to extract the properties and build a MarkSymbolizer
-      try {
-        const svgString = OlStyleUtil.getDecodedSvg(olIconStyle.getSrc() as string);
-        const { id, dimensions, fill, stroke, strokeWidth } = getSvgProperties(svgString);
-        let { fillOpacity, strokeOpacity } = getSvgProperties(svgString);
+      const iconSrc = olIconStyle.getSrc() as string;
+      let svgString;
+      if (iconSrc && iconSrc.startsWith('data:image/svg+xml')) {
+        svgString = getDecodedSvg(iconSrc);
+      } else if (iconSrc && iconSrc.trim().startsWith('<svg')) {
+        svgString = iconSrc.trim();
+      }
 
-        fillOpacity = OlStyleUtil.checkOpacity(fillOpacity)
-          ? fillOpacity : OlStyleUtil.getOpacity(String(fill));
-        strokeOpacity = OlStyleUtil.checkOpacity(strokeOpacity)
-          ? strokeOpacity : OlStyleUtil.getOpacity(String(stroke));
-
+      if (svgString) {
         pointSymbolizer = {
-          kind: 'Mark',
-          wellKnownName: id,
-          ...fill && { color: fill },
-          ...OlStyleUtil.checkOpacity(fillOpacity) && { fillOpacity },
-          ...stroke && { strokeColor: stroke.substring(0, 7) },
-          ...strokeWidth && { strokeWidth },
-          ...OlStyleUtil.checkOpacity(strokeOpacity) && { strokeOpacity },
-          ...dimensions / 2 !== 0 && { radius: dimensions / 2 },
+          ...getSvgProperties(svgString),
           ...OlStyleUtil.checkOpacity(opacity) && { opacity },
           ...rotation && { rotate: rotation },
           ...(displacement[0] || displacement[1]) && { offset: displacement },
         } as MarkSymbolizer;
-      } catch {
+      } else {
         // initialOptions_ as fallback when image is not yet loaded
         const image = this.getImageFromIconStyle(olIconStyle);
 
-        const iconSymbolizer: IconSymbolizer = {
+        pointSymbolizer = {
           kind: 'Icon',
           image,
           size,
           ...OlStyleUtil.checkOpacity(opacity) && { opacity },
-          // Rotation in openlayers is radians while we use degree
           ...rotation && { rotate: rotation },
           ...(displacement[0] || displacement[1]) && { offset: displacement },
-        };
-        pointSymbolizer = iconSymbolizer;
+        } as IconSymbolizer;
       }
 
     }
@@ -1056,8 +1052,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   getOlPointSymbolizerFromMarkSymbolizer(
     markSymbolizer: MarkSymbolizer,
-    feature?: OlFeature,
-    preferSvg: boolean = true
+    feature?: OlFeature
   ): OlStyle {
     for (const key of Object.keys(markSymbolizer)) {
       if (isGeoStylerFunction(markSymbolizer[key as keyof MarkSymbolizer])) {
@@ -1073,24 +1068,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const rotation = Number(markSymbolizer.rotate) * DEGREES_TO_RADIANS;
     const displacement = markSymbolizer.offset as [number, number];
 
-    let shape = removeDuplicateShapes(markSymbolizer.wellKnownName);
     let olStyle: any;
 
-    if (isPointDefinedAsSvg(shape) && preferSvg) {
-      const dimensions = (markSymbolizer?.radius as number ?? 6) * 2;  // Default to 12 pixels
+    if (isPointDefinedAsSvg(markSymbolizer.wellKnownName)) {
       const opacity = markSymbolizer.opacity as number;
 
-      const svgOpts: SvgOptions = {
-        dimensions,
-        ...fillColor && { fill: fillColor },
-        ...OlStyleUtil.checkOpacity(fillOpacity) && { fillOpacity },
-        ...strokeColor && { stroke: strokeColor },
-        ...strokeWidth && { strokeWidth },
-        ...OlStyleUtil.checkOpacity(strokeOpacity) && { strokeOpacity }
-      };
-
-      const svg = getShapeSvg(shape, svgOpts);
-
+      const svg = getPointSvg(markSymbolizer);
       olStyle = new this.OlStyleConstructor({
         image: new this.OlStyleIconConstructor({
           crossOrigin: 'anonymous',
@@ -1098,41 +1081,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           ...OlStyleUtil.checkOpacity(opacity) && { opacity },
           ...rotation && { rotation },
           scale: 1,
-          src: OlStyleUtil.getEncodedSvg(svg)
+          src: getEncodedSvg(svg)
         })
       });
-    } else if (isPointDefinedAsRegularShape(shape)) {
-      const radius = markSymbolizer?.radius as number ?? 6;  // Default to 6 pixels
-      const radius2 = shape === 'star' || shape === 'star_diamond' ? radius / 2.5 : undefined;
-      if (strokeWidth && NOFILL_WELLKNOWNNAMES.includes(String(shape))) {
-        strokeWidth = strokeWidth / 2;
-      }
-
-      const strokeRgbaColor = (strokeColor && OlStyleUtil.checkOpacity(strokeOpacity) ?
-        OlStyleUtil.getRgbaColor(strokeColor, strokeOpacity) :
-        strokeColor) as string;
-      const fillRgbaColor = (fillColor && OlStyleUtil.checkOpacity(fillOpacity) ?
-        OlStyleUtil.getRgbaColor(fillColor, fillOpacity) :
-        fillColor) as string;
-
-      const stroke = new this.OlStyleStrokeConstructor({
-        ...strokeRgbaColor && { color: strokeRgbaColor as string },
-        ...strokeWidth && { width: strokeWidth }
-      });
-      const fill = new this.OlStyleFillConstructor({
-        ...fillRgbaColor && { color: fillRgbaColor as string }
-      });
-
-      const shapeOpts: Partial<OlStyleRegularshapeOptions> = {
-        radius,
-        ...radius2 && { radius2 },
-        ...fillColor && { fill },
-        ...strokeWidth && strokeColor && { stroke },
-        ...strokeWidth && { strokeWidth },
-        ...rotation && { rotation }
-      };
-
-      olStyle = getRegularShapeDefinition(shape, shapeOpts);
     } else if (OlStyleUtil.getIsFontGlyphBased(markSymbolizer)) {
       const strokeRgbaColor = (strokeColor && OlStyleUtil.checkOpacity(strokeOpacity) ?
         OlStyleUtil.getRgbaColor(strokeColor, strokeOpacity) :
@@ -1305,7 +1256,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       lineDash: symbolizer.outlineDasharray as number[],
     }) : undefined;
 
-    const olStyle = new this.OlStyleConstructor({
+    const olStyle = new OlStyle({
       fill,
       stroke
     });
@@ -1313,7 +1264,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     if (symbolizer.graphicFill) {
       const pattern = this.getOlPatternFromGraphicFill(symbolizer.graphicFill);
       if (!fill) {
-        fill = new this.OlStyleFillConstructor({});
+        fill = new OlStyleFill({});
       }
       if (pattern) {
         fill.setColor(pattern);
@@ -1335,46 +1286,73 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @returns The created CanvasPattern, or null.
    */
   getOlPatternFromGraphicFill(graphicFill: PointSymbolizer): CanvasPattern | null {
-    let graphicFillStyle: any;
-    let iconSize: [number, number] = [16, 16];
+    if (!isIconSymbolizer(graphicFill) && !isMarkSymbolizer(graphicFill)) {
+      return null;
+    }
+
+    // Temporary canvas.
+    // TODO: Can/should we reuse an pre-existing one for efficiency?
+    const tmpCanvas: HTMLCanvasElement = document.createElement('canvas');
+    const tmpContext = tmpCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+    let canvasSize;
+    let iconSize: [number, number] = [8, 8];
+    let iconSpacing = 1.5;
+    let scaleFactor = 1;
 
     if (isIconSymbolizer(graphicFill)) {
-      graphicFillStyle = this.getOlIconSymbolizerFromIconSymbolizer(graphicFill);
+      const graphicFillStyle: any = this.getOlIconSymbolizerFromIconSymbolizer(graphicFill);
+
       const graphicFillImage = graphicFillStyle?.getImage();
       graphicFillImage?.load(); // Needed for Icon type images with a remote src
       // We can only work with the image once it's loaded
       if (graphicFillImage?.getImageState() !== OlImageState.LOADED) {
         return null;
       }
-    } else if (isMarkSymbolizer(graphicFill)) {
-      graphicFillStyle = this.getOlPointSymbolizerFromMarkSymbolizer(graphicFill, undefined, false);
-      const diameter = graphicFill.radius as number * 2;
-      iconSize = [diameter, diameter];
-    } else {
-      return null;
-    }
-    iconSize = graphicFillStyle.getImage().getSize();
-    const canvasSize = iconSize.map(item  => item);
 
-    // Temporary canvas.
-    // TODO: Can/should we reuse an pre-existing one for efficiency?
-    const tmpCanvas: HTMLCanvasElement = document.createElement('canvas');
+      iconSize = graphicFillStyle.getImage().getSize();
+      canvasSize = iconSize.map(item  => item * iconSpacing);
+      tmpCanvas.width = canvasSize[0];
+      tmpCanvas.height = canvasSize[1];
+
+      // Create the context where we'll be drawing the style on
+      const vectorContext = toContext(tmpContext, {
+        size: canvasSize,
+        pixelRatio: 1
+      });
+
+      const pointCoords = canvasSize.map(item  => item / 2);
+      const pointFeature = new OlFeature(new OlGeomPoint(pointCoords));
+
+      vectorContext.drawFeature(pointFeature, graphicFillStyle);
+      return tmpContext.createPattern(tmpCanvas, 'repeat');
+    }
+
+    const svgPattern = fillPatternSvg(graphicFill);
+
+    const isLineSymbol = LINE_WELLKNOWNNAMES.includes(String(graphicFill.wellKnownName));
+    const cleanedWellKnownName = cleanWellKnownName(graphicFill.wellKnownName);
+    const isSimplePatternFill = !graphicFill.strokeWidth && NOFILL_WELLKNOWNNAMES.includes(cleanedWellKnownName);
+    const isDenseFill = cleanedWellKnownName.startsWith('dense');
+    const iconRotation = graphicFill.rotate as number || 0;
+    // Hack to try to join lines for hatch patterns, but space out icon patterns.
+    // Diagonal lines still do not render nicely in the corners, due to tiling.
+    // TODO: Maybe use VendorOption's to control spacing?
+    if (isLineSymbol || isSimplePatternFill || isDenseFill) {
+      // Extend lines that aren't horizontal or vertical to be full size of the canvas
+      const isNotVerticalOrHorizontal = (iconRotation / DEGREES_TO_RADIANS) % 1 !== 0;
+      if (isNotVerticalOrHorizontal) {
+        scaleFactor = Math.sin(iconRotation * DEGREES_TO_RADIANS);
+      }
+      iconSpacing = 1;
+    }
+    const diameter = (graphicFill.radius as number ?? 4) * 2;
+    iconSize = [diameter, diameter];
+    canvasSize = iconSize.map(item  => item * iconSpacing * scaleFactor);
     tmpCanvas.width = canvasSize[0];
     tmpCanvas.height = canvasSize[1];
-    const tmpContext = tmpCanvas.getContext('2d') as CanvasRenderingContext2D;
 
-    // Create the context where we'll be drawing the style on
-    const vectorContext = toContext(tmpContext, {
-      size: canvasSize,
-      pixelRatio: 1
-    });
-
-    const pointCoords = canvasSize.map(item  => item / 2);
-    const pointFeature = new OlFeature(new OlGeomPoint(pointCoords));
-
-    vectorContext.drawFeature(pointFeature, graphicFillStyle);
-
-    // Create the actual pattern and return style
+    drawSvgToCanvas(svgPattern, tmpContext, canvasSize[0], iconRotation);
     return tmpContext.createPattern(tmpCanvas, 'repeat');
   }
 

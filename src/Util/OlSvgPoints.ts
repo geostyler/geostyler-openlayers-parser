@@ -1,18 +1,6 @@
-import OlStyleUtil, { LINE_WELLKNOWNNAMES } from './OlStyleUtil';
-
-export interface SvgOptions {
-  id?: string;
-  dimensions: number;
-  fill?: string;
-  fillOpacity?: number;
-  stroke?: string;
-  strokeWidth?: number;
-  strokeOpacity?: number;
-}
-
-type svgDefinition = {
-  [key: string]: string;
-};
+import { MarkSymbolizer } from 'geostyler-style';
+import OlStyleUtil from './OlStyleUtil';
+import { LINE_WELLKNOWNNAMES, NOFILL_WELLKNOWNNAMES, svgDefinition } from './OlSvgUtil';
 
 // Shape definitions, all are roughly scaled to 20x20 in coordinates between (-10,-10) to (10,10)
 export const pointSvgs: svgDefinition = {
@@ -35,7 +23,7 @@ export const pointSvgs: svgDefinition = {
   diamond: 'points="-10,0 0,10 10,0 0,-10 -10,0"',
   equilateral_triangle: 'points="-8.66,5 8.66,5 0,-10 -8.66,5"',
   filled_arrowhead: 'd="M 0,0 L -10,10 L -10,-10 L 0,0 Z"',
-  half_arc: 'd="M -10 0 A -10 -10 0 0 1 10 0"',
+  half_arc: 'd="M -10 0 A 10 10 0 0 1 10 0"',
   half_square: 'points="-10,-10 0,-10 0,10 -10,10 -10,-10"',
   heart: 'd="M -9.5 -2 A 1 1 0 0 1 0 -7.5 A 1 1 0 0 1 9.5 -2 L 0 10 Z"',
   hexagon: 'points="-8.66,-5 -8.66,5 0,10 8.66,5 8.66,-5 0,-10 -8.66,-5"',
@@ -52,7 +40,7 @@ export const pointSvgs: svgDefinition = {
   quarter_square: 'points="-10,-10 0,-10 0,0 -10,0 -10,-10"',
   right_half_triangle: 'points="-10,10 0,10 0,-10 -10,10"',
   rounded_square: 'x="-10" y="-10" width="20" height="20" rx="2.5" ry="2.5"',
-  semi_circle: 'd="M -10 0 A -10 -10 0 0 1 10 0 L 0 0 Z"',
+  semi_circle: 'd="M -10 0 A 10 10 0 0 1 10 0 L 0 0 Z"',
   shield: 'points="10,5 10,-10 -10,-10 -10,5 0,10 10,5"',
   slash: 'd="M 12 -12 L -12 12"',
   square: 'points="-10,-10 10,-10 10,10 -10,10"',
@@ -67,65 +55,43 @@ export const pointSvgs: svgDefinition = {
   triangle: 'points="-10,10 10,10 0,-10 -10,10"'
 };
 
-export const removeDuplicateShapes = (shape: string) => {
-  switch (shape) {
-    case 'shape://backslash':
-      return 'backslash';
-    case 'shape://carrow':
-      return 'carrow';
-    case 'shape://dot':
+export const cleanWellKnownName = (wellKnownName: string) => {
+  let cleanedWellKnownName = wellKnownName.replace('shape://', '');
+  cleanedWellKnownName = cleanedWellKnownName.replace('brush://', '');
+  switch (cleanedWellKnownName) {
+    case 'dot':
       return 'circle';
-    case 'shape://horline':
-      return 'horline';
-    case 'shape://oarrow':
-      return 'oarrow';
-    case 'shape://plus':
+    case 'plus':
       return 'cross';
-    case 'shape://slash':
-      return 'slash';
-    case 'shape://times':
+    case 'times':
     case 'x':
       return 'cross2';
-    case 'shape://vertline':
+    case 'vertline':
       return 'line';
     default:
-      return shape;
+      return cleanedWellKnownName;
   }
 };
 
-export const isPointDefinedAsSvg = (shape: string) => shape in pointSvgs;
+export const isPointDefinedAsSvg = (wellKnownName: string) => cleanWellKnownName(wellKnownName) in pointSvgs;
 
 /**
- * Returns an SVG string for a given shape type with the specified options.
+ * Get the SVG string for a point symbolizer.
  *
- * @param {string} [shape='circle'] The shape type. Supported values are:
- *     'arrow', 'arrowhead', 'asterisk_fill', 'circle', 'cross', 'cross2', 'cross_fill',
- *     'decagon', 'diamond', 'diagonal_half_square', 'equilateral_triangle', 'filled_arrowhead',
- *     'half_arc', 'half_square', 'heart', 'hexagon', 'left_half_triangle', 'line',
- *     'octagon', 'parallelogram_left', 'parallelogram_right', 'pentagon', 'quarter_arc',
- *     'quarter_circle', 'quarter_square', 'right_half_triangle', 'rounded_square',
- *     'semi_circle', 'shield', 'square', 'square_with_corners', 'star', 'star_diamond',
- *     'third_arc', 'third_circle', 'trapezoid', 'triangle'
- * @param {SvgOptions} [options={}] The options to use for the shape.
- *     The following options are supported:
- *     - fill: The color to use for filling the shape. Default is '#fff'.
- *     - fillOpacity: The opacity to use for filling the shape. Default is '1'.
- *     - stroke: The color to use for the shape's stroke. Default is '#000'.
- *     - strokeWidth: The width of the shape's stroke. Default is '1'.
- *     - strokeOpacity: The opacity to use for the shape's stroke. Default is '1'.
- *     - dimensions: The width and height of the resulting SVG. Default is '40'.
- * @returns {string} An SVG string for the given shape type with the specified options.
+ * @param symbolizer A GeoStyler-Style MarkSymbolizer.
+ * @return The SVG string
  */
-export const getShapeSvg = (
-  shape = 'circle',
-  options: SvgOptions = { dimensions: 40, fill: '#fff', fillOpacity: 1,
-    stroke: '#000', strokeWidth: 1, strokeOpacity: 1 }
+export const getPointSvg = (
+  symbolizer: MarkSymbolizer
 ) => {
-  const { dimensions, fill, fillOpacity, stroke, strokeWidth, strokeOpacity } = options;
+  const { wellKnownName, radius, color, fillOpacity, strokeColor, strokeWidth, strokeOpacity } = symbolizer;
+  const dimensions = (radius as number ?? 6) * 2;  // Default to 12 pixels
 
-  if (!isPointDefinedAsSvg(shape)) {
-    throw new Error('Unknown shape: ' + shape);
+  if (!isPointDefinedAsSvg(wellKnownName)) {
+    throw new Error('Unknown wellKnownName: ' + wellKnownName);
   }
+
+  const cleanedWellKnownName = cleanWellKnownName(wellKnownName);
 
   const svgHeader = '<svg xmlns="http://www.w3.org/2000/svg" ' +
     'width="' + dimensions + '" ' +
@@ -133,107 +99,43 @@ export const getShapeSvg = (
     'viewBox="-12 -12 24 24">';
   const svgFooter = '</svg>';
 
-  let svgBody = pointSvgs[shape] + ' ';
+  let svgBody = pointSvgs[cleanedWellKnownName] + ' ';
 
-  // Depending on the shape definition use different SVG elements
+  // Depending on the wellKnownName definition use different SVG elements
   if (svgBody.startsWith('points=')) {
-    svgBody = '<polygon id="' + shape + '" ' + svgBody;
+    svgBody = '<polygon id="' + cleanedWellKnownName + '" ' + svgBody;
   } else if (svgBody.startsWith('x=')) {
-    svgBody = '<rect id="' + shape + '" ' + svgBody;
+    svgBody = '<rect id="' + cleanedWellKnownName + '" ' + svgBody;
   } else if (svgBody.startsWith('cx=')) {
-    svgBody = '<circle id="' + shape + '" ' + svgBody;
+    svgBody = '<circle id="' + cleanedWellKnownName + '" ' + svgBody;
   } else {
-    svgBody = '<path id="' + shape + '" ' + svgBody;
+    svgBody = '<path id="' + cleanedWellKnownName + '" ' + svgBody;
   }
 
   let svgStyle = '';
-  if (fill) {
-    svgStyle += 'fill:' + fill + '; ';
-  }
-  if (OlStyleUtil.checkOpacity(fillOpacity)) {
+  if (color && !NOFILL_WELLKNOWNNAMES.includes(cleanedWellKnownName)) {
+    svgStyle += 'fill:' + color + '; ';
+  } else if (NOFILL_WELLKNOWNNAMES.includes(cleanedWellKnownName)) {
+    svgStyle += 'fill:none; ';
+  };
+  if (OlStyleUtil.checkOpacity(fillOpacity) && !NOFILL_WELLKNOWNNAMES.includes(cleanedWellKnownName)) {
     svgStyle += 'fill-opacity:' + fillOpacity + '; ';
-  }
-  if (stroke) {
-    svgStyle += 'stroke:' + stroke + '; ';
-  }
+  };
+  if (strokeColor) {
+    svgStyle += 'stroke:' + strokeColor + '; ';
+  };
   if (strokeWidth) {
-    svgStyle += 'stroke-width:' + strokeWidth + '; ';
-  }
+    const scaleFactor = dimensions / 24;
+    svgStyle += 'stroke-width:' + Number(strokeWidth) / scaleFactor + '; ';
+  };
   if (OlStyleUtil.checkOpacity(strokeOpacity)) {
     svgStyle += 'stroke-opacity:' + strokeOpacity + '; ';
-  }
-  if (LINE_WELLKNOWNNAMES.includes(shape)) {
+  };
+  if (LINE_WELLKNOWNNAMES.includes(cleanedWellKnownName)) {
     svgStyle = svgStyle + 'stroke-linejoin: butt';
-  }
+  };
 
   svgBody += 'style="' + svgStyle.trim() + '" />';
 
   return svgHeader + svgBody + svgFooter;
-};
-
-/**
- * Extracts the properties of an SVG string into an object.
- *
- * @param svgString the SVG string to parse
- * @returns an object containing the SVG properties
- */
-export const getSvgProperties = (svgString: string): SvgOptions => {
-  try {
-    // Parse the XML string into a document
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(svgString, 'application/xml');
-
-    // Check for parsing errors
-    const parseError = xmlDoc.querySelector('parsererror');
-    if (parseError) {
-      throw new Error('Invalid XML format');
-    }
-
-    // Get the first <svg> element
-    const svgElement = xmlDoc.querySelector('svg');
-    if (!svgElement) {
-      throw new Error('<svg> element not found');
-    }
-
-    // If <svg> exists, return the value of the 'width' attribute
-    const width = svgElement?.getAttribute('width');
-    if (!width) {
-      throw new Error('<svg> element must include dimensions (no width attribute exists)');
-    }
-
-    // Get the first child element of <svg>
-    const firstChildElement = Array.from(svgElement?.children).find((child) => {
-      return child instanceof Element;
-    });
-
-    // Get the id and style from the first child element
-    const id = firstChildElement?.getAttribute('id') ?? '';
-    const styleString = firstChildElement?.getAttribute('style') ?? '';
-
-    // Split the style string into individual declarations
-    const styles = styleString.split(';').filter((style) => style.trim() !== '');
-
-    // Convert the declarations into a key-value map
-    const styleMap: Record<string, string> = {};
-    for (const style of styles) {
-      const [key, value] = style.split(':').map((str) => str.trim());
-      if (key && value) {
-        styleMap[key] = value;
-      }
-    }
-
-    const svgOpts: SvgOptions = {
-      id,
-      dimensions: Number(width),
-      ...styleMap.fill && { fill: styleMap.fill },
-      ...styleMap['fill-opacity'] && { fillOpacity: Number(styleMap['fill-opacity']) },
-      ...styleMap.stroke && { stroke: styleMap.stroke },
-      ...styleMap['stroke-width'] && { strokeWidth: Number(styleMap['stroke-width']) },
-      ...styleMap['stroke-opacity'] && { strokeOpacity: Number(styleMap['stroke-opacity']) }
-    };
-
-    return svgOpts;
-  } catch (error) {
-    throw new Error('Error parsing SVG');
-  }
 };
