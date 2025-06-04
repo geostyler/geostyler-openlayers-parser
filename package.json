@@ -55,7 +55,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@terrestris/eslint-config-typescript": "^4.0.0",
-    "@types/color-name": "^1.1.1",
+    "@types/color-name": "^2.0.0",
     "@types/jest": "^29.5.3",
     "@types/lodash": "^4.17.16",
     "@types/node": "^20.4.2",
