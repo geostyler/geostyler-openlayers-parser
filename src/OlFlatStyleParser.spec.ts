@@ -107,5 +107,11 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(ol_text_placement_line);
     });
+
+    it('writes a FlatIcon style', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(pointIconSimple);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_point_icon_simple);
+    });
   });
 });
