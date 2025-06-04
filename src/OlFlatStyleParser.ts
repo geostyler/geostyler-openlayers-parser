@@ -499,10 +499,10 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         break;
       case 'Text':
         flatStyle = this.flatStyleFromTextSymbolizer(symbolizer, feature);
-        break;
-      case 'Line':
-        flatStyle = this.flatStyleFromLineSymbolizer(symbolizer, feature);
         break; */
+      case 'Line':
+        flatStyle = this.flatStyleFromLineSymbolizer(symbolizer/* , feature */);
+        break;
       case 'Fill':
         flatStyle = this.flatStyleFromFillSymbolizer(symbolizer/* , feature */);
         break;
@@ -567,6 +567,34 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     } */
 
     return flatStyle;
+  }
+
+  /**
+   * Get the OL FlatStyle object from a GeoStyler-Style LineSymbolizer.
+   *
+   * @param symbolizer A GeoStyler-Style LineSymbolizer.
+   * @return The OL FlatStyle object
+   */
+  flatStyleFromLineSymbolizer(symbolizer: LineSymbolizer/* , feat?: OlFeature */): FlatStyle {
+    /* for (const key of Object.keys(symbolizer)) {
+      if (isGeoStylerFunction(symbolizer[key as keyof LineSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+      }
+    } */
+
+    const color = symbolizer.color as string;
+    const opacity = symbolizer.opacity as number;
+    const sColor = (color && opacity !== null && opacity !== undefined) ?
+      OlStyleUtil.getRgbaColor(color, opacity) : color;
+
+    return {
+      ...(sColor ? {'stroke-color': sColor } : {}),
+      ...(symbolizer.width !== undefined ? { 'stroke-width': symbolizer.width as number } : {}),
+      ...(symbolizer.cap ? { 'stroke-line-cap': symbolizer.cap as CapType } : {}),
+      ...(symbolizer.join ? { 'stroke-line-join': symbolizer.join as JoinType } : {}),
+      ...(symbolizer.dasharray ? { 'stroke-line-dash': symbolizer.dasharray as number[] } : {}),
+      ...(symbolizer.dashOffset ? { 'stroke-line-dash-offset': symbolizer.dashOffset as number } : {})
+    };
   }
 }
 

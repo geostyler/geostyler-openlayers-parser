@@ -95,5 +95,11 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(ol_polygon_simple);
     });
+
+    it('writes a FlatStroke style', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(lineSimpleLine);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_line_simpleline);
+    });
   });
 });
