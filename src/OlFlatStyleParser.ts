@@ -2,6 +2,7 @@ import {
   CapType,
   FillSymbolizer,
   IconSymbolizer,
+  isSprite,
   JoinType,
   LineSymbolizer,
   MarkSymbolizer,
@@ -493,10 +494,10 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     switch (symbolizer.kind) {
       /* case 'Mark':
         flatStyle = this.flatStyleFromMarkSymbolizer(symbolizer, feature);
-        break;
-      case 'Icon':
-        flatStyle = this.flatStyleFromIconSymbolizer(symbolizer, feature);
         break; */
+      case 'Icon':
+        flatStyle = this.flatStyleFromIconSymbolizer(symbolizer/* , feature */);
+        break;
       case 'Text':
         flatStyle = this.flatStyleFromTextSymbolizer(symbolizer/* , feature */);
         break;
@@ -686,6 +687,80 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     if (symbolizer.label !== undefined) {
       flatStyle['text-value'] = symbolizer.label as string;
     }
+
+    return flatStyle;
+  }
+
+  /**
+   * Get the OL FlatStyle object from a GeoStyler-Style IconSymbolizer.
+   *
+   * @param symbolizer A GeoStyler-Style IconSymbolizer.
+   * @return The OL FlatStyle object
+   */
+  flatStyleFromIconSymbolizer(
+    symbolizer: IconSymbolizer,
+    /* feat?: OlFeature */
+  ): FlatStyle {
+    /* for (const key of Object.keys(symbolizer)) {
+      if (isGeoStylerFunction(symbolizer[key as keyof IconSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+      }
+    } */
+
+    const flatStyle = {
+      ...(symbolizer.image !== undefined
+        ? { 'icon-src': isSprite(symbolizer.image)
+          ? (symbolizer.image.source as string)
+          : (symbolizer.image as string) }
+        : {}),
+      ...(symbolizer.opacity !== undefined ? { 'icon-opacity': symbolizer.opacity as number } : {}),
+      ...(typeof(symbolizer.rotate) === 'number' ? { 'icon-rotation': symbolizer.rotate } : {}),
+      ...(symbolizer.offset ? { 'icon-offset': symbolizer.offset as [number, number] } : {}),
+    };
+
+    /* // check if IconSymbolizer.image contains a placeholder
+    const prefix = '\\{\\{';
+    const suffix = '\\}\\}';
+    const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
+    const regExpRes = typeof(symbolizer.image) === 'string' ? symbolizer.image.match(regExp) : null;
+    if (regExpRes) {
+      // if it contains a placeholder
+      // return olStyleFunction
+      const olPointStyledIconFn = (feature: any) => {
+        let src: string = OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.image as string, '');
+        // src can't be blank, would trigger ol errors
+        if (!src) {
+          src = symbolizer.image + '';
+        }
+        let image;
+        if (this.olIconStyleCache[src]) {
+          image = this.olIconStyleCache[src];
+          if (baseProps.rotation !== undefined) {
+            image.setRotation(baseProps.rotation);
+          }
+          if (baseProps.opacity !== undefined) {
+            image.setOpacity(baseProps.opacity);
+          }
+        } else {
+          image = new this.OlStyleIconConstructor({
+            ...baseProps,
+            src // order is important
+          });
+          this.olIconStyleCache[src] = image;
+        }
+        const style = new this.OlStyleConstructor({
+          image
+        });
+        return style;
+      };
+      return olPointStyledIconFn;
+    } else {
+      return new this.OlStyleConstructor({
+        image: new this.OlStyleIconConstructor({
+          ...baseProps
+        })
+      });
+    } */
 
     return flatStyle;
   }
