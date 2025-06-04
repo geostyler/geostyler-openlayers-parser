@@ -84,4 +84,16 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(geostylerStyle).toEqual(filterNestedFilter);
     });
   });
+
+  describe('#writeStyle', () => {
+    it('is defined', () => {
+      expect(styleParser.writeStyle).toBeDefined();
+    });
+
+    it('writes a FlatFill style', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(polygonSimple);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_polygon_simple);
+    });
+  });
 });
