@@ -3,9 +3,7 @@
  * To reduce dependencies and avoid to include a "module" package this simple copy
  * is used instead of the package itself.
  */
-export const colors: {
-  [key: string]: [number, number, number];
-} = {
+export const colors: Record<string, [number, number, number]> = {
   aliceblue: [240, 248, 255],
   antiquewhite: [250, 235, 215],
   aqua: [0, 255, 255],

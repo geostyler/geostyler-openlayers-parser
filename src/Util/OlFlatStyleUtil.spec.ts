@@ -32,7 +32,7 @@ const primitives = {
   number: 1,
   // eslint-disable-next-line id-blacklist
   boolean: true,
-  // eslint-disable-next-line id-blacklist
+
   null: null,
   // eslint-disable-next-line id-blacklist
   undefined: undefined

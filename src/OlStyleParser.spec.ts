@@ -106,13 +106,12 @@ import {
 } from 'geostyler-style/dist/style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
-import exp from 'constants';
 
 // reverse calculation of resolution for scale (from ol-util MapUtil)
 function getResolutionForScale (scale, units) {
-  let dpi = 25.4 / 0.28;
-  let mpu = METERS_PER_UNIT[units];
-  let inchesPerMeter = 39.37;
+  const dpi = 25.4 / 0.28;
+  const mpu = METERS_PER_UNIT[units];
+  const inchesPerMeter = 39.37;
 
   return parseFloat(scale) / (mpu * inchesPerMeter * dpi);
 }
@@ -143,7 +142,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(geoStylerStyle).toEqual(point_simplepoint);
     });
     it('can read an OpenLayers Style Function', async () => {
-      const styleFct: OlParserStyleFct = (feature, resolution) => {
+      const styleFct: OlParserStyleFct = () => {
         return ol_point_simplepoint;
       };
       styleFct.__geoStylerStyle = point_simplepoint;
@@ -443,7 +442,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(styleParser.writeStyle).toBeDefined();
     });
     it('returns the right output format', async () => {
-      let { output: olStyle } = await styleParser.writeStyle(point_simplepoint);
+      const { output: olStyle } = await styleParser.writeStyle(point_simplepoint);
       const { output: olStyles } = await styleParser.writeStyle(multi_simplefillSimpleline);
       const { output: olStyleFct } = await styleParser.writeStyle(multi_twoRulesSimplepoint);
       expect(olStyle).toBeDefined();
@@ -504,7 +503,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(olIcon).toBeDefined();
       expect(olIcon.getSrc()).toEqual(image.source);
       expect(olIcon.getSize()).toEqual(image.size);
-      // @ts-ignore
+      // @ts-expect-error offset_ is private
       expect(olIcon.offset_).toEqual(image.position);
     });
     it('can write an OpenLayers IconSymbolizer with feature attribute based src', async () => {
@@ -1321,7 +1320,7 @@ describe('OlStyleParser implements StyleParser', () => {
   });
 
   it('adds unsupportedProperties to the write output', async () => {
-    let {
+    const {
       output: olStyle,
       unsupportedProperties,
       warnings
