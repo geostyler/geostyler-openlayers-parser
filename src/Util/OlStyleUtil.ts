@@ -274,16 +274,16 @@ class OlStyleUtil {
   static resolveAttributeTemplate(
     feature: OlFeature,
     template: string,
-    noValueFoundText: string = 'n.v.',
-    valueAdjust: Function = (key: string, val: any) => val
+    noValueFoundText = 'n.v.',
+    valueAdjust: (key: string, val: any) => any = (key, val) => val
   ) {
 
-    let attributeTemplatePrefix = '\\{\\{';
-    let attributeTemplateSuffix = '\\}\\}';
+    const attributeTemplatePrefix = '\\{\\{';
+    const attributeTemplateSuffix = '\\}\\}';
 
     // Find any character between two braces (including the braces in the result)
-    let regExp = new RegExp(attributeTemplatePrefix + '(.*?)' + attributeTemplateSuffix, 'g');
-    let regExpRes = template.match(regExp);
+    const regExp = new RegExp(attributeTemplatePrefix + '(.*?)' + attributeTemplateSuffix, 'g');
+    const regExpRes = template.match(regExp);
 
     // If we have a regex result, it means we found a placeholder in the
     // template and have to replace the placeholder with its appropriate value.
@@ -297,9 +297,9 @@ class OlStyleUtil {
         // set the output value to the value of "noValueFoundText".
         let noMatchCnt = 0;
 
-        for (let [key, value] of Object.entries(feature.getProperties())) {
+        for (const [key, value] of Object.entries(feature.getProperties())) {
           // Remove the suffixes and find the matching attribute column.
-          let attributeName = res.slice(2, res.length - 2);
+          const attributeName = res.slice(2, res.length - 2);
 
           if (attributeName.toLowerCase() === key.toLowerCase()) {
             template = template.replace(res, valueAdjust(key, value));
@@ -388,14 +388,15 @@ class OlStyleUtil {
         return (args[0] as string).endsWith(args[1] as string);
       case 'strEqualsIgnoreCase':
         return (args[0] as string).toLowerCase() === (args[1] as string).toLowerCase() ;
-      case 'strMatches':
+      case 'strMatches': {
         const regEx = (args[1] as string);
         const regexArray = regEx.match(/\/(.*?)\/([gimy]{0,4})$/);
-        if (regexArray && regexArray.length === 3){
+        if (regexArray && regexArray.length === 3) {
           return new RegExp(regexArray[1], regexArray[2]).test(args[0] as string);
         } else {
           return false;
         }
+      }
       case 'strStartsWith':
         return (args[0] as string).startsWith(args[1] as string);
       default:
@@ -490,7 +491,7 @@ class OlStyleUtil {
     switch (func.name) {
       case 'property':
         return feature?.get(args[0] as string);
-      case 'case':
+      case 'case': {
         type FCaseParameter = {
           case: Expression<boolean>;
           value: Expression<PropertyType>;
@@ -503,17 +504,18 @@ class OlStyleUtil {
           if (index === caseArgs.length - 1) {
             match = caseArg;
             break;
-          // the case can be a boolean
+            // the case can be a boolean
           } else if (caseArg.case === true) {
             match = caseArg.value;
             break;
-          // … or a boolean function that has to be evaluated first
+            // … or a boolean function that has to be evaluated first
           } else if (OlStyleUtil.evaluateBooleanFunction(caseArg.case as GeoStylerBooleanFunction, feature)) {
             match = caseArg.value;
             break;
           }
         }
         return match;
+      }
       default:
         return args[0];
     }
@@ -533,13 +535,14 @@ class OlStyleUtil {
       case 'strAbbreviate':
         // TODO: evaluate this correctly
         return args[0] as string;
-      case 'strCapitalize':
+      case 'strCapitalize': {
         // https://stackoverflow.com/a/32589289/10342669
-        var splitStr = (args[0] as string).toLowerCase().split(' ');
+        const splitStr = (args[0] as string).toLowerCase().split(' ');
         for (let part of splitStr) {
           part = part.charAt(0).toUpperCase() + part.substring(1);
         }
         return splitStr.join(' ');
+      }
       case 'strConcat':
         return args.join();
       case 'strDefaultIfBlank':
