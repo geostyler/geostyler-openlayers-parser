@@ -13,15 +13,12 @@ import {
   GeoStylerNumberFunction,
   GeoStylerStringFunction,
   GeoStylerUnknownFunction,
-} from 'geostyler-style/dist/functions';
-
-import {
   isGeoStylerBooleanFunction,
   isGeoStylerFunction,
   isGeoStylerNumberFunction,
   isGeoStylerStringFunction,
   isGeoStylerUnknownFunction
-} from 'geostyler-style/dist/typeguards';
+} from 'geostyler-style';
 
 import OlFeature from 'ol/Feature';
 import { colors } from './colors';

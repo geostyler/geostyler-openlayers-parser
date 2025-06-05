@@ -18,17 +18,14 @@ import {
   Symbolizer,
   TextSymbolizer,
   UnsupportedProperties,
-  WriteStyleResult
-} from 'geostyler-style/dist/style';
-
-import {
+  WriteStyleResult,
   isGeoStylerBooleanFunction,
   isGeoStylerFunction,
   isGeoStylerStringFunction,
   isIconSymbolizer,
   isMarkSymbolizer,
   isSprite
-} from 'geostyler-style/dist/typeguards';
+} from 'geostyler-style';
 
 import OlImageState from 'ol/ImageState';
 
