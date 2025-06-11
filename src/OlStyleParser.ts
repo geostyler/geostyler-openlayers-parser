@@ -18,17 +18,14 @@ import {
   Symbolizer,
   TextSymbolizer,
   UnsupportedProperties,
-  WriteStyleResult
-} from 'geostyler-style/dist/style';
-
-import {
+  WriteStyleResult,
   isGeoStylerBooleanFunction,
   isGeoStylerFunction,
   isGeoStylerStringFunction,
   isIconSymbolizer,
   isMarkSymbolizer,
   isSprite
-} from 'geostyler-style/dist/typeguards';
+} from 'geostyler-style';
 
 import OlImageState from 'ol/ImageState';
 import OlGeomPoint from 'ol/geom/Point';
@@ -390,9 +387,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const size = olIconStyle.getSize();
     if (Array.isArray(size)) {
       // TODO: create getters (and setters?) in openlayers
-      // @ts-ignore
-      let position = olIconStyle.offset_ as [number, number];
-      // @ts-ignore
+      // @ts-expect-error offset_ is private
+      const position = olIconStyle.offset_ as [number, number];
+      // @ts-expect-error offsetOrigin_ is private
       const offsetOrigin = olIconStyle.offsetOrigin_ as string;
       if (offsetOrigin && offsetOrigin !== 'top-left') {
         throw new Error(`Offset origin ${offsetOrigin} not supported`);
@@ -425,8 +422,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       color: olStrokeStyle ? OlStyleUtil.getHexColor(olStrokeStyle.getColor() as string) as string : undefined,
       opacity: olStrokeStyle ? OlStyleUtil.getOpacity(olStrokeStyle.getColor() as string) : undefined,
       width: olStrokeStyle ? olStrokeStyle.getWidth() : undefined,
-      cap: olStrokeStyle ? <LineSymbolizer['cap']> olStrokeStyle.getLineCap() : 'butt',
-      join: olStrokeStyle ? <LineSymbolizer['join']> olStrokeStyle.getLineJoin() : 'miter',
+      cap: olStrokeStyle ? olStrokeStyle.getLineCap() as LineSymbolizer['cap'] : 'butt',
+      join: olStrokeStyle ? olStrokeStyle.getLineJoin() as LineSymbolizer['join'] : 'miter',
       dasharray: dashArray ? dashArray : undefined,
       dashOffset: olStrokeStyle ? olStrokeStyle.getLineDashOffset() : undefined
     };
@@ -494,7 +491,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const placement = olTextStyle.getPlacement();
     const text = olTextStyle.getText();
     const label = Array.isArray(text) ? text[0] : text;
-    let fontSize: number = Infinity;
+    let fontSize = Infinity;
     let fontFamily: string[]|undefined = undefined;
     let fontWeight: 'normal' | 'bold' | undefined = undefined;
     let fontStyle: 'normal' | 'italic' | 'oblique' | undefined = undefined;
@@ -716,8 +713,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
                 if (!unsupportedProperties.Symbolizer[key as SymbolizerKeyType]) {
                   (unsupportedProperties.Symbolizer as any)[key] = {};
                 }
-                unsupportedProperties.Symbolizer
-                  [key as SymbolizerKeyType][property] = value[property];
+                unsupportedProperties.Symbolizer[key as SymbolizerKeyType][property] = value[property];
               }
             });
           }
@@ -836,7 +832,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         }
 
         // handling filter
-        let matchesFilter: boolean = false;
+        let matchesFilter = false;
         if (!rule.filter) {
           matchesFilter = true;
         } else {
@@ -894,7 +890,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       '!': true
     };
 
-    let matchesFilter: boolean = true;
+    let matchesFilter = true;
     if (isGeoStylerBooleanFunction(filter)) {
       return OlStyleUtil.evaluateBooleanFunction(filter, feature);
     }
@@ -902,7 +898,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       return filter;
     }
     const operator: Operator = filter[0];
-    let isNestedFilter: boolean = false;
+    let isNestedFilter = false;
     if (operatorMapping[operator]) {
       isNestedFilter = true;
     }
@@ -1017,7 +1013,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       case 'Fill':
         olSymbolizer = this.getOlPolygonSymbolizerFromFillSymbolizer(symbolizer, feature);
         break;
-      default:
+      default: {
         // Return the OL default style since the TS type binding does not allow
         // us to set olSymbolizer to undefined
         const fill = new this.OlStyleFillConstructor({
@@ -1037,6 +1033,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           stroke: stroke
         });
         break;
+      }
     }
 
     return olSymbolizer;

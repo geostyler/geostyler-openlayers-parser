@@ -280,7 +280,7 @@ describe('OlStyleUtil', () => {
     });
 
     it('can be configured wrt handling inexistant / falsy values', () => {
-      let template = '{{exists-and-is-undefined}}|{{exists-and-is-null}}|{{key-does-not-exist}}';
+      const template = '{{exists-and-is-undefined}}|{{exists-and-is-null}}|{{key-does-not-exist}}';
       let got = OlStyleUtil.resolveAttributeTemplate(feat, template);
       expect(got).toBe('undefined|null|n.v.');
       got = OlStyleUtil.resolveAttributeTemplate(
@@ -308,7 +308,7 @@ describe('OlStyleUtil', () => {
       expect(got).toBe(`${props.name} n.v.`);
 
       // The placeholder is configurable.
-      let notFoundPlaceHolder = '【ツ】';
+      const notFoundPlaceHolder = '【ツ】';
       template = '{{name}} {{notAvailable}}';
       got = OlStyleUtil.resolveAttributeTemplate(feat, template, notFoundPlaceHolder);
       expect(got).toBe(`${props.name} ${notFoundPlaceHolder}`);

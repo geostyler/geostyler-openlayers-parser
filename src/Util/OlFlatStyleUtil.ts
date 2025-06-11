@@ -179,8 +179,7 @@ const invertedFunctionNameMap: Partial<Record<typeof expressionNames[number], Ge
 
 class OlFlatStyleUtil {
   public static isFlatRule(flatStyle: FlatStyle | FlatRule): flatStyle is FlatRule {
-    const hasStyleProp = flatStyle.hasOwnProperty('style');
-    return hasStyleProp;
+    return 'style' in flatStyle;
   }
 
   public static isFlatRuleArray(flatStyleLike: FlatStyleLike): flatStyleLike is FlatRule[] {
@@ -198,8 +197,7 @@ class OlFlatStyleUtil {
     if (isArray) {
       return false;
     }
-    const hasStyleProp = flatStyleLike.hasOwnProperty('style');
-    return !hasStyleProp;
+    return !('style' in flatStyleLike);
   }
 
   public static isFlatStyleArray(flatStyleLike: FlatStyleLike): flatStyleLike is FlatStyle[] {
@@ -280,28 +278,28 @@ class OlFlatStyleUtil {
   }
 
   public static hasFlatFill(flatStyle: FlatStyle) {
-    const hasFill = flatStyle.hasOwnProperty('fill-color') && flatStyle['fill-color'] !== undefined;
+    const hasFill = ('fill-color' in flatStyle) && flatStyle['fill-color'] !== undefined;
     return hasFill;
   }
 
   public static hasFlatStroke(flatStyle: FlatStyle) {
-    const hasStrokeColor = flatStyle.hasOwnProperty('stroke-color') && flatStyle['stroke-color'] !== undefined;
-    const hasStrokeWidth = flatStyle.hasOwnProperty('stroke-width') && flatStyle['stroke-width'] !== undefined;
+    const hasStrokeColor = ('stroke-color' in flatStyle) && flatStyle['stroke-color'] !== undefined;
+    const hasStrokeWidth = ('stroke-width' in flatStyle) && flatStyle['stroke-width'] !== undefined;
     return hasStrokeColor || hasStrokeWidth;
   }
 
   public static hasFlatText(flatStyle: FlatStyle) {
-    const hasTextValue = flatStyle.hasOwnProperty('text-value') && flatStyle['text-value'] !== undefined;
+    const hasTextValue = ('text-value' in flatStyle) && flatStyle['text-value'] !== undefined;
     return hasTextValue;
   }
 
   public static hasFlatIcon(flatStyle: FlatStyle) {
-    const hasIconSrc = flatStyle.hasOwnProperty('icon-src') && flatStyle['icon-src'] !== undefined;
+    const hasIconSrc = ('icon-src' in flatStyle) && flatStyle['icon-src'] !== undefined;
     return hasIconSrc;
   }
 
   public static hasFlatCircle(flatStyle: FlatStyle) {
-    const hasCircleRadius = flatStyle.hasOwnProperty('circle-radius') && flatStyle['circle-radius'] !== undefined;
+    const hasCircleRadius = ('circle-radius' in flatStyle) && flatStyle['circle-radius'] !== undefined;
     return hasCircleRadius;
   }
 
@@ -320,7 +318,7 @@ class OlFlatStyleUtil {
         const gsArgs: any[] = [];
         const fallback = OlFlatStyleUtil.olExpressionToGsExpression(args.pop());
         args.forEach((a, index) => {
-          var gsIndex = Math.floor(index / 2);
+          const gsIndex = Math.floor(index / 2);
           if (index % 2 === 0) {
             gsArgs[gsIndex] = {
               case: OlFlatStyleUtil.olExpressionToGsExpression(a)
