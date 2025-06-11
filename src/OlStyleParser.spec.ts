@@ -103,7 +103,7 @@ import {
   IconSymbolizer,
   MarkSymbolizer,
   Sprite
-} from 'geostyler-style/dist/style';
+} from 'geostyler-style';
 
 import OlStyleUtil from './Util/OlStyleUtil';
 
