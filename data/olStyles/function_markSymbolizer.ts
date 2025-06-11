@@ -1,19 +1,19 @@
 import OlStyle from 'ol/style/Style';
-import OlStyleRegularshape from 'ol/style/RegularShape';
-import OlStyleFill from 'ol/style/Fill';
-import OlStyleStroke from 'ol/style/Stroke';
+import OlStyleIcon  from 'ol/style/Icon';
+import { getEncodedSvg } from '../../src/Util/OlSvgUtil';
+import { getPointSvg } from '../../src/Util/OlSvgPoints';
+
+let svg = getPointSvg({
+  kind: 'Mark',
+  wellKnownName: 'cross',
+  strokeColor: '#FF0000',
+  radius: Math.PI
+});
 
 const olFunctionMark = new OlStyle({
-  image: new OlStyleRegularshape({
-    points: 4,
-    radius: Math.PI,
-    radius2: 0,
-    fill: new OlStyleFill({
-      color: '#FF0000'
-    }),
-    stroke: new OlStyleStroke({
-      color: '#000'
-    })
+  image: new OlStyleIcon({
+    src: getEncodedSvg(svg),
+    crossOrigin: 'anonymous'
   })
 });
 

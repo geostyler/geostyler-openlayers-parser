@@ -8,9 +8,8 @@ const pointSimpleSlash: Style = {
       symbolizers: [{
         kind: 'Mark',
         wellKnownName: 'shape://slash',
-        color: '#FF0000',
-        radius: 6,
-        rotate: 0
+        strokeColor: '#FF0000',
+        radius: 6
       }]
     }
   ]
