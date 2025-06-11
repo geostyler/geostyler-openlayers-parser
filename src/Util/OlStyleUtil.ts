@@ -4,7 +4,7 @@ import {
   PropertyType,
   Style,
   TextSymbolizer
-} from 'geostyler-style/dist/style';
+} from 'geostyler-style';
 
 import {
   Fcase,
