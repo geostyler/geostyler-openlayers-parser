@@ -84,4 +84,34 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(geostylerStyle).toEqual(filterNestedFilter);
     });
   });
+
+  describe.only('#writeStyle', () => {
+    it('is defined', () => {
+      expect(styleParser.writeStyle).toBeDefined();
+    });
+
+    it('writes a FlatFill style', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(polygonSimple);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_polygon_simple);
+    });
+
+    it('writes a FlatStroke style', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(lineSimpleLine);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_line_simpleline);
+    });
+
+    it('writes a FlatText style', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(textPlacementLine);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_text_placement_line);
+    });
+
+    it('reads a FlatIcon style', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(pointIconSimple);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_point_icon_simple);
+    });
+  });
 });

@@ -2,6 +2,7 @@ import {
   CapType,
   FillSymbolizer,
   IconSymbolizer,
+  isSprite,
   JoinType,
   LineSymbolizer,
   MarkSymbolizer,
@@ -14,7 +15,7 @@ import {
   UnsupportedProperties,
   WriteStyleResult
 } from 'geostyler-style';
-import { FlatStyle, FlatStyleLike, Rule as FlatRule } from 'ol/style/flat';
+import { FlatStyle, FlatStyleLike, Rule as FlatRule, createDefaultStyle } from 'ol/style/flat';
 import OlFlatStyleUtil from './Util/OlFlatStyleUtil';
 import OlStyleUtil from './Util/OlStyleUtil';
 
@@ -404,13 +405,17 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * The writeStyle implementation of the GeoStyler-Style StyleParser interface.
    * It reads a GeoStyler-Style Style and returns a Promise containing the FlatStyle.
    *
+   * The Promise itself resolves with an OpenLayers FlatStyle.
+   *
    * @param geoStylerStyle A GeoStyler-Style Style.
    * @return The Promise resolving with one of above mentioned style types.
    */
   writeStyle(geoStylerStyle: Style): Promise<WriteStyleResult<FlatStyleLike>> {
     return new Promise<WriteStyleResult>((resolve) => {
+      // TODO clone?
+      // TODO add support for unsupported properties
       try {
-        const flatStyle = {};
+        const flatStyle = this.flatStyleLikeFromGeoStylerStyle(geoStylerStyle);
         resolve({
           output: flatStyle,
           warnings: ['Not implemented yet']
@@ -421,6 +426,343 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         });
       }
     });
+  }
+
+  /**
+   * Decides which FlatStyleLike should be returned depending on given geoStylerStyle.
+   * Three FlatStyleLike are possible:
+   *
+   * 1. FlatStyle if input Style consists of
+   *    one rule with one symbolizer, no filter, no scaleDenominator
+   *
+   * @param geoStylerStyle A GeoStyler-Style Style
+   */
+  flatStyleLikeFromGeoStylerStyle(geoStylerStyle: Style): FlatStyle /* | FlatStyle[] | FlatRule[] */ | undefined {
+    const rules = geoStylerStyle.rules;
+    const nrRules = rules.length;
+    if (nrRules === 1) {
+      const hasFilter = geoStylerStyle?.rules?.[0]?.filter !== undefined ? true : false;
+      const hasMinScale = geoStylerStyle?.rules?.[0]?.scaleDenominator?.min !== undefined ? true : false;
+      const hasMaxScale = geoStylerStyle?.rules?.[0]?.scaleDenominator?.max !== undefined ? true : false;
+      const hasScaleDenominator = hasMinScale || hasMaxScale ? true : false;
+      const hasFunctions = OlStyleUtil.containsGeoStylerFunctions(geoStylerStyle);
+
+      const nrSymbolizers = geoStylerStyle.rules[0].symbolizers.length;
+      /* const hasTextSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
+        return symbolizer.kind === 'Text';
+      }); */
+      const hasDynamicIconSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
+        return symbolizer.kind === 'Icon' && typeof(symbolizer.image) === 'string' && symbolizer.image.includes('{{');
+      });
+      if (!hasFilter && !hasScaleDenominator && !hasDynamicIconSymbolizer && !hasFunctions) {
+        if (nrSymbolizers === 1) {
+          return this.flatStyleFromGeoStylerStyle(geoStylerStyle);
+        }/*  else {
+          return this.geoStylerStyleToOlStyleArray(geoStylerStyle);
+        } */
+      }/*  else {
+        return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
+      } */
+    }/*  else {
+      return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
+    } */
+  }
+
+  /**
+   * Parses the first symbolizer of the first rule of a GeoStyler-Style Style.
+   *
+   * @param geoStylerStyle GeoStyler-Style Style
+   * @return An OpenLayers FlatStyle Object
+   */
+  flatStyleFromGeoStylerStyle(geoStylerStyle: Style): FlatStyle {
+    const rule = geoStylerStyle.rules[0];
+    const symbolizer = rule.symbolizers[0];
+    const flatStyle = this.flatStyleFromSymbolizer(symbolizer);
+    return flatStyle;
+  }
+
+  /**
+   * Get the OpenLayers FlatStyle object from a GeoStyler-Style Symbolizer.
+   *
+   * @param symbolizer A GeoStyler-Style Symbolizer.
+   * @return The OpenLayers FlatStyle object
+   */
+  flatStyleFromSymbolizer(symbolizer: Symbolizer/* , feature?: OlFeature */): FlatStyle {
+    let flatStyle: FlatStyle;
+    symbolizer = structuredClone(symbolizer);
+
+    switch (symbolizer.kind) {
+      /* case 'Mark':
+        flatStyle = this.flatStyleFromMarkSymbolizer(symbolizer, feature);
+        break; */
+      case 'Icon':
+        flatStyle = this.flatStyleFromIconSymbolizer(symbolizer/* , feature */);
+        break;
+      case 'Text':
+        flatStyle = this.flatStyleFromTextSymbolizer(symbolizer/* , feature */);
+        break;
+      case 'Line':
+        flatStyle = this.flatStyleFromLineSymbolizer(symbolizer/* , feature */);
+        break;
+      case 'Fill':
+        flatStyle = this.flatStyleFromFillSymbolizer(symbolizer/* , feature */);
+        break;
+      default:
+        // Return the OL default style since the TS type binding does not allow
+        // us to set olSymbolizer to undefined
+        flatStyle = createDefaultStyle();
+        break;
+    }
+
+    return flatStyle;
+  }
+
+  /**
+   * Get the OL FlatStyle object from a GeoStyler-Style FillSymbolizer.
+   *
+   * @param symbolizer A GeoStyler-Style FillSymbolizer.
+   * @return The OL FlatStyle object
+   */
+  flatStyleFromFillSymbolizer(symbolizer: FillSymbolizer/* , feat?: OlFeature */): FlatStyle {
+    /* for (const key of Object.keys(symbolizer)) {
+      if (isGeoStylerFunction(symbolizer[key as keyof FillSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+      }
+    } */
+
+    const color = symbolizer.color as string;
+    const opacity = symbolizer.fillOpacity as number;
+    const fColor = color && Number.isFinite(opacity)
+      ? OlStyleUtil.getRgbaColor(color, opacity)
+      : color;
+
+    /* let fill = color
+      ? new this.OlStyleFillConstructor({color: fColor})
+      : undefined;
+
+    const outlineColor = symbolizer.outlineColor as string;
+    const outlineOpacity = symbolizer.outlineOpacity as number;
+    const oColor = (outlineColor && Number.isFinite(outlineOpacity))
+      ? OlStyleUtil.getRgbaColor(outlineColor, outlineOpacity)
+      : outlineColor;
+
+    const stroke = outlineColor || symbolizer.outlineWidth ? new this.OlStyleStrokeConstructor({
+      color: oColor,
+      width: symbolizer.outlineWidth as number,
+      lineDash: symbolizer.outlineDasharray as number[],
+    }) : undefined; */
+
+    const flatStyle = {
+      ...(fColor ? { 'fill-color': fColor } : {}),
+    };
+
+    /* if (symbolizer.graphicFill) {
+      const pattern = this.getOlPatternFromGraphicFill(symbolizer.graphicFill);
+      if (!fill) {
+        fill = new this.OlStyleFillConstructor({});
+      }
+      if (pattern) {
+        fill.setColor(pattern);
+      }
+      olStyle.setFill(fill);
+    } */
+
+    return flatStyle;
+  }
+
+  /**
+   * Get the OL FlatStyle object from a GeoStyler-Style LineSymbolizer.
+   *
+   * @param symbolizer A GeoStyler-Style LineSymbolizer.
+   * @return The OL FlatStyle object
+   */
+  flatStyleFromLineSymbolizer(symbolizer: LineSymbolizer/* , feat?: OlFeature */): FlatStyle {
+    /* for (const key of Object.keys(symbolizer)) {
+      if (isGeoStylerFunction(symbolizer[key as keyof LineSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+      }
+    } */
+
+    const color = symbolizer.color as string;
+    const opacity = symbolizer.opacity as number;
+    const sColor = (color && opacity !== null && opacity !== undefined) ?
+      OlStyleUtil.getRgbaColor(color, opacity) : color;
+
+    return {
+      ...(sColor ? {'stroke-color': sColor } : {}),
+      ...(symbolizer.width !== undefined ? { 'stroke-width': symbolizer.width as number } : {}),
+      ...(symbolizer.cap ? { 'stroke-line-cap': symbolizer.cap as CapType } : {}),
+      ...(symbolizer.join ? { 'stroke-line-join': symbolizer.join as JoinType } : {}),
+      ...(symbolizer.dasharray ? { 'stroke-line-dash': symbolizer.dasharray as number[] } : {}),
+      ...(symbolizer.dashOffset ? { 'stroke-line-dash-offset': symbolizer.dashOffset as number } : {})
+    };
+  }
+
+  /**
+   * Get the OL FlatStyle object from an GeoStyler-Style TextSymbolizer.
+   *
+   * @param symbolizer A GeoStyler-Style TextSymbolizer.
+   * @return The OL FlatStyle object
+   */
+  flatStyleFromTextSymbolizer(symbolizer: TextSymbolizer, /* feat?: OlFeature */): FlatStyle {
+    /* for (const key of Object.keys(symbolizer)) {
+      if (isGeoStylerFunction(symbolizer[key as keyof TextSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+      }
+    } */
+
+    const color = symbolizer.color as string;
+    let placement = symbolizer.placement;
+    if (!placement) {
+      // When setting placement it must not be undefined.
+      // So we set it to the OL default value.
+      placement = 'point';
+    }
+    if (placement === 'line-center') {
+      // line-center not supported by OL.
+      // So we use the closest supported value.
+      placement = 'line';
+    }
+    const opacity = symbolizer.opacity as number;
+    const fColor = color && Number.isFinite(opacity)
+      ? OlStyleUtil.getRgbaColor(color, opacity)
+      : color;
+
+    const haloColor = symbolizer.haloColor as string;
+    const haloWidth = symbolizer.haloWidth as number;
+    const sColor = haloColor && Number.isFinite(opacity)
+      ? OlStyleUtil.getRgbaColor(haloColor, opacity)
+      : haloColor;
+    const flatStyle: FlatStyle = {
+      ...(symbolizer.size && symbolizer.font ? { 'text-font': OlStyleUtil.getTextFont(symbolizer) } : {}),
+      ...(fColor ? { 'text-fill-color': fColor } : {}),
+      ...(sColor ? { 'text-stroke-color': sColor } : {}),
+      'text-stroke-width': haloWidth ? haloWidth : 0 as number,
+      ...(symbolizer.allowOverlap !== undefined ? { 'text-overflow': symbolizer.allowOverlap as boolean } : {}),
+      'text-offset-x': (symbolizer.offset ? symbolizer.offset[0] : 0) as number,
+      'text-offset-y': (symbolizer.offset ? symbolizer.offset[1] : 0) as number,
+      ...(typeof(symbolizer.rotate) === 'number' ? { 'text-rotation':  symbolizer.rotate } : {}),
+      'text-placement': placement as 'line' | 'point'
+      // TODO check why props match
+      // textAlign: symbolizer.pitchAlignment,
+      // textBaseline: symbolizer.anchor
+    };
+
+    /* // check if TextSymbolizer.label contains a placeholder
+    const prefix = '\\{\\{';
+    const suffix = '\\}\\}';
+    const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
+    let regExpRes;
+    if (!isGeoStylerStringFunction(symbolizer.label)) {
+      regExpRes = symbolizer.label ? symbolizer.label.match(regExp) : null;
+    }
+    if (regExpRes) {
+      // if it contains a placeholder
+      // return olStyleFunction
+      const olPointStyledLabelFn = (feature: any) => {
+
+        const text = new this.OlStyleTextConstructor({
+          text: OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.label as string, ''),
+          ...baseProps
+        });
+
+        const style = new this.OlStyleConstructor({
+          text: text
+        });
+
+        return style;
+      };
+      return olPointStyledLabelFn;
+    } else {
+      // if TextSymbolizer does not contain a placeholder
+      // return OlStyle
+      return new this.OlStyleConstructor({
+        text: new this.OlStyleTextConstructor({
+          text: symbolizer.label as string,
+          ...baseProps
+        })
+      });
+    } */
+
+    if (symbolizer.label !== undefined) {
+      flatStyle['text-value'] = symbolizer.label as string;
+    }
+
+    return flatStyle;
+  }
+
+  /**
+   * Get the OL FlatStyle object from a GeoStyler-Style IconSymbolizer.
+   *
+   * @param symbolizer A GeoStyler-Style IconSymbolizer.
+   * @return The OL FlatStyle object
+   */
+  flatStyleFromIconSymbolizer(
+    symbolizer: IconSymbolizer,
+    /* feat?: OlFeature */
+  ): FlatStyle {
+    /* for (const key of Object.keys(symbolizer)) {
+      if (isGeoStylerFunction(symbolizer[key as keyof IconSymbolizer])) {
+        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+      }
+    } */
+
+    const flatStyle = {
+      ...(symbolizer.image !== undefined
+        ? { 'icon-src': isSprite(symbolizer.image)
+          ? (symbolizer.image.source as string)
+          : (symbolizer.image as string) }
+        : {}),
+      ...(symbolizer.opacity !== undefined ? { 'icon-opacity': symbolizer.opacity as number } : {}),
+      ...(typeof(symbolizer.rotate) === 'number' ? { 'icon-rotation': symbolizer.rotate } : {}),
+      ...(symbolizer.offset ? { 'icon-offset': symbolizer.offset as [number, number] } : {}),
+    };
+
+    /* // check if IconSymbolizer.image contains a placeholder
+    const prefix = '\\{\\{';
+    const suffix = '\\}\\}';
+    const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
+    const regExpRes = typeof(symbolizer.image) === 'string' ? symbolizer.image.match(regExp) : null;
+    if (regExpRes) {
+      // if it contains a placeholder
+      // return olStyleFunction
+      const olPointStyledIconFn = (feature: any) => {
+        let src: string = OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.image as string, '');
+        // src can't be blank, would trigger ol errors
+        if (!src) {
+          src = symbolizer.image + '';
+        }
+        let image;
+        if (this.olIconStyleCache[src]) {
+          image = this.olIconStyleCache[src];
+          if (baseProps.rotation !== undefined) {
+            image.setRotation(baseProps.rotation);
+          }
+          if (baseProps.opacity !== undefined) {
+            image.setOpacity(baseProps.opacity);
+          }
+        } else {
+          image = new this.OlStyleIconConstructor({
+            ...baseProps,
+            src // order is important
+          });
+          this.olIconStyleCache[src] = image;
+        }
+        const style = new this.OlStyleConstructor({
+          image
+        });
+        return style;
+      };
+      return olPointStyledIconFn;
+    } else {
+      return new this.OlStyleConstructor({
+        image: new this.OlStyleIconConstructor({
+          ...baseProps
+        })
+      });
+    } */
+
+    return flatStyle;
   }
 }
 
