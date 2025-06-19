@@ -5,17 +5,18 @@ import { getEncodedSvg } from '../../src/Util/OlSvgUtil';
 
 const svg = getPointSvg({
   kind: 'Mark',
-  wellKnownName: 'shape://horline',
-  radius: 6,
-  color: 'none',
-  strokeColor: '#FF0000'
+  wellKnownName: 'star',
+  strokeColor: '#FF0000',
+  color: '#00FF00',
+  fillOpacity: 0,
+  radius: 6
 });
 
-const olSimpleHorline = new OlStyle({
+const olSimpleStar = new OlStyle({
   image: new OlStyleIcon({
     src: getEncodedSvg(svg),
     crossOrigin: 'anonymous'
   })
 });
 
-export default olSimpleHorline;
+export default olSimpleStar;

@@ -8,9 +8,9 @@ const pointSimpleStar: Style = {
       symbolizers: [{
         kind: 'Mark',
         wellKnownName: 'star',
-        color: '#FF0000',
-        radius: 6,
-        rotate: 0
+        color: '#00FF00',
+        strokeColor: '#FF0000',
+        radius: 6
       }]
     }
   ]

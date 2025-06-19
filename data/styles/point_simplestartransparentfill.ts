@@ -1,13 +1,15 @@
 import { Style } from 'geostyler-style';
 
-const pointSimpleTimes: Style = {
+const pointSimpleStar: Style = {
   name: 'OL Style',
   rules: [
     {
       name: 'OL Style Rule 0',
       symbolizers: [{
         kind: 'Mark',
-        wellKnownName: 'shape://times',
+        wellKnownName: 'star',
+        color: '#00FF00',
+        fillOpacity: 0,
         strokeColor: '#FF0000',
         radius: 6
       }]
@@ -15,4 +17,4 @@ const pointSimpleTimes: Style = {
   ]
 };
 
-export default pointSimpleTimes;
+export default pointSimpleStar;
