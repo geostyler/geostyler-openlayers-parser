@@ -1,12 +1,5 @@
 import {
   Expression,
-  MarkSymbolizer,
-  PropertyType,
-  Style,
-  TextSymbolizer
-} from 'geostyler-style/dist/style';
-
-import {
   Fcase,
   GeoStylerBooleanFunction,
   GeoStylerFunction,
@@ -17,7 +10,11 @@ import {
   isGeoStylerFunction,
   isGeoStylerNumberFunction,
   isGeoStylerStringFunction,
-  isGeoStylerUnknownFunction
+  isGeoStylerUnknownFunction,
+  MarkSymbolizer,
+  PropertyType,
+  Style,
+  TextSymbolizer
 } from 'geostyler-style';
 
 import OlFeature from 'ol/Feature';
