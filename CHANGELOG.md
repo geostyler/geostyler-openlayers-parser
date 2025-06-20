@@ -1,3 +1,12 @@
+## [5.1.2](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.1.1...v5.1.2) (2025-06-11)
+
+### Bug Fixes
+
+* **deps:** update dependency geostyler-style to v10.1.0 ([a0f7517](https://github.com/geostyler/geostyler-openlayers-parser/commit/a0f75178bde5ee080fca9342ac66aa9fdba23f7a))
+* **deps:** update dependency geostyler-style to v10.3.0 ([0811abc](https://github.com/geostyler/geostyler-openlayers-parser/commit/0811abc43a3e445571fda19de550878990f2d00c))
+* do not fetch all commits when running commit lint ([9f2e98f](https://github.com/geostyler/geostyler-openlayers-parser/commit/9f2e98f5b99bec0de653f1953c2eb56e2da8fe83))
+* update geostyler-style-imports ([b4a2980](https://github.com/geostyler/geostyler-openlayers-parser/commit/b4a2980988beb231df2e2fba4f468cb2c438cb99))
+
 ## [5.1.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.1.0...v5.1.1) (2025-05-16)
 
 ### Bug Fixes
