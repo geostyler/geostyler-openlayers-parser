@@ -1043,8 +1043,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * Get the OL Style object from an GeoStyler-Style MarkSymbolizer.
    *
    * @param markSymbolizer A GeoStyler-Style MarkSymbolizer.
-   * @param preferSvg Whether to use SVG or regular shapes. SVG has more flexibility to produce a variety of
-   *  shapes, but has a timing issue (even as a data URL) when used to create canvas fill patterns.
    * @return The OL Style object
    */
   getOlPointSymbolizerFromMarkSymbolizer(
