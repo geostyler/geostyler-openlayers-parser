@@ -8,7 +8,7 @@ const functionMarkSymbolizer: Style = {
       symbolizers: [{
         kind: 'Mark',
         wellKnownName: 'cross',
-        color: '#FF0000',
+        strokeColor: '#FF0000',
         radius: {
           name: 'pi'
         }

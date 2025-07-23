@@ -1,12 +1,5 @@
 import {
   Expression,
-  MarkSymbolizer,
-  PropertyType,
-  Style,
-  TextSymbolizer
-} from 'geostyler-style';
-
-import {
   Fcase,
   GeoStylerBooleanFunction,
   GeoStylerFunction,
@@ -17,7 +10,11 @@ import {
   isGeoStylerFunction,
   isGeoStylerNumberFunction,
   isGeoStylerStringFunction,
-  isGeoStylerUnknownFunction
+  isGeoStylerUnknownFunction,
+  MarkSymbolizer,
+  PropertyType,
+  Style,
+  TextSymbolizer
 } from 'geostyler-style';
 
 import OlFeature from 'ol/Feature';
@@ -25,6 +22,7 @@ import { colors } from './colors';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
+export const DEGREES_TO_RADIANS = Math.PI / 180;
 
 /**
  * Offers some utility functions to work with OpenLayers Styles.
@@ -128,6 +126,30 @@ class OlStyleUtil {
   }
 
   /**
+   * Appends an alpha value to a HEX color code to form an RGBA-like hex code.
+   *
+   * @param hexColor The HEX color code to which the alpha value will be appended.
+   *                 It should start with the '#' character.
+   * @param opacity The opacity value between 0 and 1, representing the alpha channel.
+   * @return The RGBA-like hex color code with the appended alpha value as a string,
+   *         or undefined if the input hexColor is not a valid HEX color.
+   */
+  public static getHexAlphaFromHexAndOpacity(hexColor: string, opacity: number): string | undefined {
+    if (!hexColor.startsWith('#')) {
+      return;
+    };
+
+    // Ensure opacity is within the valid range (0-1)
+    opacity = Math.max(0, Math.min(1, opacity));
+
+    // Convert opacity to a hexadecimal value (00-FF)
+    const alpha = Math.round(opacity * 255).toString(16).padStart(2, '0');
+
+    // Construct the RGBA hex color string
+    return `${hexColor}${alpha}`;
+  }
+
+  /**
    * Returns the opacity value of a RGB(A) color value.
    *
    * @param color RGBA or hex encoded color
@@ -153,6 +175,18 @@ class OlStyleUtil {
     } else {
       return;
     }
+  }
+
+  /**
+   * Checks if the given opacity value is valid.
+   * A valid opacity is a number between 0 and 1.
+   * Value 1 is ignored as this the default value.
+   * If the value is not valid, false is returned.
+   * @param opacity The opacity value to check
+   * @return true if the opacity is valid, false otherwise
+   */
+  public static checkOpacity(opacity: number | GeoStylerNumberFunction | undefined): boolean {
+    return typeof opacity === 'number' && opacity >= 0 && opacity < 1;
   }
 
   /**
@@ -470,9 +504,9 @@ class OlStyleUtil {
       case 'tan':
         return Math.tan(args[0] as number);
       case 'toDegrees':
-        return (args[0] as number) * (180/Math.PI);
+        return (args[0] as number) / DEGREES_TO_RADIANS;
       case 'toRadians':
-        return (args[0] as number) * (Math.PI/180);
+        return (args[0] as number) * DEGREES_TO_RADIANS;
       default:
         return args[0] as number;
     }

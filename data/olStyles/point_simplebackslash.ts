@@ -1,16 +1,20 @@
 import OlStyle from 'ol/style/Style';
-import OlStyleRegularshape from 'ol/style/RegularShape';
-import OlStyleFill from 'ol/style/Fill';
+import OlStyleIcon  from 'ol/style/Icon';
+import { getPointSvg } from '../../src/Util/OlSvgPoints';
+import { getEncodedSvg } from '../../src/Util/OlSvgUtil';
 
-const olSimpleSlash = new OlStyle({
-  image: new OlStyleRegularshape({
-    points: 2,
-    angle: 2 * Math.PI - (Math.PI / 4),
-    radius: 6,
-    fill: new OlStyleFill({
-      color: '#FF0000'
-    })
+const svg = getPointSvg({
+  kind: 'Mark',
+  wellKnownName: 'shape://backslash',
+  strokeColor: '#FF0000',
+  radius: 6
+});
+
+const olSimpleBackSlash = new OlStyle({
+  image: new OlStyleIcon({
+    src: getEncodedSvg(svg),
+    crossOrigin: 'anonymous'
   })
 });
 
-export default olSimpleSlash;
+export default olSimpleBackSlash;
