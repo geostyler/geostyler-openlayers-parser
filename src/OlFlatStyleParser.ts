@@ -289,6 +289,9 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       strokeColor,
       strokeOpacity,
       strokeWidth: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['circle-stroke-width']),
+      offset: OlFlatStyleUtil.olExpressionToGsExpression<[number, number]>(
+        flatStyle['circle-displacement']
+      ),
     };
   }
 
@@ -941,6 +944,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           ...(baseProps.fColor ? { 'circle-fill-color': baseProps.fColor } : {}),
           ...(baseProps.sColor ? { 'circle-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.sWidth ? { 'circle-stroke-width': baseProps.sWidth } : {}),
+          ...(baseProps.displacement ? { 'circle-displacement': baseProps.displacement } : {}),
         } as FlatCircle
         break;
       /* case 'square':

@@ -7,6 +7,7 @@ import lineSimpleLine from '../data/styles/line_simpleline';
 import textPlacementLine from '../data/styles/text_placement_line';
 import pointIconSimple from '../data/styles/point_icon_simple';
 import point_simplepoint from '../data/styles/point_simplepoint';
+import point_simpleoffset from '../data/styles/point_simpleoffset';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import filterSimpleFilter from '../data/styles/filter_simpleFilter';
@@ -17,6 +18,7 @@ import flat_line_simpleline from '../data/olFlatStyles/line_simpleline';
 import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
 import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
+import flat_point_simpleoffset from '../data/olFlatStyles/point_simpleoffset';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
 import flat_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
 import flat_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
@@ -51,6 +53,11 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simplepoint);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplepoint);
+    });
+    it('can read an OpenLayers Flat PointSymbolizer with displacement', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simpleoffset);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simpleoffset);
     });
 
     it('reads a FlatFill style', async () => {
@@ -132,6 +139,11 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       let { output: flatStyle } = await styleParser.writeStyle(point_simplepoint);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_simplepoint);
+    });
+    it('can write an OpenLayers Flat PointSymbolizer with displacement', async () => {
+      let { output: flatStyle } = await styleParser.writeStyle(point_simpleoffset);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_simpleoffset);
     });
 
     it('writes a FlatFill style', async () => {
