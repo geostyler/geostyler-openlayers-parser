@@ -4,7 +4,7 @@ const filterSimpleFilter: Rule[] = [
   {
     filter: [
       '==',
-      'Name',
+      ['get', 'Name'],
       'Bonn'
     ],
     style: {

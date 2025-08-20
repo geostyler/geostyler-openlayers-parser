@@ -139,5 +139,17 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(ol_multi_twoRulesSimplepoint);
     });
+
+    it('writes a filter', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(filterSimpleFilter);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_filter_simpleFilter);
+    });
+
+    it('writes a nested filter', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(filterNestedFilter);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(ol_filter_nestedFilter);
+    });
   });
 });
