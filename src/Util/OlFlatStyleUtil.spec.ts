@@ -1,5 +1,5 @@
 import { FlatStyle, Rule } from 'ol/style/flat';
-import OlFlatStyleUtil, { FilterExpression } from './OlFlatStyleUtil';
+import OlFlatStyleUtil, { type GsFilterExpression, type OlFilterExpression } from './OlFlatStyleUtil';
 import { ColorLike } from 'ol/colorlike';
 import { Color } from 'ol/color';
 
@@ -21,9 +21,9 @@ const flatRuleArray: Rule[] = [
 
 const expression = ['==', 'name', 'value'];
 
-const comparisonFilter: FilterExpression = ['==', ['get', 'name'], 'value'];
+const comparisonFilter: GsFilterExpression = ['==', ['get', 'name'], 'value'];
 
-const nonComparisonFilter: FilterExpression = ['all', false, true];
+const nonComparisonFilter: OlFilterExpression = ['all', false, true];
 
 const primitives = {
   // eslint-disable-next-line id-blacklist
@@ -150,43 +150,85 @@ describe('OlFlatStyleUtil', () => {
     });
   });
 
-  describe('isFilter', () => {
+  describe('isOlFilter', () => {
     it('returns true for a filter', () => {
-      const isFilter = OlFlatStyleUtil.isFilter(comparisonFilter);
+      const isFilter = OlFlatStyleUtil.isOlFilter(comparisonFilter);
       expect(isFilter).toBe(true);
     });
     it('returns false for primitives', () => {
       Object.keys(primitives).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isFilter(primitives[key]);
+        const isFilter = OlFlatStyleUtil.isOlFilter(primitives[key]);
         expect(isFilter).toBe(false);
       });
     });
     it('returns false for objects and non-filter arrays', () => {
       Object.keys(objects).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isFilter(objects[key]);
+        const isFilter = OlFlatStyleUtil.isOlFilter(objects[key]);
         expect(isFilter).toBe(false);
       });
     });
   });
 
-  describe('isComparisonFilter', () => {
+  describe('isGsFilter', () => {
+    it('returns true for a filter', () => {
+      const isFilter = OlFlatStyleUtil.isGsFilter(comparisonFilter);
+      expect(isFilter).toBe(true);
+    });
+    it('returns false for primitives', () => {
+      Object.keys(primitives).forEach((key) => {
+        const isFilter = OlFlatStyleUtil.isGsFilter(primitives[key]);
+        expect(isFilter).toBe(false);
+      });
+    });
+    it('returns false for objects and non-filter arrays', () => {
+      Object.keys(objects).forEach((key) => {
+        const isFilter = OlFlatStyleUtil.isGsFilter(objects[key]);
+        expect(isFilter).toBe(false);
+      });
+    });
+  });
+
+  describe('isOlComparisonFilter', () => {
     it('returns true for a comparison filter', () => {
-      const isComparisonFilter = OlFlatStyleUtil.isComparisonFilter(comparisonFilter);
+      const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(comparisonFilter);
       expect(isComparisonFilter).toBe(true);
     });
     it('returns false for primitives', () => {
       Object.keys(primitives).forEach((key) => {
-        const isComparisonFilter = OlFlatStyleUtil.isComparisonFilter(primitives[key]);
+        const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(primitives[key]);
         expect(isComparisonFilter).toBe(false);
       });
     });
     it('returns false for non-comparison-filter arrays', () => {
-      const isComparisonFilter = OlFlatStyleUtil.isComparisonFilter(nonComparisonFilter);
+      const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(nonComparisonFilter);
       expect(isComparisonFilter).toBe(false);
     });
     it('returns false for objects and non-filter arrays', () => {
       Object.keys(objects).forEach((key) => {
-        const isComparisonFilter = OlFlatStyleUtil.isComparisonFilter(objects[key]);
+        const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(objects[key]);
+        expect(isComparisonFilter).toBe(false);
+      });
+    });
+  });
+
+  describe('isGsComparisonFilter', () => {
+    it('returns true for a comparison filter', () => {
+      const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(comparisonFilter);
+      expect(isComparisonFilter).toBe(true);
+    });
+    it('returns false for primitives', () => {
+      Object.keys(primitives).forEach((key) => {
+        const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(primitives[key]);
+        expect(isComparisonFilter).toBe(false);
+      });
+    });
+    it('returns false for non-comparison-filter arrays', () => {
+      const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(nonComparisonFilter);
+      expect(isComparisonFilter).toBe(false);
+    });
+    it('returns false for objects and non-filter arrays', () => {
+      Object.keys(objects).forEach((key) => {
+        const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(objects[key]);
         expect(isComparisonFilter).toBe(false);
       });
     });

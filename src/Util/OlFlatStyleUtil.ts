@@ -1,4 +1,6 @@
 import { invert } from 'lodash';
+
+import { EncodedExpression } from 'ol/expr/expression';
 import {
   FlatStyle,
   FlatStyleLike,
@@ -23,7 +25,7 @@ import OlStyleUtil from './OlStyleUtil';
 
 export type Expression = any[];
 
-const comparisonFilterNames = [
+const olComparisonFilterNames = [
   '==',
   '!=',
   '<',
@@ -33,18 +35,38 @@ const comparisonFilterNames = [
   'between',
 ];
 
-const filterNames = [
-  ...comparisonFilterNames,
+const olFilterNames = [
+  ...olComparisonFilterNames,
   'all',
   'any',
   '!'
 ];
 
-export type FilterExpression = [typeof filterNames[number], ...any[]];
-export type ComparisonFilterExpression = [typeof comparisonFilterNames[number], ...any[]];
+export type OlFilterExpression = [typeof olFilterNames[number], ...any[]];
+export type OlComparisonFilterExpression = [typeof olComparisonFilterNames[number], ...any[]];
+
+const gsComparisonFilterNames = [
+  '==',
+  '!=',
+  '<',
+  '<=',
+  '>',
+  '>=',
+  '<=x<=',
+];
+
+const gsFilterNames = [
+  ...gsComparisonFilterNames,
+  '&&',
+  '||',
+  '!'
+];
+
+export type GsFilterExpression = [typeof gsFilterNames[number], ...any[]];
+export type GsComparisonFilterExpression = [typeof gsComparisonFilterNames[number], ...any[]];
 
 // TODO continue here
-const filterNameMap: Record<Operator, typeof filterNames[number] | null> = {
+const filterNameMap: Record<Operator, typeof olFilterNames[number] | null> = {
   '==': '==',
   '*=': null,
   '!=': '!=',
@@ -58,8 +80,8 @@ const filterNameMap: Record<Operator, typeof filterNames[number] | null> = {
   '!': '!',
 };
 
-const invertedFilterMap: Partial<Record<typeof filterNames[number], Operator>> =
-  invert(filterNameMap) as Partial<Record<typeof filterNames[number], Operator>> ;
+const invertedFilterMap: Partial<Record<typeof olFilterNames[number], Operator>> =
+  invert(filterNameMap) as Partial<Record<typeof olFilterNames[number], Operator>> ;
 
 const expressionNames = [
   'get',
@@ -227,7 +249,7 @@ class OlFlatStyleUtil {
     return hasOperator && isExpressionName;
   }
 
-  public static isFilter(flatStyleProp: any): flatStyleProp is FilterExpression {
+  public static isOlFilter(flatStyleProp: any): flatStyleProp is OlFilterExpression {
     const isUndefined = flatStyleProp === undefined;
     const isArray = Array.isArray(flatStyleProp);
     if (isUndefined || !isArray) {
@@ -235,11 +257,23 @@ class OlFlatStyleUtil {
     }
 
     const hasOperator = typeof flatStyleProp[0] == 'string';
-    const isFilterName = filterNames.includes(flatStyleProp[0]);
+    const isFilterName = olFilterNames.includes(flatStyleProp[0]);
     return hasOperator && isFilterName;
   }
 
-  public static isComparisonFilter(filter: FilterExpression): filter is  ComparisonFilterExpression {
+  public static isGsFilter(flatStyleProp: any): flatStyleProp is GsFilterExpression {
+    const isUndefined = flatStyleProp === undefined;
+    const isArray = Array.isArray(flatStyleProp);
+    if (isUndefined || !isArray) {
+      return false;
+    }
+
+    const hasOperator = typeof flatStyleProp[0] == 'string';
+    const isFilterName = gsFilterNames.includes(flatStyleProp[0]);
+    return hasOperator && isFilterName;
+  }
+
+  public static isOlComparisonFilter(filter: OlFilterExpression): filter is OlComparisonFilterExpression {
     const isUndefined = filter === undefined;
     const isArray = Array.isArray(filter);
     if (isUndefined || !isArray) {
@@ -247,7 +281,19 @@ class OlFlatStyleUtil {
     }
 
     const hasOperator = typeof filter[0] == 'string';
-    const isComparisonFilterName = comparisonFilterNames.includes(filter[0]);
+    const isComparisonFilterName = olComparisonFilterNames.includes(filter[0]);
+    return hasOperator && isComparisonFilterName;
+  }
+
+  public static isGsComparisonFilter(filter: GsFilterExpression): filter is GsComparisonFilterExpression {
+    const isUndefined = filter === undefined;
+    const isArray = Array.isArray(filter);
+    if (isUndefined || !isArray) {
+      return false;
+    }
+
+    const hasOperator = typeof filter[0] == 'string';
+    const isComparisonFilterName = gsComparisonFilterNames.includes(filter[0]);
     return hasOperator && isComparisonFilterName;
   }
 
@@ -412,15 +458,15 @@ class OlFlatStyleUtil {
 
   public static olFilterToGsFilter(olFilter: any): Filter | undefined {
     const isExpression = OlFlatStyleUtil.isExpression(olFilter);
-    const isFilter = OlFlatStyleUtil.isFilter(olFilter);
-    const isComparisonFilter = OlFlatStyleUtil.isComparisonFilter(olFilter);
+    const isFilter = OlFlatStyleUtil.isOlFilter(olFilter);
     if (!isFilter && !isExpression) {
       return olFilter;
     }
 
     let filter: Filter;
     if (isFilter) {
-      const olExpressionName = olFilter[0] as typeof filterNames[number];
+      const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(olFilter);
+      const olExpressionName = olFilter[0] as typeof olFilterNames[number];
       const filterName = invertedFilterMap[olExpressionName];
       const args = olFilter.slice(1);
 
@@ -439,6 +485,41 @@ class OlFlatStyleUtil {
       ] as Filter;
     } else {
       filter = OlFlatStyleUtil.olExpressionToGsExpression(olFilter);
+    }
+
+    return filter;
+  }
+
+  public static gsFilterToOlFilter(gsFilter: any): EncodedExpression | undefined {
+    const isExpression = OlFlatStyleUtil.isExpression(gsFilter);
+    const isFilter = OlFlatStyleUtil.isGsFilter(gsFilter);
+    if (!isFilter && !isExpression) {
+      return gsFilter;
+    }
+
+    let filter: EncodedExpression;
+    if (isFilter) {
+      const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(gsFilter);
+      const gsExpressionName = gsFilter[0] as Operator;
+      const filterName = filterNameMap[gsExpressionName];
+      const args = gsFilter.slice(1);
+
+      let propertyName = args.shift();
+      // In OpenLayers, the first argument of a comparison filter
+      // can be the property name as 'get' expression. So if the first argument
+      // is a plain string, we convert it to a 'get' expression.
+      if (typeof propertyName === 'string' && isComparisonFilter) {
+        propertyName = ['get', propertyName];
+      }
+
+      filter = [
+        filterName,
+        OlFlatStyleUtil.gsFilterToOlFilter(propertyName),
+        ...args.map(OlFlatStyleUtil.gsFilterToOlFilter)
+      ] as EncodedExpression;
+    } else {
+      //TODO: filter = OlFlatStyleUtil.gsExpressionToOlExpression(gsFilter);
+      filter = gsFilter
     }
 
     return filter;

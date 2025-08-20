@@ -16,6 +16,7 @@ import {
   UnsupportedProperties,
   WriteStyleResult
 } from 'geostyler-style';
+import { EncodedExpression } from 'ol/expr/expression';
 import {
   FlatStyle,
   FlatStyleLike,
@@ -525,6 +526,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       const scale = resolution * mpu * inchesPerMeter * dpi; */
 
       rules.forEach((rule: Rule) => {
+        let flatFilter: EncodedExpression | undefined;
         const flatStyles: FlatStyle[] = [];
 
         // handling scale denominator
@@ -553,6 +555,9 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
             matchesFilter = false;
           }
         } */
+        if (rule.filter) {
+          flatFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+        }
 
         //if (isWithinScale && matchesFilter) {
           rule.symbolizers.forEach((symb: Symbolizer) => {
@@ -581,6 +586,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           });
         //}
         flatRules.push({
+          ...(flatFilter ? { filter: flatFilter } : {}),
           style: flatStyles.length === 1 ? flatStyles[0] : flatStyles,
         });
       });
