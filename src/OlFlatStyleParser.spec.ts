@@ -5,11 +5,14 @@ import OlFlatStyleParser from './OlFlatStyleParser';
 import polygonSimple from '../data/styles/polygon_simple';
 import lineSimpleLine from '../data/styles/line_simpleline';
 import textPlacementLine from '../data/styles/text_placement_line';
-import point_icon from '../data/styles/point_icon';
-import point_icon_sprite from '../data/styles/point_icon_sprite';
 import pointIconSimple from '../data/styles/point_icon_simple';
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_simpleoffset from '../data/styles/point_simpleoffset';
+import point_icon from '../data/styles/point_icon';
+import point_icon_sprite from '../data/styles/point_icon_sprite';
+import point_simplesquare from '../data/styles/point_simplesquare';
+import point_simplestar from '../data/styles/point_simplestar';
+import point_simpletriangle from '../data/styles/point_simpletriangle';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import filterSimpleFilter from '../data/styles/filter_simpleFilter';
@@ -18,11 +21,14 @@ import filterNestedFilter from '../data/styles/filter_nestedFilter';
 import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
 import flat_line_simpleline from '../data/olFlatStyles/line_simpleline';
 import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
-import flat_point_icon from '../data/olFlatStyles/point_icon';
-import flat_point_icon_sprite from '../data/olFlatStyles/point_icon_sprite';
 import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
 import flat_point_simpleoffset from '../data/olFlatStyles/point_simpleoffset';
+import flat_point_icon from '../data/olFlatStyles/point_icon';
+import flat_point_icon_sprite from '../data/olFlatStyles/point_icon_sprite';
+import flat_point_simplesquare from '../data/olFlatStyles/point_simplesquare';
+import flat_point_simplestar from '../data/olFlatStyles/point_simplestar';
+import flat_point_simpletriangle from '../data/olFlatStyles/point_simpletriangle';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
 import flat_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
 import flat_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
@@ -72,6 +78,21 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_icon_sprite);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_icon_sprite);
+    });
+    it('can read an OpenLayers Flat MarkSymbolizer as WellKnownName Square', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simplesquare);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simplesquare);
+    });
+    it('can read an OpenLayers Flat MarkSymbolizer as WellKnownName Star', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simplestar);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simplestar);
+    });
+    it('can read an OpenLayers Flat MarkSymbolizer as WellKnownName Triangle', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simpletriangle);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simpletriangle);
     });
 
     it('reads a FlatFill style', async () => {
@@ -168,6 +189,21 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: flatStyle } = await styleParser.writeStyle(point_icon_sprite);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_icon_sprite);
+    });
+    it('can write an OpenLayers Flat MarkSymbolizer square', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_simplesquare);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_simplesquare);
+    });
+    it('can write an OpenLayers Flat MarkSymbolizer star', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_simplestar);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_simplestar);
+    });
+    it('can write an OpenLayers Flat MarkSymbolizer triangle', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_simpletriangle);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_simpletriangle);
     });
 
     it('writes a FlatFill style', async () => {

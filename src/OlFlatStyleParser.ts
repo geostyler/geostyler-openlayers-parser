@@ -21,6 +21,7 @@ import {
   createDefaultStyle,
   FlatCircle,
   Rule as FlatRule,
+  FlatShape,
   FlatStyle,
   FlatStyleLike
 } from 'ol/style/flat';
@@ -308,6 +309,33 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ),
     };
   }
+  
+  flatShapeStyleToGeoStylerMarkSymbolizer(flatStyle: FlatStyle): MarkSymbolizer {
+    const [fillColor, fillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['shape-fill-color'])
+      ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['shape-fill-color'])]
+      : OlFlatStyleUtil.getColorAndOpacity(flatStyle['shape-fill-color']);
+
+    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isExpression(flatStyle['shape-stroke-color'])
+      ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['shape-stroke-color'])]
+      : OlFlatStyleUtil.getColorAndOpacity(flatStyle['shape-stroke-color']);
+
+    const wellKnownName = flatStyle['shape-points'] === 3 ? 'triangle' :
+      flatStyle['shape-points'] === 4 ? 'square' : 'star';
+
+    // TODO add other shape properties
+    return {
+      kind: 'Mark',
+      wellKnownName,
+      color: fillColor,
+      opacity: fillOpacity,
+      strokeColor,
+      strokeOpacity,
+      strokeWidth: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['shape-stroke-width']),
+      radius: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['shape-radius']),
+      offset: OlFlatStyleUtil.olExpressionToGsExpression<[number, number]>(flatStyle['shape-displacement']),
+      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['shape-rotation']) || 0,
+    };
+  }
 
   flatStyleToGeoStylerSymbolizers(flatStyle: FlatStyle): Symbolizer[] {
     const symbolizers: Symbolizer[] = [];
@@ -332,7 +360,10 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       symbolizers.push(this.flatCircleStyleToGeoStylerMarkSymbolizer(flatStyle));
     }
 
-    // TODO add support for FlatShape
+    if (OlFlatStyleUtil.hasFlatShape(flatStyle)) {
+      symbolizers.push(this.flatShapeStyleToGeoStylerMarkSymbolizer(flatStyle));
+    }
+
     return symbolizers;
   }
 
@@ -916,35 +947,41 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           ...(baseProps.displacement ? { 'circle-displacement': baseProps.displacement } : {}),
         } as FlatCircle
         break;
-      /* case 'square':
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 4,
-            angle: 45 * Math.PI / 180
-          })
-        });
+      case 'square':
+        flatStyle = {
+          'shape-points': 4,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
+          ...(baseProps.sWidth ? { 'shape-stroke-width': baseProps.sWidth } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
         break;
       case 'triangle':
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 3,
-            angle: 0
-          })
-        });
+        flatStyle = {
+          'shape-points': 3,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
+          ...(baseProps.sWidth ? { 'shape-stroke-width': baseProps.sWidth } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
         break;
       case 'star':
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 5,
-            radius2: shapeOpts.radius! / 2.5,
-            angle: 0
-          })
-        });
+        flatStyle = {
+          'shape-points': 5,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
+          ...(baseProps.sWidth ? { 'shape-stroke-width': baseProps.sWidth } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-radius2': 2,
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
         break;
-      case 'shape://plus':
+      /* case 'shape://plus':
       case 'cross':
         // openlayers does not seem to set a default stroke color,
         // which is needed for regularshapes with radius2 = 0
