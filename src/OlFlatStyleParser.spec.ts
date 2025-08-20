@@ -6,21 +6,21 @@ import polygonSimple from '../data/styles/polygon_simple';
 import lineSimpleLine from '../data/styles/line_simpleline';
 import textPlacementLine from '../data/styles/text_placement_line';
 import pointIconSimple from '../data/styles/point_icon_simple';
-import pointSimplePoint from '../data/styles/point_simplepoint';
-import multiSimpleFillSimpleLine from '../data/styles/multi_simplefillSimpleline';
-import multiTwoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
+import point_simplepoint from '../data/styles/point_simplepoint';
+import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
+import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import filterSimpleFilter from '../data/styles/filter_simpleFilter';
 import filterNestedFilter from '../data/styles/filter_nestedFilter';
 
-import ol_polygon_simple from '../data/olFlatStyles/polygon_simple';
-import ol_line_simpleline from '../data/olFlatStyles/line_simpleline';
-import ol_text_placement_line from '../data/olFlatStyles/text_placement_line';
-import ol_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
-import ol_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
-import ol_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
-import ol_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
-import ol_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
-import ol_filter_nestedFilter from '../data/olFlatStyles/filter_nestedFilter';
+import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
+import flat_line_simpleline from '../data/olFlatStyles/line_simpleline';
+import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
+import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
+import flat_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
+import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
+import flat_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
+import flat_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
+import flat_filter_nestedFilter from '../data/olFlatStyles/filter_nestedFilter';
 
 it('OlFlatStyleParser is defined', () => {
   expect(OlFlatStyleParser).toBeDefined();
@@ -37,57 +37,72 @@ describe('OlFlatStyleParser implements StyleParser', () => {
     it('is defined', () => {
       expect(styleParser.readStyle).toBeDefined();
     });
+    it('can read an OpenLayers Flat Style', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simplepoint);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simplepoint);
+    });
+    it('can read an OpenLayers Flat Style Array', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle([flat_point_simplepoint]);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simplepoint);
+    });
+    it('can read an OpenLayers Flat PointSymbolizer', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simplepoint);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simplepoint);
+    });
 
     it('reads a FlatFill style', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_polygon_simple);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_polygon_simple);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(polygonSimple);
     });
 
     it('reads a FlatStroke style', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_line_simpleline);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_line_simpleline);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(lineSimpleLine);
     });
 
     it('reads a FlatText style', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_text_placement_line);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_text_placement_line);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(textPlacementLine);
     });
 
     it('reads a FlatIcon style', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_point_icon_simple);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_point_icon_simple);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(pointIconSimple);
     });
 
     it('reads a FlatCircle style', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_point_simplepoint);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_point_simplepoint);
       expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(pointSimplePoint);
+      expect(geostylerStyle).toEqual(point_simplepoint);
     });
 
     it('reads a style from a FlatStyleArray', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_multi_simplefillSimpleline);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_multi_simplefillSimpleline);
       expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(multiSimpleFillSimpleLine);
+      expect(geostylerStyle).toEqual(multi_simplefillSimpleline);
     });
 
     it('reads a style from a FlatRuleArray', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_multi_twoRulesSimplepoint);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_multi_twoRulesSimplepoint);
       expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(multiTwoRulesSimplepoint);
+      expect(geostylerStyle).toEqual(multi_twoRulesSimplepoint);
     });
 
     it('reads a filter', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_filter_simpleFilter);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_filter_simpleFilter);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(filterSimpleFilter);
     });
 
     it('reads a nested filter', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(ol_filter_nestedFilter);
+      const { output: geostylerStyle } = await styleParser.readStyle(flat_filter_nestedFilter);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(filterNestedFilter);
     });
@@ -97,59 +112,80 @@ describe('OlFlatStyleParser implements StyleParser', () => {
     it('is defined', () => {
       expect(styleParser.writeStyle).toBeDefined();
     });
+    it('returns the right output format', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_simplepoint);
+      const { output: flatStyles } = await styleParser.writeStyle(multi_simplefillSimpleline);
+      const { output: flatRules } = await styleParser.writeStyle(multi_twoRulesSimplepoint);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyles).toBeDefined();
+      expect(flatRules).toBeDefined();
+      expect(Array.isArray(flatStyles)).toBe(true);
+      expect(flatStyles).toHaveLength(2);
+      expect(flatStyles![0]).not.toHaveProperty('style');
+      expect(flatStyles![1]).not.toHaveProperty('style');
+      expect(Array.isArray(flatRules)).toBe(true);
+      expect(flatRules).toHaveLength(2);
+      expect(flatRules![0]).toHaveProperty('style');
+      expect(flatRules![1]).toHaveProperty('style');
+    });
+    it('can write an OpenLayers Flat PointSymbolizer', async () => {
+      let { output: flatStyle } = await styleParser.writeStyle(point_simplepoint);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_simplepoint);
+    });
 
     it('writes a FlatFill style', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(polygonSimple);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_polygon_simple);
+      expect(flatStyle).toEqual(flat_polygon_simple);
     });
 
     it('writes a FlatStroke style', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(lineSimpleLine);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_line_simpleline);
+      expect(flatStyle).toEqual(flat_line_simpleline);
     });
 
     it('writes a FlatText style', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(textPlacementLine);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_text_placement_line);
+      expect(flatStyle).toEqual(flat_text_placement_line);
     });
 
     it('writes a FlatIcon style', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(pointIconSimple);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_point_icon_simple);
+      expect(flatStyle).toEqual(flat_point_icon_simple);
     });
 
     it('writes a FlatCircle style', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(pointSimplePoint);
+      const { output: flatStyle } = await styleParser.writeStyle(point_simplepoint);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_point_simplepoint);
+      expect(flatStyle).toEqual(flat_point_simplepoint);
     });
 
     it('writes a FlatStyleArray style', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(multiSimpleFillSimpleLine);
+      const { output: flatStyle } = await styleParser.writeStyle(multi_simplefillSimpleline);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_multi_simplefillSimpleline);
+      expect(flatStyle).toEqual(flat_multi_simplefillSimpleline);
     });
 
     it('writes a FlatRuleArray style', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(multiTwoRulesSimplepoint);
+      const { output: flatStyle } = await styleParser.writeStyle(multi_twoRulesSimplepoint);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_multi_twoRulesSimplepoint);
+      expect(flatStyle).toEqual(flat_multi_twoRulesSimplepoint);
     });
 
     it('writes a filter', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(filterSimpleFilter);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_filter_simpleFilter);
+      expect(flatStyle).toEqual(flat_filter_simpleFilter);
     });
 
     it('writes a nested filter', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(filterNestedFilter);
       expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(ol_filter_nestedFilter);
+      expect(flatStyle).toEqual(flat_filter_nestedFilter);
     });
   });
 });
