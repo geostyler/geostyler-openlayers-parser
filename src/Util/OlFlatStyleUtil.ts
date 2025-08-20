@@ -349,6 +349,11 @@ class OlFlatStyleUtil {
     return hasCircleRadius;
   }
 
+  public static hasFlatShape(flatStyle: FlatStyle) {
+    const hasShapePoints = ('shape-points' in flatStyle) && flatStyle['shape-points'] !== undefined;
+    return hasShapePoints;
+  }
+
   public static olExpressionToGsExpression<T extends PropertyType>(olExpression: any): StyleExpression<T> {
     if (!OlFlatStyleUtil.isExpression(olExpression)) {
       return olExpression;

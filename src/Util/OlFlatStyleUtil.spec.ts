@@ -1,4 +1,13 @@
-import { FlatStyle, Rule } from 'ol/style/flat';
+import {
+  FlatCircle,
+  FlatFill,
+  FlatIcon,
+  FlatShape,
+  FlatStroke,
+  FlatStyle,
+  FlatText,
+  Rule
+} from 'ol/style/flat';
 import OlFlatStyleUtil, { type GsFilterExpression, type OlFilterExpression } from './OlFlatStyleUtil';
 import { ColorLike } from 'ol/colorlike';
 import { Color } from 'ol/color';
@@ -49,24 +58,28 @@ const rgbaString: ColorLike = 'rgba(255, 0, 0, 1)';
 const hexString: ColorLike = '#FF0000';
 const hexStringWithAlpha: ColorLike = '#FF0000FF';
 
-const flatFill: FlatStyle = {
+const flatFill: FlatFill = {
   'fill-color': '#FF0000',
 };
 
-const flatStroke: FlatStyle = {
+const flatStroke: FlatStroke = {
   'stroke-color': '#FF0000'
 };
 
-const flatText: FlatStyle = {
+const flatText: FlatText = {
   'text-value': 'foo'
 };
 
-const flatIcon: FlatStyle = {
+const flatIcon: FlatIcon = {
   'icon-src': 'foo.png'
 };
 
-const flatCircle: FlatStyle = {
+const flatCircle: FlatCircle = {
   'circle-radius': 6
+};
+
+const flatShape: FlatShape = {
+  'shape-points': 4
 };
 
 describe('OlFlatStyleUtil', () => {
@@ -373,6 +386,37 @@ describe('OlFlatStyleUtil', () => {
     });
     it('returns false for a flat icon', () => {
       const hasFlatCircle = OlFlatStyleUtil.hasFlatCircle(flatIcon);
+      expect(hasFlatCircle).toBe(false);
+    });
+    it('returns false for a flat shape', () => {
+      const hasFlatCircle = OlFlatStyleUtil.hasFlatCircle(flatShape);
+      expect(hasFlatCircle).toBe(false);
+    });
+  });
+
+  describe('hasFlatShape', () => {
+    it('returns true for a flat shape', () => {
+      const hasFlatCircle = OlFlatStyleUtil.hasFlatShape(flatShape);
+      expect(hasFlatCircle).toBe(true);
+    });
+    it('returns false for a flat fill', () => {
+      const hasFlatCircle = OlFlatStyleUtil.hasFlatShape(flatFill);
+      expect(hasFlatCircle).toBe(false);
+    });
+    it('returns false for a flat stroke', () => {
+      const hasFlatCircle = OlFlatStyleUtil.hasFlatShape(flatStroke);
+      expect(hasFlatCircle).toBe(false);
+    });
+    it('returns false for a flat text', () => {
+      const hasFlatCircle = OlFlatStyleUtil.hasFlatShape(flatText);
+      expect(hasFlatCircle).toBe(false);
+    });
+    it('returns false for a flat icon', () => {
+      const hasFlatCircle = OlFlatStyleUtil.hasFlatShape(flatIcon);
+      expect(hasFlatCircle).toBe(false);
+    });
+    it('returns false for a flat circle', () => {
+      const hasFlatCircle = OlFlatStyleUtil.hasFlatShape(flatCircle);
       expect(hasFlatCircle).toBe(false);
     });
   });
