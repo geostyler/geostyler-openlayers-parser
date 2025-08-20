@@ -14,6 +14,7 @@ import {
   Symbolizer,
   TextSymbolizer,
   UnsupportedProperties,
+  WellKnownName,
   WriteStyleResult
 } from 'geostyler-style';
 import { EncodedExpression } from 'ol/expr/expression';
@@ -319,8 +320,21 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['shape-stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['shape-stroke-color']);
 
-    const wellKnownName = flatStyle['shape-points'] === 3 ? 'triangle' :
-      flatStyle['shape-points'] === 4 ? 'square' : 'star';
+    let wellKnownName: WellKnownName = 'star';
+    if (flatStyle['shape-points'] === 3) {
+      wellKnownName = 'triangle';
+    } else if (flatStyle['shape-points'] === 4) {
+      if (flatStyle['shape-radius2'] === 0) {
+        if (!flatStyle['shape-angle']) {
+          wellKnownName = 'cross';
+        }
+        if (flatStyle['shape-angle'] === Math.PI / 4) {
+          wellKnownName = 'x';
+        }
+      } else {
+        wellKnownName = 'square';
+      }
+    }
 
     // TODO add other shape properties
     return {
@@ -981,43 +995,30 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
         } as FlatShape;
         break;
-      /* case 'shape://plus':
+      case 'shape://plus':
       case 'cross':
-        // openlayers does not seem to set a default stroke color,
-        // which is needed for regularshapes with radius2 = 0
-        if (shapeOpts.stroke === undefined) {
-          shapeOpts.stroke = new this.OlStyleStrokeConstructor({
-            color: '#000'
-          });
-        }
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 4,
-            radius2: 0,
-            angle: 0
-          })
-        });
+        flatStyle = {
+          'shape-points': 4,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-radius2': 0,
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
         break;
       case 'shape://times':
       case 'x':
-        // openlayers does not seem to set a default stroke color,
-        // which is needed for regularshapes with radius2 = 0
-        if (shapeOpts.stroke === undefined) {
-          shapeOpts.stroke = new this.OlStyleStrokeConstructor({
-            color: '#000'
-          });
-        }
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 4,
-            radius2: 0,
-            angle: 45 * Math.PI / 180
-          })
-        });
+        flatStyle = {
+          'shape-points': 4,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-radius2': 0,
+          'shape-angle': 45 * Math.PI / 180,
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
         break;
-      case 'shape://backslash':
+      /* case 'shape://backslash':
         // openlayers does not seem to set a default stroke color,
         // which is needed for regularshapes with radius2 = 0
         if (shapeOpts.stroke === undefined) {
