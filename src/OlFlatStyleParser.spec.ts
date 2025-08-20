@@ -5,6 +5,8 @@ import OlFlatStyleParser from './OlFlatStyleParser';
 import polygonSimple from '../data/styles/polygon_simple';
 import lineSimpleLine from '../data/styles/line_simpleline';
 import textPlacementLine from '../data/styles/text_placement_line';
+import point_icon from '../data/styles/point_icon';
+import point_icon_sprite from '../data/styles/point_icon_sprite';
 import pointIconSimple from '../data/styles/point_icon_simple';
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_simpleoffset from '../data/styles/point_simpleoffset';
@@ -16,6 +18,8 @@ import filterNestedFilter from '../data/styles/filter_nestedFilter';
 import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
 import flat_line_simpleline from '../data/olFlatStyles/line_simpleline';
 import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
+import flat_point_icon from '../data/olFlatStyles/point_icon';
+import flat_point_icon_sprite from '../data/olFlatStyles/point_icon_sprite';
 import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
 import flat_point_simpleoffset from '../data/olFlatStyles/point_simpleoffset';
@@ -58,6 +62,16 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simpleoffset);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simpleoffset);
+    });
+    it('can read an OpenLayers Flat IconSymbolizer', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_icon);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_icon);
+    });
+    it('can read an OpenLayers Flat IconSymbolizer with a sprite', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_icon_sprite);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_icon_sprite);
     });
 
     it('reads a FlatFill style', async () => {
@@ -144,6 +158,16 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       let { output: flatStyle } = await styleParser.writeStyle(point_simpleoffset);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_simpleoffset);
+    });
+    it('can write an OpenLayers Flat IconSymbolizer', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_icon);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_icon);
+    });
+    it('can write an OpenLayers Flat IconSymbolizer with a sprite', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_icon_sprite);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_icon_sprite);
     });
 
     it('writes a FlatFill style', async () => {

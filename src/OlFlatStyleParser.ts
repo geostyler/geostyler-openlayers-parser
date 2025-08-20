@@ -18,12 +18,13 @@ import {
 } from 'geostyler-style';
 import { EncodedExpression } from 'ol/expr/expression';
 import {
-  FlatStyle,
-  FlatStyleLike,
-  Rule as FlatRule,
   createDefaultStyle,
-  FlatCircle
+  FlatCircle,
+  Rule as FlatRule,
+  FlatStyle,
+  FlatStyleLike
 } from 'ol/style/flat';
+import { IconOrigin } from 'ol/style/Icon';
 import OlFlatStyleUtil from './Util/OlFlatStyleUtil';
 import OlStyleUtil from './Util/OlStyleUtil';
 
@@ -258,15 +259,28 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
   }
 
   flatStyleToGeoStylerIconSymbolizer(flatStyle: FlatStyle): IconSymbolizer {
+    let image;
+    // If source, offset and size are defined, we assume that the image is a sprite.
+    if (flatStyle['icon-src'] && flatStyle['icon-offset'] && flatStyle['icon-size']) {
+      image = {
+        source: flatStyle['icon-src'],
+        position: flatStyle['icon-offset'] as [number, number],
+        size: flatStyle['icon-size'] as [number, number],
+      };
+    } else {
+      image = flatStyle['icon-src'];
+    }
+
     // TODO add missing properties
     return {
       kind: 'Icon',
-      image: flatStyle['icon-src'],
-      offset: OlFlatStyleUtil.olExpressionToGsExpression<[number, number]>(
-        flatStyle['icon-offset']
-      ),
+      image,
       opacity: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-opacity']),
-      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-rotation'])
+      size: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-width']),
+      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-rotation']),
+      offset: OlFlatStyleUtil.olExpressionToGsExpression<[number, number]>(
+        flatStyle['icon-displacement']
+      ),
     };
   }
 
@@ -819,68 +833,23 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    */
   flatStyleFromIconSymbolizer(
     symbolizer: IconSymbolizer,
-    /* feat?: OlFeature */
   ): FlatStyle {
-    /* for (const key of Object.keys(symbolizer)) {
-      if (isGeoStylerFunction(symbolizer[key as keyof IconSymbolizer])) {
-        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
-      }
-    } */
-
     const flatStyle = {
-      ...(symbolizer.image !== undefined
-        ? { 'icon-src': isSprite(symbolizer.image)
+      'icon-src': isSprite(symbolizer.image)
           ? (symbolizer.image.source as string)
-          : (symbolizer.image as string) }
-        : {}),
+          : (symbolizer.image as string),
       ...(symbolizer.opacity !== undefined ? { 'icon-opacity': symbolizer.opacity as number } : {}),
+      ...(symbolizer.size ? { 'icon-width': symbolizer.size as number } : {}),
       ...(typeof(symbolizer.rotate) === 'number' ? { 'icon-rotation': symbolizer.rotate } : {}),
-      ...(symbolizer.offset ? { 'icon-offset': symbolizer.offset as [number, number] } : {}),
+      ...(symbolizer.offset ? { 'icon-displacement': symbolizer.offset as [number, number] } : {}),
+      ...(isSprite(symbolizer.image) ? {
+        'icon-size': symbolizer.image.size as [number, number],
+        'icon-offset': symbolizer.image.position as [number, number],
+        'icon-offset-origin': 'top-left' as IconOrigin,
+      } : {}),
     };
 
-    /* // check if IconSymbolizer.image contains a placeholder
-    const prefix = '\\{\\{';
-    const suffix = '\\}\\}';
-    const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
-    const regExpRes = typeof(symbolizer.image) === 'string' ? symbolizer.image.match(regExp) : null;
-    if (regExpRes) {
-      // if it contains a placeholder
-      // return olStyleFunction
-      const olPointStyledIconFn = (feature: any) => {
-        let src: string = OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.image as string, '');
-        // src can't be blank, would trigger ol errors
-        if (!src) {
-          src = symbolizer.image + '';
-        }
-        let image;
-        if (this.olIconStyleCache[src]) {
-          image = this.olIconStyleCache[src];
-          if (baseProps.rotation !== undefined) {
-            image.setRotation(baseProps.rotation);
-          }
-          if (baseProps.opacity !== undefined) {
-            image.setOpacity(baseProps.opacity);
-          }
-        } else {
-          image = new this.OlStyleIconConstructor({
-            ...baseProps,
-            src // order is important
-          });
-          this.olIconStyleCache[src] = image;
-        }
-        const style = new this.OlStyleConstructor({
-          image
-        });
-        return style;
-      };
-      return olPointStyledIconFn;
-    } else {
-      return new this.OlStyleConstructor({
-        image: new this.OlStyleIconConstructor({
-          ...baseProps
-        })
-      });
-    } */
+    // TODO add support for placeholder
 
     return flatStyle;
   }
