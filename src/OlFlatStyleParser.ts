@@ -321,7 +321,20 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['shape-stroke-color']);
 
     let wellKnownName: WellKnownName = 'star';
-    if (flatStyle['shape-points'] === 3) {
+    if (flatStyle['shape-points'] === 2) {
+      if (flatStyle['shape-angle'] === Math.PI / 4) {
+        wellKnownName = 'shape://slash';
+      }
+      if (flatStyle['shape-angle'] === 2 * Math.PI - (Math.PI / 4)) {
+        wellKnownName = 'shape://backslash';
+      }
+      if (!flatStyle['shape-angle']) {
+        wellKnownName = 'shape://vertline';
+      }
+      if (flatStyle['shape-angle'] === Math.PI / 2) {
+        wellKnownName = 'shape://horline';
+      }
+    } else if (flatStyle['shape-points'] === 3) {
       wellKnownName = 'triangle';
     } else if (flatStyle['shape-points'] === 4) {
       if (flatStyle['shape-radius2'] === 0) {
@@ -1018,80 +1031,55 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
         } as FlatShape;
         break;
-      /* case 'shape://backslash':
-        // openlayers does not seem to set a default stroke color,
-        // which is needed for regularshapes with radius2 = 0
-        if (shapeOpts.stroke === undefined) {
-          shapeOpts.stroke = new this.OlStyleStrokeConstructor({
-            color: '#000'
-          });
-        }
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 2,
-            angle: 2 * Math.PI - (Math.PI / 4)
-          })
-        });
+      case 'shape://slash':
+        flatStyle = {
+          'shape-points': 2,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-angle': Math.PI / 4,
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
+        break;
+      case 'shape://backslash':
+        flatStyle = {
+          'shape-points': 2,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-angle': 2 * Math.PI - (Math.PI / 4),
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
+        break;
+      case 'shape://vertline':
+        flatStyle = {
+          'shape-points': 2,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
         break;
       case 'shape://horline':
-        // openlayers does not seem to set a default stroke color,
-        // which is needed for regularshapes with radius2 = 0
-        if (shapeOpts.stroke === undefined) {
-          shapeOpts.stroke = new this.OlStyleStrokeConstructor({
-            color: '#000'
-          });
-        }
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 2,
-            angle: Math.PI / 2
-          })
-        });
+        flatStyle = {
+          'shape-points': 2,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-angle': Math.PI / 2,
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
         break;
       // so far, both arrows are closed arrows. Also, shape is a regular triangle with
       // all sides of equal length. In geoserver arrows only have two sides of equal length.
       // TODO redefine shapes of arrows?
-      case 'shape://oarrow':
+      /* case 'shape://oarrow':
       case 'shape://carrow':
         olStyle = new this.OlStyleConstructor({
           image: new this.OlStyleRegularshapeConstructor({
             ...shapeOpts,
             points: 3,
             angle: Math.PI / 2
-          })
-        });
-        break;
-      case 'shape://slash':
-        // openlayers does not seem to set a default stroke color,
-        // which is needed for regularshapes with radius2 = 0
-        if (shapeOpts.stroke === undefined) {
-          shapeOpts.stroke = new this.OlStyleStrokeConstructor({
-            color: '#000'
-          });
-        }
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 2,
-            angle: Math.PI / 4
-          })
-        });
-        break;
-      case 'shape://vertline':
-        // openlayers does not seem to set a default stroke color,
-        // which is needed for regularshapes with radius2 = 0
-        if (shapeOpts.stroke === undefined) {
-          shapeOpts.stroke = new this.OlStyleStrokeConstructor({
-            color: '#000'
-          });
-        }
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 2,
-            angle: 0
           })
         });
         break; */
