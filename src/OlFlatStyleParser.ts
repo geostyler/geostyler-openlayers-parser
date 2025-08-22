@@ -320,7 +320,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['shape-stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['shape-stroke-color']);
 
-    let wellKnownName: WellKnownName = 'star';
+    let wellKnownName: WellKnownName;
     if (flatStyle['shape-points'] === 2) {
       if (flatStyle['shape-angle'] === Math.PI / 4) {
         wellKnownName = 'shape://slash';
@@ -335,7 +335,12 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         wellKnownName = 'shape://horline';
       }
     } else if (flatStyle['shape-points'] === 3) {
-      wellKnownName = 'triangle';
+      if (flatStyle['shape-angle'] === Math.PI / 2) {
+        wellKnownName = 'shape://carrow';
+        // TODO distinguish between carrow and oarrow
+      } else {
+        wellKnownName = 'triangle';
+      }
     } else if (flatStyle['shape-points'] === 4) {
       if (flatStyle['shape-radius2'] === 0) {
         if (!flatStyle['shape-angle']) {
@@ -347,12 +352,16 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       } else {
         wellKnownName = 'square';
       }
+    } else if (flatStyle['shape-points'] === 5) {
+      wellKnownName = 'star';
+    } else {
+      throw new Error('Could not determine WellKnownName from given FlatStyle.');
     }
 
     // TODO add other shape properties
     return {
       kind: 'Mark',
-      wellKnownName,
+      wellKnownName: wellKnownName!,
       color: fillColor,
       opacity: fillOpacity,
       strokeColor,
@@ -964,7 +973,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     };
 
     switch (symbolizer.wellKnownName) {
-      //case 'shape://dot':
+      case 'shape://dot':
       case 'circle':
         flatStyle = {
           'circle-radius': baseProps.radius as number,
@@ -1073,16 +1082,17 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       // so far, both arrows are closed arrows. Also, shape is a regular triangle with
       // all sides of equal length. In geoserver arrows only have two sides of equal length.
       // TODO redefine shapes of arrows?
-      /* case 'shape://oarrow':
+      case 'shape://oarrow':
       case 'shape://carrow':
-        olStyle = new this.OlStyleConstructor({
-          image: new this.OlStyleRegularshapeConstructor({
-            ...shapeOpts,
-            points: 3,
-            angle: Math.PI / 2
-          })
-        });
-        break; */
+        flatStyle = {
+          'shape-points': 3,
+          ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-angle': Math.PI / 2,
+          ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
+          ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
+        } as FlatShape;
+        break;
       default:
         /* if (OlStyleUtil.getIsFontGlyphBased(symbolizer)) {
           olStyle = new this.OlStyleConstructor({

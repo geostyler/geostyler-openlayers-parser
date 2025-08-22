@@ -19,6 +19,9 @@ import point_simpleslash from '../data/styles/point_simpleslash';
 import point_simplebackslash from '../data/styles/point_simplebackslash';
 import point_simplevertline from '../data/styles/point_simplevertline';
 import point_simplehorline from '../data/styles/point_simplehorline';
+import point_simplecarrow from '../data/styles/point_simplecarrow';
+import point_simpleoarrow from '../data/styles/point_simpleoarrow';
+import point_simpledot from '../data/styles/point_simpledot';
 import point_simplecross from '../data/styles/point_simplecross';
 import point_simplex from '../data/styles/point_simplex';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
@@ -43,6 +46,9 @@ import flat_point_simpleslash from '../data/olFlatStyles/point_simpleslash';
 import flat_point_simplebackslash from '../data/olFlatStyles/point_simplebackslash';
 import flat_point_simplevertline from '../data/olFlatStyles/point_simplevertline';
 import flat_point_simplehorline from '../data/olFlatStyles/point_simplehorline';
+import flat_point_simplecarrow from '../data/olFlatStyles/point_simplecarrow';
+import flat_point_simpleoarrow from '../data/olFlatStyles/point_simpleoarrow';
+import flat_point_simpledot from '../data/olFlatStyles/point_simpledot';
 import flat_point_simplecross from '../data/olFlatStyles/point_simplecross';
 import flat_point_simplex from '../data/olFlatStyles/point_simplex';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
@@ -139,6 +145,25 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simplehorline);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(point_simplehorline);
+    });
+    it('can read an OpenLayers Flat MarkSymbolizer as WellKnownName shape://carrow', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simplecarrow);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_simplecarrow);
+    });
+    it('can read an OpenLayers Flat MarkSymbolizer as WellKnownName shape://oarrow', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simpleoarrow);
+      expect(geoStylerStyle).toBeDefined();
+      // using point_simplecarrow here since reading OlStyle cannot distinguish
+      // between carrow and oarrow
+      expect(geoStylerStyle).toEqual(point_simplecarrow);
+    });
+    it('can read an OpenLayers Flat MarkSymbolizer as WellKnownName shape://dot', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simpledot);
+      expect(geoStylerStyle).toBeDefined();
+      // using point_simplepoint here since reading OlStyle cannot distinguish
+      // between circle and dot
+      expect(geoStylerStyle).toEqual(point_simplepoint);
     });
     it('can read an OpenLayers Flat MarkSymbolizer as WellKnownName shape://plus', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simpleplus);
@@ -294,6 +319,21 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: flatStyle } = await styleParser.writeStyle(point_simplehorline);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_simplehorline);
+    });
+    it('can write an OpenLayers Flat MarkSymbolizer shape://carrow', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_simplecarrow);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_simplecarrow);
+    });
+    it('can write an OpenLayers Flat MarkSymbolizer shape://oarrow', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_simpleoarrow);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_simplecarrow);
+    });
+    it('can write an OpenLayers Flat MarkSymbolizer shape://dot', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_simpledot);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_simpledot);
     });
     it('can write an OpenLayers Flat MarkSymbolizer shape://plus', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(point_simpleplus);
