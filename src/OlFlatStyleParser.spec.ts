@@ -3,7 +3,6 @@ import 'regenerator-runtime/runtime';
 import OlFlatStyleParser from './OlFlatStyleParser';
 
 import polygonSimple from '../data/styles/polygon_simple';
-import textPlacementLine from '../data/styles/text_placement_line';
 import pointIconSimple from '../data/styles/point_icon_simple';
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_simpleoffset from '../data/styles/point_simpleoffset';
@@ -25,13 +24,16 @@ import point_simplecross from '../data/styles/point_simplecross';
 import point_simplex from '../data/styles/point_simplex';
 import line_simpleline from '../data/styles/line_simpleline';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
+import point_styledlabel from '../data/styles/point_styledlabel';
+import point_styledLabel_static from '../data/styles/point_styledLabel_static';
+import text_placement_point from '../data/styles/text_placement_point';
+import text_placement_line from '../data/styles/text_placement_line';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import filterSimpleFilter from '../data/styles/filter_simpleFilter';
 import filterNestedFilter from '../data/styles/filter_nestedFilter';
 
 import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
-import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
 import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
 import flat_point_simpleoffset from '../data/olFlatStyles/point_simpleoffset';
@@ -53,6 +55,10 @@ import flat_point_simplecross from '../data/olFlatStyles/point_simplecross';
 import flat_point_simplex from '../data/olFlatStyles/point_simplex';
 import flat_line_simpleline from '../data/olFlatStyles/line_simpleline';
 import flat_polygon_transparentpolygon from '../data/olFlatStyles/polygon_transparentpolygon';
+import flat_point_styledlabel from '../data/olFlatStyles/point_styledlabel';
+import flat_point_styledLabel_static from '../data/olFlatStyles/point_styledLabel_static';
+import flat_text_placement_point from '../data/olFlatStyles/text_placement_point';
+import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
 import flat_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
 import flat_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
@@ -191,17 +197,26 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(polygon_transparentpolygon);
     });
+    it('can read an OpenLayers Flat TextSymbolizer with static text', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_styledLabel_static);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_styledLabel_static);
+    });
+    it('can read an OpenLayers Flat TextSymbolizer with placement point', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_text_placement_point);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(text_placement_point);
+    });
+    it('can read an OpenLayers Flat TextSymbolizer with placement line', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_text_placement_line);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(text_placement_line);
+    });
 
     it('reads a FlatFill style', async () => {
       const { output: geostylerStyle } = await styleParser.readStyle(flat_polygon_simple);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(polygonSimple);
-    });
-
-    it('reads a FlatText style', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(flat_text_placement_line);
-      expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(textPlacementLine);
     });
 
     it('reads a FlatIcon style', async () => {
@@ -361,17 +376,31 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_polygon_transparentpolygon);
     });
+    it('can write an OpenLayers Flat TextSymbolizer', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_styledlabel);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_styledlabel);
+    });
+    it('can write an OpenLayers Flat TextSymbolizer with static text', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_styledLabel_static);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_styledLabel_static);
+    });
+    it('can write an OpenLayers Flat TextSymbolizer with placement point', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(text_placement_point);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_text_placement_point);
+    });
+    it('can write an OpenLayers Flat TextSymbolizer with placement line', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(text_placement_line);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_text_placement_line);
+    });
 
     it('writes a FlatFill style', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(polygonSimple);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_polygon_simple);
-    });
-
-    it('writes a FlatText style', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(textPlacementLine);
-      expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(flat_text_placement_line);
     });
 
     it('writes a FlatIcon style', async () => {
