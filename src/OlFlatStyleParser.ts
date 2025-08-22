@@ -868,41 +868,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       // textBaseline: symbolizer.anchor
     };
 
-    /* // check if TextSymbolizer.label contains a placeholder
-    const prefix = '\\{\\{';
-    const suffix = '\\}\\}';
-    const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
-    let regExpRes;
-    if (!isGeoStylerStringFunction(symbolizer.label)) {
-      regExpRes = symbolizer.label ? symbolizer.label.match(regExp) : null;
-    }
-    if (regExpRes) {
-      // if it contains a placeholder
-      // return olStyleFunction
-      const olPointStyledLabelFn = (feature: any) => {
-
-        const text = new this.OlStyleTextConstructor({
-          text: OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.label as string, ''),
-          ...baseProps
-        });
-
-        const style = new this.OlStyleConstructor({
-          text: text
-        });
-
-        return style;
-      };
-      return olPointStyledLabelFn;
-    } else {
-      // if TextSymbolizer does not contain a placeholder
-      // return OlStyle
-      return new this.OlStyleConstructor({
-        text: new this.OlStyleTextConstructor({
-          text: symbolizer.label as string,
-          ...baseProps
-        })
-      });
-    } */
+    // TODO add support for placeholder in label
 
     if (symbolizer.label !== undefined) {
       flatStyle['text-value'] = symbolizer.label as string;
