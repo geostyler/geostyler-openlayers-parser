@@ -3,7 +3,6 @@ import 'regenerator-runtime/runtime';
 import OlFlatStyleParser from './OlFlatStyleParser';
 
 import polygonSimple from '../data/styles/polygon_simple';
-import lineSimpleLine from '../data/styles/line_simpleline';
 import textPlacementLine from '../data/styles/text_placement_line';
 import pointIconSimple from '../data/styles/point_icon_simple';
 import point_simplepoint from '../data/styles/point_simplepoint';
@@ -24,13 +23,14 @@ import point_simpleoarrow from '../data/styles/point_simpleoarrow';
 import point_simpledot from '../data/styles/point_simpledot';
 import point_simplecross from '../data/styles/point_simplecross';
 import point_simplex from '../data/styles/point_simplex';
+import line_simpleline from '../data/styles/line_simpleline';
+import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import filterSimpleFilter from '../data/styles/filter_simpleFilter';
 import filterNestedFilter from '../data/styles/filter_nestedFilter';
 
 import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
-import flat_line_simpleline from '../data/olFlatStyles/line_simpleline';
 import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
 import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
@@ -51,6 +51,8 @@ import flat_point_simpleoarrow from '../data/olFlatStyles/point_simpleoarrow';
 import flat_point_simpledot from '../data/olFlatStyles/point_simpledot';
 import flat_point_simplecross from '../data/olFlatStyles/point_simplecross';
 import flat_point_simplex from '../data/olFlatStyles/point_simplex';
+import flat_line_simpleline from '../data/olFlatStyles/line_simpleline';
+import flat_polygon_transparentpolygon from '../data/olFlatStyles/polygon_transparentpolygon';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
 import flat_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
 import flat_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
@@ -179,17 +181,21 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       // between x and times
       expect(geoStylerStyle).toEqual(point_simplex);
     });
+    it('can read an OpenLayers Flat LineSymbolizer', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_line_simpleline);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(line_simpleline);
+    });
+    it('can read an OpenLayers Flat PolygonSymbolizer', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_polygon_transparentpolygon);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(polygon_transparentpolygon);
+    });
 
     it('reads a FlatFill style', async () => {
       const { output: geostylerStyle } = await styleParser.readStyle(flat_polygon_simple);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(polygonSimple);
-    });
-
-    it('reads a FlatStroke style', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(flat_line_simpleline);
-      expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(lineSimpleLine);
     });
 
     it('reads a FlatText style', async () => {
@@ -345,17 +351,21 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_simpletimes);
     });
+    it('can write an OpenLayers Flat LineSymbolizer', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(line_simpleline);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_line_simpleline);
+    });
+    it('can write an OpenLayers Flat PolygonSymbolizer', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(polygon_transparentpolygon);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_polygon_transparentpolygon);
+    });
 
     it('writes a FlatFill style', async () => {
       const { output: flatStyle } = await styleParser.writeStyle(polygonSimple);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_polygon_simple);
-    });
-
-    it('writes a FlatStroke style', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(lineSimpleLine);
-      expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(flat_line_simpleline);
     });
 
     it('writes a FlatText style', async () => {
