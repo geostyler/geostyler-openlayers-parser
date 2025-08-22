@@ -321,42 +321,59 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['shape-stroke-color']);
 
     let wellKnownName: WellKnownName;
-    if (flatStyle['shape-points'] === 2) {
-      if (flatStyle['shape-angle'] === Math.PI / 4) {
-        wellKnownName = 'shape://slash';
+    switch (flatStyle['shape-points']) {
+        case 2:
+          switch (flatStyle['shape-angle']) {
+            case 0:
+              wellKnownName = 'shape://vertline';
+              break;
+            case Math.PI / 2:
+              wellKnownName = 'shape://horline';
+              break;
+            case Math.PI / 4:
+              wellKnownName = 'shape://slash';
+              break;
+            case 2 * Math.PI - (Math.PI / 4):
+              wellKnownName = 'shape://backslash';
+              break;
+            default:
+              break;
+          }
+          break;
+        case 3:
+          switch (flatStyle['shape-angle']) {
+            case 0:
+              wellKnownName = 'triangle';
+              break;
+            case Math.PI / 2:
+              wellKnownName = 'shape://carrow';
+              break;
+            default:
+              break;
+          }
+          break;
+        case 4:
+          if (Number.isFinite(flatStyle['shape-radius2'])) {
+            // cross or x
+            if (flatStyle['shape-angle'] === 0) {
+              // cross
+              wellKnownName = 'cross';
+            } else {
+              // x
+              wellKnownName = 'x';
+            }
+          } else {
+            // square
+            wellKnownName = 'square';
+          }
+          break;
+        case 5:
+          // star
+          wellKnownName = 'star';
+          break;
+        default:
+          throw new Error('Could not parse FlatStyle. Only 2, 3, 4 or 5 point flat shapes are allowed');
       }
-      if (flatStyle['shape-angle'] === 2 * Math.PI - (Math.PI / 4)) {
-        wellKnownName = 'shape://backslash';
-      }
-      if (!flatStyle['shape-angle']) {
-        wellKnownName = 'shape://vertline';
-      }
-      if (flatStyle['shape-angle'] === Math.PI / 2) {
-        wellKnownName = 'shape://horline';
-      }
-    } else if (flatStyle['shape-points'] === 3) {
-      if (flatStyle['shape-angle'] === Math.PI / 2) {
-        wellKnownName = 'shape://carrow';
-        // TODO distinguish between carrow and oarrow
-      } else {
-        wellKnownName = 'triangle';
-      }
-    } else if (flatStyle['shape-points'] === 4) {
-      if (flatStyle['shape-radius2'] === 0) {
-        if (!flatStyle['shape-angle']) {
-          wellKnownName = 'cross';
-        }
-        if (flatStyle['shape-angle'] === Math.PI / 4) {
-          wellKnownName = 'x';
-        }
-      } else {
-        wellKnownName = 'square';
-      }
-    } else if (flatStyle['shape-points'] === 5) {
-      wellKnownName = 'star';
-    } else {
-      throw new Error('Could not determine WellKnownName from given FlatStyle.');
-    }
 
     // TODO add other shape properties
     return {
@@ -1001,6 +1018,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.sWidth ? { 'shape-stroke-width': baseProps.sWidth } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-angle': 0,
           ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
           ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
         } as FlatShape;
@@ -1024,6 +1042,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
           'shape-radius2': 0,
+          'shape-angle': 0,
           ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
           ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
         } as FlatShape;
@@ -1065,6 +1084,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           'shape-points': 2,
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
+          'shape-angle': 0,
           ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
           ...(baseProps.rotation ? { 'shape-rotation': baseProps.rotation } : {}),
         } as FlatShape;
