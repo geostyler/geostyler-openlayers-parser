@@ -183,11 +183,20 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['fill-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['fill-color']);
 
-    // TODO add other fill properties
+    const [outlineColor, outlineOpacity] = OlFlatStyleUtil.isExpression(flatStyle['stroke-color'])
+      ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['stroke-color'])]
+      : OlFlatStyleUtil.getColorAndOpacity(flatStyle['stroke-color']);
+
     return {
       kind: 'Fill',
       color: fillColor,
-      opacity: fillOpacity
+      fillOpacity,
+      outlineColor,
+      outlineOpacity,
+      outlineWidth: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['stroke-width']),
+      outlineCap: OlFlatStyleUtil.olExpressionToGsExpression<CapType>(flatStyle['stroke-line-cap']),
+      outlineJoin: OlFlatStyleUtil.olExpressionToGsExpression<JoinType>(flatStyle['stroke-line-join']),
+      outlineDasharray: OlFlatStyleUtil.olExpressionToGsExpression<number[]>(flatStyle['stroke-line-dash']),
     };
   }
 
@@ -395,9 +404,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
 
     if (OlFlatStyleUtil.hasFlatFill(flatStyle)) {
       symbolizers.push(this.flatStyleToGeoStylerFillSymbolizer(flatStyle));
-    }
-
-    if (OlFlatStyleUtil.hasFlatStroke(flatStyle)) {
+    } else if (OlFlatStyleUtil.hasFlatStroke(flatStyle)) {
       symbolizers.push(this.flatStyleToGeoStylerLineSymbolizer(flatStyle));
     }
 
@@ -753,24 +760,19 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ? OlStyleUtil.getRgbaColor(color, opacity)
       : color;
 
-    /* let fill = color
-      ? new this.OlStyleFillConstructor({color: fColor})
-      : undefined;
-
     const outlineColor = symbolizer.outlineColor as string;
     const outlineOpacity = symbolizer.outlineOpacity as number;
     const oColor = (outlineColor && Number.isFinite(outlineOpacity))
       ? OlStyleUtil.getRgbaColor(outlineColor, outlineOpacity)
       : outlineColor;
 
-    const stroke = outlineColor || symbolizer.outlineWidth ? new this.OlStyleStrokeConstructor({
-      color: oColor,
-      width: symbolizer.outlineWidth as number,
-      lineDash: symbolizer.outlineDasharray as number[],
-    }) : undefined; */
-
     const flatStyle = {
       ...(fColor ? { 'fill-color': fColor } : {}),
+      ...(oColor ? { 'stroke-color': oColor } : {}),
+      ...(symbolizer.outlineWidth !== undefined ? { 'stroke-width': symbolizer.outlineWidth as number } : {}),
+      ...(symbolizer.outlineCap ? { 'stroke-line-cap': symbolizer.outlineCap as CapType } : {}),
+      ...(symbolizer.outlineJoin ? { 'stroke-line-join': symbolizer.outlineJoin as JoinType } : {}),
+      ...(symbolizer.outlineDasharray ? { 'stroke-line-dash': symbolizer.outlineDasharray as number[] } : {}),
     };
 
     /* if (symbolizer.graphicFill) {
