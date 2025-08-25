@@ -26,6 +26,7 @@ import point_styledlabel from '../data/styles/point_styledlabel';
 import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import text_placement_point from '../data/styles/text_placement_point';
 import text_placement_line from '../data/styles/text_placement_line';
+import point_fontglyph from '../data/styles/point_fontglyph';
 import polygon_simple from '../data/styles/polygon_simple';
 import point_icon_simple from '../data/styles/point_icon_simple';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
@@ -57,6 +58,7 @@ import flat_point_styledlabel from '../data/olFlatStyles/point_styledlabel';
 import flat_point_styledLabel_static from '../data/olFlatStyles/point_styledLabel_static';
 import flat_text_placement_point from '../data/olFlatStyles/text_placement_point';
 import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
+import flat_point_fontglyph from '../data/olFlatStyles/point_fontglyph';
 import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
 import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
@@ -211,6 +213,11 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(flat_text_placement_line);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(text_placement_line);
+    });
+    it('can read an OpenLayers Flat MarkSymbolizer based on a font glyph (WellKnownName starts with ttf://)', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_fontglyph);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(point_fontglyph);
     });
 
     it('can read a simple polygon with just fill', async () => {
@@ -395,6 +402,11 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: flatStyle } = await styleParser.writeStyle(text_placement_line);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_text_placement_line);
+    });
+    it('can write an OpenLayers Flat MarkSymbolizer based on a font glyph (WellKnownName starts with ttf://)', async () => {
+      const { output: flatStyle } = await styleParser.writeStyle(point_fontglyph);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_point_fontglyph);
     });
 
     it('can write a simple polygon with just fill', async () => {
