@@ -2,8 +2,6 @@ import 'regenerator-runtime/runtime';
 
 import OlFlatStyleParser from './OlFlatStyleParser';
 
-import polygonSimple from '../data/styles/polygon_simple';
-import pointIconSimple from '../data/styles/point_icon_simple';
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_simpleoffset from '../data/styles/point_simpleoffset';
 import point_icon from '../data/styles/point_icon';
@@ -28,13 +26,13 @@ import point_styledlabel from '../data/styles/point_styledlabel';
 import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import text_placement_point from '../data/styles/text_placement_point';
 import text_placement_line from '../data/styles/text_placement_line';
+import polygon_simple from '../data/styles/polygon_simple';
+import point_icon_simple from '../data/styles/point_icon_simple';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
 import multi_twoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
-import filterSimpleFilter from '../data/styles/filter_simpleFilter';
-import filterNestedFilter from '../data/styles/filter_nestedFilter';
+import filter_simpleFilter from '../data/styles/filter_simpleFilter';
+import filter_nestedFilter from '../data/styles/filter_nestedFilter';
 
-import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
-import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
 import flat_point_simpleoffset from '../data/olFlatStyles/point_simpleoffset';
 import flat_point_icon from '../data/olFlatStyles/point_icon';
@@ -59,6 +57,8 @@ import flat_point_styledlabel from '../data/olFlatStyles/point_styledlabel';
 import flat_point_styledLabel_static from '../data/olFlatStyles/point_styledLabel_static';
 import flat_text_placement_point from '../data/olFlatStyles/text_placement_point';
 import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
+import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
+import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
 import flat_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
 import flat_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
@@ -213,16 +213,16 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(geoStylerStyle).toEqual(text_placement_line);
     });
 
-    it('reads a FlatFill style', async () => {
-      const { output: geostylerStyle } = await styleParser.readStyle(flat_polygon_simple);
-      expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(polygonSimple);
+    it('can read a simple polygon with just fill', async () => {
+      const { output: geoStylerStyle } = await styleParser.readStyle(flat_polygon_simple);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(polygon_simple);
     });
 
     it('reads a FlatIcon style', async () => {
       const { output: geostylerStyle } = await styleParser.readStyle(flat_point_icon_simple);
       expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(pointIconSimple);
+      expect(geostylerStyle).toEqual(point_icon_simple);
     });
 
     it('reads a FlatCircle style', async () => {
@@ -246,13 +246,13 @@ describe('OlFlatStyleParser implements StyleParser', () => {
     it('reads a filter', async () => {
       const { output: geostylerStyle } = await styleParser.readStyle(flat_filter_simpleFilter);
       expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(filterSimpleFilter);
+      expect(geostylerStyle).toEqual(filter_simpleFilter);
     });
 
     it('reads a nested filter', async () => {
       const { output: geostylerStyle } = await styleParser.readStyle(flat_filter_nestedFilter);
       expect(geostylerStyle).toBeDefined();
-      expect(geostylerStyle).toEqual(filterNestedFilter);
+      expect(geostylerStyle).toEqual(filter_nestedFilter);
     });
   });
 
@@ -397,14 +397,14 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(flatStyle).toEqual(flat_text_placement_line);
     });
 
-    it('writes a FlatFill style', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(polygonSimple);
-      expect(flatStyle).toBeDefined();
-      expect(flatStyle).toEqual(flat_polygon_simple);
+    it('can write a simple polygon with just fill', async () => {
+      const { output: geoStylerStyle } = await styleParser.writeStyle(polygon_simple);
+      expect(geoStylerStyle).toBeDefined();
+      expect(geoStylerStyle).toEqual(flat_polygon_simple);
     });
 
     it('writes a FlatIcon style', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(pointIconSimple);
+      const { output: flatStyle } = await styleParser.writeStyle(point_icon_simple);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_icon_simple);
     });
@@ -428,13 +428,13 @@ describe('OlFlatStyleParser implements StyleParser', () => {
     });
 
     it('writes a filter', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(filterSimpleFilter);
+      const { output: flatStyle } = await styleParser.writeStyle(filter_simpleFilter);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_filter_simpleFilter);
     });
 
     it('writes a nested filter', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(filterNestedFilter);
+      const { output: flatStyle } = await styleParser.writeStyle(filter_nestedFilter);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_filter_nestedFilter);
     });
