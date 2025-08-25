@@ -221,7 +221,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     };
   }
 
-  flatStyleToGeoStylerTextSymbolizer(flatStyle: FlatStyle): TextSymbolizer {
+  flatTextStyleToGeoStylerTextSymbolizer(flatStyle: FlatStyle): TextSymbolizer {
     const [textFillColor, textFillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['text-fill-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-fill-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['text-fill-color']);
@@ -269,7 +269,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     };
   }
 
-  flatStyleToGeoStylerIconSymbolizer(flatStyle: FlatStyle): IconSymbolizer {
+  flatIconStyleToGeoStylerIconSymbolizer(flatStyle: FlatStyle): IconSymbolizer {
     let image;
     // If source, offset and size are defined, we assume that the image is a sprite.
     if (flatStyle['icon-src'] && flatStyle['icon-offset'] && flatStyle['icon-size']) {
@@ -399,6 +399,48 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     };
   }
 
+  flatTextStyleToGeoStylerMarkSymbolizer(flatStyle: FlatStyle): MarkSymbolizer {
+    const [fillColor, fillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['text-fill-color'])
+      ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-fill-color'])]
+      : OlFlatStyleUtil.getColorAndOpacity(flatStyle['text-fill-color']);
+
+    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isExpression(flatStyle['text-stroke-color'])
+      ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-stroke-color'])]
+      : OlFlatStyleUtil.getColorAndOpacity(flatStyle['text-stroke-color']);
+
+    let font: TextSymbolizer['font'] = undefined;
+    let fontSize: TextSymbolizer['size'] = undefined;
+
+    if (OlFlatStyleUtil.isExpression(flatStyle['text-font'])) {
+      // NOTE: If font is an expression, we cannot detect the size
+      font = [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-font'])];
+    } else if (flatStyle['text-font']) {
+      font = [OlStyleUtil.getFontNameFromOlFont(flatStyle['text-font'])];
+      fontSize = OlStyleUtil.getSizeFromOlFont(flatStyle['text-font']);
+    }
+
+    let char = OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-value']) as string;
+    if (Array.isArray(char)) {
+      char = char[0];
+    }
+
+    return {
+      kind: 'Mark',
+      wellKnownName: `ttf://${font}#0x${char.charCodeAt(0).toString(16)}`,
+      color: fillColor,
+      opacity: fillOpacity,
+      strokeColor,
+      strokeOpacity,
+      strokeWidth: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-stroke-width']),
+      radius: (fontSize !== 0) ? fontSize : 5,
+      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-rotation']) || 0,
+      offset: [
+        OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-offset-x']),
+        OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-offset-y']),
+      ],
+    };
+  }
+
   flatStyleToGeoStylerSymbolizers(flatStyle: FlatStyle): Symbolizer[] {
     const symbolizers: Symbolizer[] = [];
 
@@ -409,11 +451,19 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     }
 
     if (OlFlatStyleUtil.hasFlatText(flatStyle)) {
-      symbolizers.push(this.flatStyleToGeoStylerTextSymbolizer(flatStyle));
+      if (
+        !OlFlatStyleUtil.isExpression(flatStyle['text-font']) &&
+        flatStyle['text-font'] &&
+        OlStyleUtil.getIsMarkSymbolizerFont(flatStyle['text-font'])
+      ) {
+        symbolizers.push(this.flatTextStyleToGeoStylerMarkSymbolizer(flatStyle));
+      } else {
+        symbolizers.push(this.flatTextStyleToGeoStylerTextSymbolizer(flatStyle));
+      }
     }
 
     if (OlFlatStyleUtil.hasFlatIcon(flatStyle)) {
-      symbolizers.push(this.flatStyleToGeoStylerIconSymbolizer(flatStyle));
+      symbolizers.push(this.flatIconStyleToGeoStylerIconSymbolizer(flatStyle));
     }
 
     if (OlFlatStyleUtil.hasFlatCircle(flatStyle)) {
@@ -1082,18 +1132,18 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         } as FlatShape;
         break;
       default:
-        /* if (OlStyleUtil.getIsFontGlyphBased(symbolizer)) {
-          olStyle = new this.OlStyleConstructor({
-            text: new this.OlStyleTextConstructor({
-              text: OlStyleUtil.getCharacterForMarkSymbolizer(symbolizer),
-              font: OlStyleUtil.getTextFontForMarkSymbolizer(symbolizer),
-              fill: shapeOpts.fill,
-              stroke: shapeOpts.stroke,
-              rotation: shapeOpts.rotation
-            })
-          });
+        if (OlStyleUtil.getIsFontGlyphBased(symbolizer)) {
+          flatStyle = {
+            'text-value': OlStyleUtil.getCharacterForMarkSymbolizer(symbolizer),
+            'text-font': OlStyleUtil.getTextFontForMarkSymbolizer(symbolizer),
+            ...(baseProps.fColor ? { 'text-fill-color': baseProps.fColor } : {}),
+            ...(baseProps.sColor ? { 'text-stroke-color': baseProps.sColor } : {}),
+            'text-offset-x': (symbolizer.offset ? symbolizer.offset[0] : 0) as number,
+            'text-offset-y': (symbolizer.offset ? symbolizer.offset[1] : 0) as number,
+            ...(typeof(symbolizer.rotate) === 'number' ? { 'text-rotation':  symbolizer.rotate } : {}),
+          };
           break;
-        } */
+        }
         throw new Error('MarkSymbolizer cannot be parsed. Unsupported WellKnownName.');
     }
 
