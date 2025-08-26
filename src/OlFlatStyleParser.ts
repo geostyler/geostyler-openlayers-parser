@@ -3,6 +3,7 @@ import {
   FillSymbolizer,
   IconSymbolizer,
   isGeoStylerBooleanFunction,
+  isGeoStylerFunction,
   isSprite,
   JoinType,
   LineSymbolizer,
@@ -673,34 +674,42 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     const rules = structuredClone(geoStylerStyle.rules);
     const flatRules: FlatRule[] = [];
 
-    // calculate scale for resolution (from ol-util MapUtil)
-    /* const dpi = 25.4 / 0.28;
-    const mpu = METERS_PER_UNIT.m;
+    // calculate resolution for scale
+    const dpi = 25.4 / 0.28;
     const inchesPerMeter = 39.37;
-    const scale = resolution * mpu * inchesPerMeter * dpi; */
+    const scale = ['*', ['resolution'], inchesPerMeter * dpi];
 
     rules.forEach((rule: Rule) => {
+      let flatFilters: (EncodedExpression | undefined)[] = [];
       let flatFilter: EncodedExpression | undefined;
       const flatStyles: FlatStyle[] = [];
 
       // handling scale denominator
-      /* let minScale = rule?.scaleDenominator?.min;
+      let minScale = rule?.scaleDenominator?.min;
       let maxScale = rule?.scaleDenominator?.max;
-      let isWithinScale = true;
       if (minScale || maxScale) {
         minScale = isGeoStylerFunction(minScale) ? OlStyleUtil.evaluateNumberFunction(minScale) : minScale;
         maxScale = isGeoStylerFunction(maxScale) ? OlStyleUtil.evaluateNumberFunction(maxScale) : maxScale;
-        if (minScale && scale < minScale) {
-          isWithinScale = false;
+        if (minScale !== undefined) {
+          const minScaleFilter = ['>=', scale, minScale];
+          flatFilters.push(minScaleFilter);
         }
-        if (maxScale && scale >= maxScale) {
-          isWithinScale = false;
+        if (maxScale !== undefined) {
+          const maxScaleFilter = ['<', scale, maxScale];
+          flatFilters.push(maxScaleFilter);
         }
-      } */
+      }
 
       // handling filter
       if (rule.filter) {
-        flatFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+        const ruleFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+        flatFilters.push(ruleFilter);
+      }
+
+      if (flatFilters.length === 1) {
+        flatFilter = flatFilters[0];
+      } else if (flatFilters.length > 1) {
+        flatFilter = ['all', ...flatFilters];
       }
 
       rule.symbolizers.forEach((symb: Symbolizer) => {

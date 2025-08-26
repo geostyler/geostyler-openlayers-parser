@@ -27,6 +27,9 @@ import point_styledLabel_static from '../data/styles/point_styledLabel_static';
 import text_placement_point from '../data/styles/text_placement_point';
 import text_placement_line from '../data/styles/text_placement_line';
 import point_fontglyph from '../data/styles/point_fontglyph';
+import scaleDenom_line from '../data/styles/scaleDenom_line';
+import scaleDenom_line_circle from '../data/styles/scaleDenom_line_circle';
+import scaleDenom_line_nestedFilter from '../data/styles/scaleDenom_line_nestedFilter';
 import polygon_simple from '../data/styles/polygon_simple';
 import point_icon_simple from '../data/styles/point_icon_simple';
 import multi_simplefillSimpleline from '../data/styles/multi_simplefillSimpleline';
@@ -59,6 +62,9 @@ import flat_point_styledLabel_static from '../data/olFlatStyles/point_styledLabe
 import flat_text_placement_point from '../data/olFlatStyles/text_placement_point';
 import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
 import flat_point_fontglyph from '../data/olFlatStyles/point_fontglyph';
+import flat_scaleDenom_line from '../data/olFlatStyles/scaleDenom_line';
+import flat_scaleDenom_line_circle from '../data/olFlatStyles/scaleDenom_line_circle';
+import flat_scaleDenom_line_nestedFilter from '../data/olFlatStyles/scaleDenom_line_nestedFilter';
 import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
 import flat_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
@@ -407,6 +413,21 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: flatStyle } = await styleParser.writeStyle(point_fontglyph);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_fontglyph);
+    });
+    it('can write an OpenLayers Flat Rule with scaleDenominators as resolution filters', async () => {
+      let { output: flatStyle } = await styleParser.writeStyle(scaleDenom_line);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_scaleDenom_line);
+    });
+    it('can write multiple OpenLayers Flat Rules with scaleDenominators as resolution filters', async () => {
+      let { output: flatStyle } = await styleParser.writeStyle(scaleDenom_line_circle);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_scaleDenom_line_circle);
+    });
+    it('can write an OpenLayers Flat Rule with scaleDenominators as nested resolution filters', async () => {
+      let { output: flatStyle } = await styleParser.writeStyle(scaleDenom_line_nestedFilter);
+      expect(flatStyle).toBeDefined();
+      expect(flatStyle).toEqual(flat_scaleDenom_line_nestedFilter);
     });
 
     it('can write a simple polygon with just fill', async () => {
