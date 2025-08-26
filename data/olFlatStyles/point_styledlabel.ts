@@ -1,7 +1,7 @@
 import { FlatStyle } from 'ol/style/flat';
 
 const pointStyledLabel: FlatStyle = {
-  'text-value': '{{name}}',
+  'text-value': ['get', 'name'],
   'text-font': 'normal normal 12px Arial',
   'text-fill-color': '#000000',
   'text-stroke-color': '#000000',

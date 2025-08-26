@@ -3,17 +3,12 @@ import { FlatStyleLike } from 'ol/style/flat';
 const filterSimpleFilter: FlatStyleLike = [
   {
     filter: [
-      '==',
-      ['get', 'Name'],
-      'Bonn'
+      '>=',
+      ['resolution'],
+      1000
     ],
     style: {
       'circle-radius': 10,
-      'circle-fill-color': '#FF0000'
-    }
-  }, {
-    style: {
-      'circle-radius': 6,
       'circle-fill-color': '#FF0000'
     }
   }
