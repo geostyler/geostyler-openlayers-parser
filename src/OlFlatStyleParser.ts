@@ -606,7 +606,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    *
    * @param geoStylerStyle A GeoStyler-Style Style
    */
-  flatStyleLikeFromGeoStylerStyle(geoStylerStyle: Style): FlatStyle | FlatStyle[] | FlatRule[] | undefined {
+  flatStyleLikeFromGeoStylerStyle(geoStylerStyle: Style): FlatStyle | FlatStyle[] | FlatRule[] {
     const rules = geoStylerStyle.rules;
     const nrRules = rules.length;
     if (nrRules === 1) {
@@ -617,9 +617,6 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       const hasFunctions = OlStyleUtil.containsGeoStylerFunctions(geoStylerStyle);
 
       const nrSymbolizers = geoStylerStyle.rules[0].symbolizers.length;
-      /* const hasTextSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
-        return symbolizer.kind === 'Text';
-      }); */
       const hasDynamicIconSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
         return symbolizer.kind === 'Icon' && typeof(symbolizer.image) === 'string' && symbolizer.image.includes('{{');
       });
@@ -629,9 +626,9 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         } else {
           return this.flatStyleArrayFromGeoStylerStyle(geoStylerStyle);
         }
-      }/*  else {
-        return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
-      } */
+      } else {
+        return this.flatRuleArrayFromGeoStylerStyle(geoStylerStyle);
+      }
     } else {
       return this.flatRuleArrayFromGeoStylerStyle(geoStylerStyle);
     }
@@ -674,85 +671,66 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    */
   flatRuleArrayFromGeoStylerStyle(geoStylerStyle: Style): FlatRule[] {
     const rules = structuredClone(geoStylerStyle.rules);
-    //const flatStyle = (feature: any, resolution: number): any[] => {
-      const flatRules: FlatRule[] = [];
+    const flatRules: FlatRule[] = [];
 
-      // calculate scale for resolution (from ol-util MapUtil)
-      /* const dpi = 25.4 / 0.28;
-      const mpu = METERS_PER_UNIT.m;
-      const inchesPerMeter = 39.37;
-      const scale = resolution * mpu * inchesPerMeter * dpi; */
+    // calculate scale for resolution (from ol-util MapUtil)
+    /* const dpi = 25.4 / 0.28;
+    const mpu = METERS_PER_UNIT.m;
+    const inchesPerMeter = 39.37;
+    const scale = resolution * mpu * inchesPerMeter * dpi; */
 
-      rules.forEach((rule: Rule) => {
-        let flatFilter: EncodedExpression | undefined;
-        const flatStyles: FlatStyle[] = [];
+    rules.forEach((rule: Rule) => {
+      let flatFilter: EncodedExpression | undefined;
+      const flatStyles: FlatStyle[] = [];
 
-        // handling scale denominator
-        /* let minScale = rule?.scaleDenominator?.min;
-        let maxScale = rule?.scaleDenominator?.max;
-        let isWithinScale = true;
-        if (minScale || maxScale) {
-          minScale = isGeoStylerFunction(minScale) ? OlStyleUtil.evaluateNumberFunction(minScale) : minScale;
-          maxScale = isGeoStylerFunction(maxScale) ? OlStyleUtil.evaluateNumberFunction(maxScale) : maxScale;
-          if (minScale && scale < minScale) {
-            isWithinScale = false;
-          }
-          if (maxScale && scale >= maxScale) {
-            isWithinScale = false;
-          }
-        } */
+      // handling scale denominator
+      /* let minScale = rule?.scaleDenominator?.min;
+      let maxScale = rule?.scaleDenominator?.max;
+      let isWithinScale = true;
+      if (minScale || maxScale) {
+        minScale = isGeoStylerFunction(minScale) ? OlStyleUtil.evaluateNumberFunction(minScale) : minScale;
+        maxScale = isGeoStylerFunction(maxScale) ? OlStyleUtil.evaluateNumberFunction(maxScale) : maxScale;
+        if (minScale && scale < minScale) {
+          isWithinScale = false;
+        }
+        if (maxScale && scale >= maxScale) {
+          isWithinScale = false;
+        }
+      } */
 
-        // handling filter
-        /* let matchesFilter = false;
-        if (!rule.filter) {
-          matchesFilter = true;
-        } else {
-          try {
-            matchesFilter = this.geoStylerFilterToOlParserFilter(feature, rule.filter);
-          } catch (e) {
-            matchesFilter = false;
-          }
-        } */
-        if (rule.filter) {
-          flatFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+      // handling filter
+      if (rule.filter) {
+        flatFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+      }
+
+      rule.symbolizers.forEach((symb: Symbolizer) => {
+        if (symb.visibility === false) {
+          flatStyles.push(null as any);
         }
 
-        //if (isWithinScale && matchesFilter) {
-          rule.symbolizers.forEach((symb: Symbolizer) => {
-            if (symb.visibility === false) {
-              flatStyles.push(null as any);
-            }
+        if (isGeoStylerBooleanFunction(symb.visibility)) {
+          const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
+          if (!visibility) {
+            flatStyles.push(null as any);
+          }
+        }
 
-            if (isGeoStylerBooleanFunction(symb.visibility)) {
-              const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
-              if (!visibility) {
-                flatStyles.push(null as any);
-              }
-            }
-
-            const flatStyle = this.flatStyleFromSymbolizer(symb/* , feature */);
-            // either a FlatStyle or an ol.StyleFunction. OpenLayers only accepts an array
-            // of FlatStyles, not ol.StyleFunctions.
-            // So we have to check it and in case of an ol.StyleFunction call that function
-            // and add the returned style to const styles.
-            if (typeof flatStyle !== 'function') {
-              flatStyles.push(flatStyle);
-            }/*  else {
-              const styleFromFct: any = flatSymbolizer(feature, resolution);
-              styles.push(styleFromFct);
-            } */
-          });
-        //}
-        flatRules.push({
-          ...(flatFilter ? { filter: flatFilter } : {}),
-          style: flatStyles.length === 1 ? flatStyles[0] : flatStyles,
-        });
+        const flatStyle = this.flatStyleFromSymbolizer(symb);
+        // either a FlatStyle or an ol.StyleFunction. OpenLayers only accepts an array
+        // of FlatStyles, not ol.StyleFunctions.
+        // So we have to check it and in case of an ol.StyleFunction call that function
+        // and add the returned style to const styles.
+        if (typeof flatStyle !== 'function') {
+          flatStyles.push(flatStyle);
+        }
       });
-      return flatRules;
-    //};
-    /* const flatStyleFct: FlatParserStyleFct = flatStyle as FlatParserStyleFct;
-    flatStyleFct.__geoStylerStyle = geoStylerStyle;
-    return flatStyleFct; */
+
+      flatRules.push({
+        ...(flatFilter ? { filter: flatFilter } : {}),
+        style: flatStyles.length === 1 ? flatStyles[0] : flatStyles,
+      });
+    });
+    return flatRules;
   }
 
   /**
@@ -761,25 +739,25 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * @param symbolizer A GeoStyler-Style Symbolizer.
    * @return The OpenLayers FlatStyle object
    */
-  flatStyleFromSymbolizer(symbolizer: Symbolizer/* , feature?: OlFeature */): FlatStyle {
+  flatStyleFromSymbolizer(symbolizer: Symbolizer): FlatStyle {
     let flatStyle: FlatStyle;
     symbolizer = structuredClone(symbolizer);
 
     switch (symbolizer.kind) {
       case 'Mark':
-        flatStyle = this.flatStyleFromMarkSymbolizer(symbolizer/* , feature */);
+        flatStyle = this.flatStyleFromMarkSymbolizer(symbolizer);
         break;
       case 'Icon':
-        flatStyle = this.flatStyleFromIconSymbolizer(symbolizer/* , feature */);
+        flatStyle = this.flatStyleFromIconSymbolizer(symbolizer);
         break;
       case 'Text':
-        flatStyle = this.flatStyleFromTextSymbolizer(symbolizer/* , feature */);
+        flatStyle = this.flatStyleFromTextSymbolizer(symbolizer);
         break;
       case 'Line':
-        flatStyle = this.flatStyleFromLineSymbolizer(symbolizer/* , feature */);
+        flatStyle = this.flatStyleFromLineSymbolizer(symbolizer);
         break;
       case 'Fill':
-        flatStyle = this.flatStyleFromFillSymbolizer(symbolizer/* , feature */);
+        flatStyle = this.flatStyleFromFillSymbolizer(symbolizer);
         break;
       default:
         // Return the OL default style since the TS type binding does not allow
@@ -797,7 +775,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * @param symbolizer A GeoStyler-Style FillSymbolizer.
    * @return The OL FlatStyle object
    */
-  flatStyleFromFillSymbolizer(symbolizer: FillSymbolizer/* , feat?: OlFeature */): FlatStyle {
+  flatStyleFromFillSymbolizer(symbolizer: FillSymbolizer): FlatStyle {
     /* for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof FillSymbolizer])) {
         (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
@@ -845,7 +823,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * @param symbolizer A GeoStyler-Style LineSymbolizer.
    * @return The OL FlatStyle object
    */
-  flatStyleFromLineSymbolizer(symbolizer: LineSymbolizer/* , feat?: OlFeature */): FlatStyle {
+  flatStyleFromLineSymbolizer(symbolizer: LineSymbolizer): FlatStyle {
     /* for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof LineSymbolizer])) {
         (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
@@ -873,7 +851,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * @param symbolizer A GeoStyler-Style TextSymbolizer.
    * @return The OL FlatStyle object
    */
-  flatStyleFromTextSymbolizer(symbolizer: TextSymbolizer, /* feat?: OlFeature */): FlatStyle {
+  flatStyleFromTextSymbolizer(symbolizer: TextSymbolizer): FlatStyle {
     /* for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof TextSymbolizer])) {
         (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
@@ -962,9 +940,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * @param symbolizer A GeoStyler-Style MarkSymbolizer.
    * @return The OL FlatStyle object
    */
-  flatStyleFromMarkSymbolizer(symbolizer: MarkSymbolizer/* , feat?: OlFeature */): FlatStyle {
-    //let stroke: any;
-
+  flatStyleFromMarkSymbolizer(symbolizer: MarkSymbolizer): FlatStyle {
     /* for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof MarkSymbolizer])) {
         (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
@@ -978,13 +954,6 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ? OlStyleUtil.getRgbaColor(strokeColor, strokeOpacity)
       : symbolizer.strokeColor as string;
 
-    /* if (symbolizer.strokeColor || symbolizer.strokeWidth !== undefined) {
-      stroke = new this.OlStyleStrokeConstructor({
-        color: sColor,
-        width: symbolizer.strokeWidth as number
-      });
-    } */
-
     const color = symbolizer.color as string;
     //const opacity = symbolizer.opacity as number;
     const radius = symbolizer.radius as number;
@@ -992,10 +961,6 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     const fColor = color && (fillOpacity !== undefined)
       ? OlStyleUtil.getRgbaColor(color, fillOpacity ?? 1)
       : color;
-
-    /* const fill = new this.OlStyleFillConstructor({
-      color: fColor
-    }); */
 
     let flatStyle: FlatStyle;
     const baseProps = {
