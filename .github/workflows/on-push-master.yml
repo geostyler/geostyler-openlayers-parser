@@ -1,4 +1,4 @@
-name: Test Push to Master
+name: Test Push to main
 
 on:
   push:
@@ -9,42 +9,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
-
     steps:
     - name: Checkout sources
       uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: Cache Node.js modules 💾
-      uses: actions/cache@v4
-      with:
-        path: ~/.npm
-        key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-
-          ${{ runner.OS }}-
+    - name: Set up bun
+      uses: oven-sh/setup-bun@v2
 
     - name: Install dependencies ⏬
-      run: npm install
+      run: bun install
 
     - name: Lint code 💄
-      run: npm run lint
+      run: bun run lint
 
     - name: Typecheck code 🤖
-      run: npm run typecheck
+      run: bun run typecheck
 
     - name: Test code ✅
-      run: npm run test
+      run: bun run test
 
     - name: Build artifacts 🏗️
-      run: npm run build
+      run: bun run build
 
     - name: Publish to coveralls ⭐
       # coverage/lcov.info was generated in the previous npm run build step
