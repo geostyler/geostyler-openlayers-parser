@@ -19,7 +19,7 @@ const unsupportedProperties: Style = {
       name: 'Text placement line-center',
       symbolizers: [{
         kind: 'Text',
-        placement: 'line-center' // this gets converted to 'line' in OL Style; partial support
+        placement: 'line-center'
       }]
     },
     {
