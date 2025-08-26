@@ -523,8 +523,8 @@ class OlFlatStyleUtil {
         ...args.map(OlFlatStyleUtil.gsFilterToOlFilter)
       ] as EncodedExpression;
     } else {
-      //TODO: filter = OlFlatStyleUtil.gsExpressionToOlExpression(gsFilter);
-      filter = gsFilter
+      // TODO: filter = OlFlatStyleUtil.gsExpressionToOlExpression(gsFilter);
+      filter = gsFilter;
     }
 
     return filter;
