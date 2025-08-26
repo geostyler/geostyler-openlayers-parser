@@ -319,7 +319,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ),
     };
   }
-  
+
   flatShapeStyleToGeoStylerMarkSymbolizer(flatStyle: FlatStyle): MarkSymbolizer {
     const [fillColor, fillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['shape-fill-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['shape-fill-color'])]
@@ -331,58 +331,58 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
 
     let wellKnownName: WellKnownName;
     switch (flatStyle['shape-points']) {
-        case 2:
-          switch (flatStyle['shape-angle']) {
-            case 0:
-              wellKnownName = 'shape://vertline';
-              break;
-            case Math.PI / 2:
-              wellKnownName = 'shape://horline';
-              break;
-            case Math.PI / 4:
-              wellKnownName = 'shape://slash';
-              break;
-            case 2 * Math.PI - (Math.PI / 4):
-              wellKnownName = 'shape://backslash';
-              break;
-            default:
-              break;
-          }
-          break;
-        case 3:
-          switch (flatStyle['shape-angle']) {
-            case 0:
-              wellKnownName = 'triangle';
-              break;
-            case Math.PI / 2:
-              wellKnownName = 'shape://carrow';
-              break;
-            default:
-              break;
-          }
-          break;
-        case 4:
-          if (Number.isFinite(flatStyle['shape-radius2'])) {
-            // cross or x
-            if (flatStyle['shape-angle'] === 0) {
-              // cross
-              wellKnownName = 'cross';
-            } else {
-              // x
-              wellKnownName = 'x';
-            }
+      case 2:
+        switch (flatStyle['shape-angle']) {
+          case 0:
+            wellKnownName = 'shape://vertline';
+            break;
+          case Math.PI / 2:
+            wellKnownName = 'shape://horline';
+            break;
+          case Math.PI / 4:
+            wellKnownName = 'shape://slash';
+            break;
+          case 2 * Math.PI - (Math.PI / 4):
+            wellKnownName = 'shape://backslash';
+            break;
+          default:
+            break;
+        }
+        break;
+      case 3:
+        switch (flatStyle['shape-angle']) {
+          case 0:
+            wellKnownName = 'triangle';
+            break;
+          case Math.PI / 2:
+            wellKnownName = 'shape://carrow';
+            break;
+          default:
+            break;
+        }
+        break;
+      case 4:
+        if (Number.isFinite(flatStyle['shape-radius2'])) {
+          // cross or x
+          if (flatStyle['shape-angle'] === 0) {
+            // cross
+            wellKnownName = 'cross';
           } else {
-            // square
-            wellKnownName = 'square';
+            // x
+            wellKnownName = 'x';
           }
-          break;
-        case 5:
-          // star
-          wellKnownName = 'star';
-          break;
-        default:
-          throw new Error('Could not parse FlatStyle. Only 2, 3, 4 or 5 point flat shapes are allowed');
-      }
+        } else {
+          // square
+          wellKnownName = 'square';
+        }
+        break;
+      case 5:
+        // star
+        wellKnownName = 'star';
+        break;
+      default:
+        throw new Error('Could not parse FlatStyle. Only 2, 3, 4 or 5 point flat shapes are allowed');
+    }
 
     // TODO add other shape properties
     return {
@@ -512,8 +512,8 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     return {
       name: 'OL Style',
       rules: [{
-          name: `OL Style Rule 0`,
-          symbolizers: flatStyleArray.map(this.flatStyleToGeoStylerSymbolizers, this).flat()
+        name: 'OL Style Rule 0',
+        symbolizers: flatStyleArray.map(this.flatStyleToGeoStylerSymbolizers, this).flat()
       }]
     };
   }
@@ -674,21 +674,21 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    */
   flatRuleArrayFromGeoStylerStyle(geoStylerStyle: Style): FlatRule[] {
     const rules = structuredClone(geoStylerStyle.rules);
-    //const flatStyle = (feature: any, resolution: number): any[] => {
-      const flatRules: FlatRule[] = [];
+    // const flatStyle = (feature: any, resolution: number): any[] => {
+    const flatRules: FlatRule[] = [];
 
-      // calculate scale for resolution (from ol-util MapUtil)
-      /* const dpi = 25.4 / 0.28;
+    // calculate scale for resolution (from ol-util MapUtil)
+    /* const dpi = 25.4 / 0.28;
       const mpu = METERS_PER_UNIT.m;
       const inchesPerMeter = 39.37;
       const scale = resolution * mpu * inchesPerMeter * dpi; */
 
-      rules.forEach((rule: Rule) => {
-        let flatFilter: EncodedExpression | undefined;
-        const flatStyles: FlatStyle[] = [];
+    rules.forEach((rule: Rule) => {
+      let flatFilter: EncodedExpression | undefined;
+      const flatStyles: FlatStyle[] = [];
 
-        // handling scale denominator
-        /* let minScale = rule?.scaleDenominator?.min;
+      // handling scale denominator
+      /* let minScale = rule?.scaleDenominator?.min;
         let maxScale = rule?.scaleDenominator?.max;
         let isWithinScale = true;
         if (minScale || maxScale) {
@@ -702,8 +702,8 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           }
         } */
 
-        // handling filter
-        /* let matchesFilter = false;
+      // handling filter
+      /* let matchesFilter = false;
         if (!rule.filter) {
           matchesFilter = true;
         } else {
@@ -713,43 +713,43 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
             matchesFilter = false;
           }
         } */
-        if (rule.filter) {
-          flatFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+      if (rule.filter) {
+        flatFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+      }
+
+      // if (isWithinScale && matchesFilter) {
+      rule.symbolizers.forEach((symb: Symbolizer) => {
+        if (symb.visibility === false) {
+          flatStyles.push(null as any);
         }
 
-        //if (isWithinScale && matchesFilter) {
-          rule.symbolizers.forEach((symb: Symbolizer) => {
-            if (symb.visibility === false) {
-              flatStyles.push(null as any);
-            }
+        if (isGeoStylerBooleanFunction(symb.visibility)) {
+          const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
+          if (!visibility) {
+            flatStyles.push(null as any);
+          }
+        }
 
-            if (isGeoStylerBooleanFunction(symb.visibility)) {
-              const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
-              if (!visibility) {
-                flatStyles.push(null as any);
-              }
-            }
-
-            const flatStyle = this.flatStyleFromSymbolizer(symb/* , feature */);
-            // either a FlatStyle or an ol.StyleFunction. OpenLayers only accepts an array
-            // of FlatStyles, not ol.StyleFunctions.
-            // So we have to check it and in case of an ol.StyleFunction call that function
-            // and add the returned style to const styles.
-            if (typeof flatStyle !== 'function') {
-              flatStyles.push(flatStyle);
-            }/*  else {
+        const flatStyle = this.flatStyleFromSymbolizer(symb/* , feature */);
+        // either a FlatStyle or an ol.StyleFunction. OpenLayers only accepts an array
+        // of FlatStyles, not ol.StyleFunctions.
+        // So we have to check it and in case of an ol.StyleFunction call that function
+        // and add the returned style to const styles.
+        if (typeof flatStyle !== 'function') {
+          flatStyles.push(flatStyle);
+        }/*  else {
               const styleFromFct: any = flatSymbolizer(feature, resolution);
               styles.push(styleFromFct);
             } */
-          });
-        //}
-        flatRules.push({
-          ...(flatFilter ? { filter: flatFilter } : {}),
-          style: flatStyles.length === 1 ? flatStyles[0] : flatStyles,
-        });
       });
-      return flatRules;
-    //};
+      // }
+      flatRules.push({
+        ...(flatFilter ? { filter: flatFilter } : {}),
+        style: flatStyles.length === 1 ? flatStyles[0] : flatStyles,
+      });
+    });
+    return flatRules;
+    // };
     /* const flatStyleFct: FlatParserStyleFct = flatStyle as FlatParserStyleFct;
     flatStyleFct.__geoStylerStyle = geoStylerStyle;
     return flatStyleFct; */
@@ -938,8 +938,8 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
   ): FlatStyle {
     const flatStyle = {
       'icon-src': isSprite(symbolizer.image)
-          ? (symbolizer.image.source as string)
-          : (symbolizer.image as string),
+        ? (symbolizer.image.source as string)
+        : (symbolizer.image as string),
       ...(symbolizer.opacity !== undefined ? { 'icon-opacity': symbolizer.opacity as number } : {}),
       ...(symbolizer.size ? { 'icon-width': symbolizer.size as number } : {}),
       ...(typeof(symbolizer.rotate) === 'number' ? { 'icon-rotation': symbolizer.rotate } : {}),
@@ -963,7 +963,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * @return The OL FlatStyle object
    */
   flatStyleFromMarkSymbolizer(symbolizer: MarkSymbolizer/* , feat?: OlFeature */): FlatStyle {
-    //let stroke: any;
+    // let stroke: any;
 
     /* for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof MarkSymbolizer])) {
@@ -986,7 +986,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     } */
 
     const color = symbolizer.color as string;
-    //const opacity = symbolizer.opacity as number;
+    // const opacity = symbolizer.opacity as number;
     const radius = symbolizer.radius as number;
     const fillOpacity = symbolizer.fillOpacity as number;
     const fColor = color && (fillOpacity !== undefined)
@@ -1016,7 +1016,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           ...(baseProps.sColor ? { 'circle-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.sWidth ? { 'circle-stroke-width': baseProps.sWidth } : {}),
           ...(baseProps.displacement ? { 'circle-displacement': baseProps.displacement } : {}),
-        } as FlatCircle
+        } as FlatCircle;
         break;
       case 'square':
         flatStyle = {

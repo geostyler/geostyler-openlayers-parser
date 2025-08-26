@@ -284,12 +284,12 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       expect(flatRules![1]).toHaveProperty('style');
     });
     it('can write an OpenLayers Flat PointSymbolizer', async () => {
-      let { output: flatStyle } = await styleParser.writeStyle(point_simplepoint);
+      const { output: flatStyle } = await styleParser.writeStyle(point_simplepoint);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_simplepoint);
     });
     it('can write an OpenLayers Flat PointSymbolizer with displacement', async () => {
-      let { output: flatStyle } = await styleParser.writeStyle(point_simpleoffset);
+      const { output: flatStyle } = await styleParser.writeStyle(point_simpleoffset);
       expect(flatStyle).toBeDefined();
       expect(flatStyle).toEqual(flat_point_simpleoffset);
     });
