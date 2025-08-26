@@ -11,13 +11,13 @@ export default defineConfig({
       formats: ['iife'],
       fileName: 'olStyleParser',
     },
+    sourcemap: true,
     rollupOptions: {
       output: {
         dir: 'dist',
         exports: 'named',
         generatedCode: 'es5',
         format: 'iife',
-        sourcemap: true
       },
     }
   },
