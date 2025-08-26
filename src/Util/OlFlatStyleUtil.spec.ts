@@ -76,8 +76,7 @@ const flatShape: FlatStyle = {
   'shape-points': 4
 };
 
-
-interface Fixture {
+interface TestCase {
   name: string;
   gsExpr: GeoStylerFunction;
   gsFilter?: Filter;
@@ -85,7 +84,7 @@ interface Fixture {
   exception?: string;
 }
 
-const expressionFixtures: Fixture[] = [
+const testCases: TestCase[] = [
   {
     name: 'Addition',
     olExpr: ['+', 1, 2],
@@ -1002,7 +1001,7 @@ describe('OlFlatStyleUtil', () => {
   });
 
   describe('olExpressionToGsExpression', () => {
-    const olExpressionFixture = expressionFixtures.filter(f => f.olExpr);
+    const olExpressionFixture = testCases.filter(f => f.olExpr);
     olExpressionFixture.forEach(({name, olExpr, gsExpr}) => {
       it(`converts ${name}`, () => {
         const output = OlFlatStyleUtil.olExpressionToGsExpression(olExpr!);
@@ -1012,7 +1011,7 @@ describe('OlFlatStyleUtil', () => {
   });
 
   describe('olFilterToGsFilter', () => {
-    const filterFixtures = expressionFixtures.filter(f => f.gsFilter);
+    const filterFixtures = testCases.filter(f => f.gsFilter);
     filterFixtures.forEach(({name, olExpr, gsFilter}) => {
       it(`converts ${name}`, () => {
         const output = OlFlatStyleUtil.olFilterToGsFilter(olExpr!);
