@@ -10,7 +10,8 @@ const functionMarkSymbolizer: Style = {
         wellKnownName: 'cross',
         strokeColor: '#FF0000',
         radius: {
-          name: 'pi'
+          name: 'add',
+          args: [3, 2]
         }
       }]
     }

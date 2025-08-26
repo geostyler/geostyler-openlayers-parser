@@ -1,11 +1,10 @@
 import { FlatStyleLike } from 'ol/style/flat';
 
-const filterSimpleFilter: FlatStyleLike = [
+const functionBoolean: FlatStyleLike = [
   {
     filter: [
-      '==',
-      ['get', 'Name'],
-      'Bonn'
+      'between',
+      ['get', 'testprop'], 0, 1
     ],
     style: {
       'circle-radius': 10,
@@ -19,4 +18,4 @@ const filterSimpleFilter: FlatStyleLike = [
   }
 ];
 
-export default filterSimpleFilter;
+export default functionBoolean;

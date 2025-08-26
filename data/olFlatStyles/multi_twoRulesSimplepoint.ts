@@ -1,16 +1,16 @@
-import { Rule } from "ol/style/flat";
+import { FlatStyleLike } from 'ol/style/flat';
 
-const multiTwoRulesSimplepoint: Rule[] = [
+const multiTwoRulesSimplepoint: FlatStyleLike = [
   {
-    style: { 
-      "circle-fill-color": "#FF0000",
-      "circle-radius": 6
+    style: {
+      'circle-fill-color': '#FF0000',
+      'circle-radius': 6
     },
   },
   {
     style: {
-      "circle-fill-color": "#FF1111",
-      "circle-radius": 4,
+      'circle-fill-color': '#FF1111',
+      'circle-radius': 4,
     },
   },
 ];

@@ -13,8 +13,8 @@ const functionNestedFillSymbolizer: Style = {
           args: [{
             name: 'pi'
           }, {
-            name: 'strLength',
-            args: ['Peter']
+            name: 'add',
+            args: [3, 2]
           }]
         }
       }]
