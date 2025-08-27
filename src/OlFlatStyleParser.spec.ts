@@ -173,7 +173,9 @@ const testCases: TestCase[] = [
   {
     name: 'mark symbolizer as wellKnownName shape://oarrow',
     olFlatStyle: flat_point_simpleoarrow,
-    gsStyle: point_simpleoarrow
+    gsStyle: point_simpleoarrow,
+    // using point_simplecarrow since the OL flat style is identical between oarrow and carrow
+    gsTargetStyle: point_simplecarrow,
   },
   {
     name: 'mark symbolizer as wellKnownName shape://dot',
@@ -185,7 +187,9 @@ const testCases: TestCase[] = [
   {
     name: 'mark symbolizer as wellKnownName shape://plus',
     olFlatStyle: flat_point_simpleplus,
-    gsStyle: point_simpleplus
+    gsStyle: point_simpleplus,
+    // using point_simplecross since the OL flat style is identical between plus and cross
+    gsTargetStyle: point_simplecross,
   },
   {
     name: 'mark symbolizer as wellKnownName shape://times',
