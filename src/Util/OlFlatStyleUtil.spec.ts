@@ -943,37 +943,6 @@ describe('OlFlatStyleUtil', () => {
   });
 
   describe('hasFlatShape', () => {
-    it('returns false a flat circle', () => {
-      const hasFlatShape = OlFlatStyleUtil.hasFlatShape(flatCircle);
-      expect(hasFlatShape).toBe(false);
-    });
-    it('returns false for a flat fill', () => {
-      const hasFlatShape = OlFlatStyleUtil.hasFlatShape(flatFill);
-      expect(hasFlatShape).toBe(false);
-    });
-    it('returns false for a flat stroke', () => {
-      const hasFlatShape = OlFlatStyleUtil.hasFlatShape(flatStroke);
-      expect(hasFlatShape).toBe(false);
-    });
-    it('returns false for a flat text', () => {
-      const hasFlatShape = OlFlatStyleUtil.hasFlatShape(flatText);
-      expect(hasFlatShape).toBe(false);
-    });
-    it('returns false for a flat icon', () => {
-      const hasFlatShape = OlFlatStyleUtil.hasFlatShape(flatIcon);
-      expect(hasFlatShape).toBe(false);
-    });
-    it('returns true for a flat shape', () => {
-      const hasFlatShape = OlFlatStyleUtil.hasFlatShape(flatShape);
-      expect(hasFlatShape).toBe(true);
-    });
-    it('returns false for a flat shape', () => {
-      const hasFlatCircle = OlFlatStyleUtil.hasFlatCircle(flatShape);
-      expect(hasFlatCircle).toBe(false);
-    });
-  });
-
-  describe('hasFlatShape', () => {
     it('returns true for a flat shape', () => {
       const hasFlatCircle = OlFlatStyleUtil.hasFlatShape(flatShape);
       expect(hasFlatCircle).toBe(true);
