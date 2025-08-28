@@ -983,8 +983,18 @@ describe('OlFlatStyleUtil', () => {
     const filterFixtures = testCases.filter(f => f.gsFilter);
     filterFixtures.forEach(({name, olExpr, gsFilter}) => {
       it(`converts ${name}`, () => {
-        const output = OlFlatStyleUtil.olFilterToGsFilter(olExpr!);
+        const output = OlFlatStyleUtil.olFilterToGsFilter(olExpr);
         expect(output).toEqual(gsFilter);
+      });
+    });
+  });
+
+  describe('gsFilterToOlFilter', () => {
+    const filterFixtures = testCases.filter(f => f.gsFilter);
+    filterFixtures.forEach(({name, olExpr, gsFilter}) => {
+      it(`converts ${name}`, () => {
+        const output = OlFlatStyleUtil.gsFilterToOlFilter(gsFilter);
+        expect(output).toEqual(olExpr);
       });
     });
   });
