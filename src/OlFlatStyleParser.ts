@@ -897,11 +897,6 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     } */
 
     let placement = symbolizer.placement;
-    if (!placement) {
-      // When setting placement it must not be undefined.
-      // So we set it to the OL default value.
-      placement = 'point';
-    }
     if (placement === 'line-center') {
       // line-center not supported by OL.
       // So we use the closest supported value.
@@ -923,15 +918,12 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ...(symbolizer.size && symbolizer.font ? { 'text-font': OlStyleUtil.getTextFont(symbolizer) } : {}),
       ...(fColor ? { 'text-fill-color': fColor } : {}),
       ...(sColor ? { 'text-stroke-color': sColor } : {}),
-      'text-stroke-width': haloWidth ? haloWidth : 0 as number,
+      ...(haloWidth ? { 'text-stroke-width': haloWidth } : {}),
       ...(symbolizer.allowOverlap !== undefined ? { 'text-overflow': symbolizer.allowOverlap as boolean } : {}),
-      'text-offset-x': (symbolizer.offset ? symbolizer.offset[0] : 0) as number,
-      'text-offset-y': (symbolizer.offset ? symbolizer.offset[1] : 0) as number,
+      ...(symbolizer.offset ? { 'text-offset-x': symbolizer.offset[0] as number } : {}),
+      ...(symbolizer.offset ? { 'text-offset-y': symbolizer.offset[1] as number } : {}),
       ...(typeof(symbolizer.rotate) === 'number' ? { 'text-rotation':  symbolizer.rotate } : {}),
-      'text-placement': placement as 'line' | 'point'
-      // TODO check why props match
-      // textAlign: symbolizer.pitchAlignment,
-      // textBaseline: symbolizer.anchor
+      ...(symbolizer.placement ? { 'text-placement': placement as 'line' | 'point' } : {}),
     };
 
     // check if TextSymbolizer.label contains a placeholder
