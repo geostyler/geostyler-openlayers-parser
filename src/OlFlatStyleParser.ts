@@ -4,6 +4,7 @@ import {
   IconSymbolizer,
   isGeoStylerBooleanFunction,
   isGeoStylerFunction,
+  isGeoStylerStringFunction,
   isSprite,
   JoinType,
   LineSymbolizer,
@@ -927,10 +928,22 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       // textBaseline: symbolizer.anchor
     };
 
-    // TODO add support for placeholder in label
-
-    if (symbolizer.label !== undefined) {
-      flatStyle['text-value'] = symbolizer.label as string;
+    // check if TextSymbolizer.label contains a placeholder
+    const prefix = '\\{\\{';
+    const suffix = '\\}\\}';
+    const regExp = new RegExp(prefix + '.*?' + suffix, 'g');
+    let regExpRes;
+    if (!isGeoStylerStringFunction(symbolizer.label)) {
+      regExpRes = symbolizer.label ? symbolizer.label.match(regExp) : null;
+    }
+    if (regExpRes) {
+      // if it contains a placeholder
+      flatStyle['text-value'] = ['get', regExpRes[0].replace('{{', '').replace('}}', '')];
+    } else {
+      // if TextSymbolizer does not contain a placeholder
+      if (symbolizer.label !== undefined) {
+        flatStyle['text-value'] = symbolizer.label as string;
+      }
     }
 
     return flatStyle;
