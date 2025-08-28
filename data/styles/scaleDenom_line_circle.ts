@@ -21,8 +21,7 @@ const scaleDenomLineCircle: Style = {
     }, {
       name: 'OL Style Rule 1',
       scaleDenominator: {
-        min: 500,
-        max: 1000
+        min: 800
       },
       symbolizers: [{
         kind: 'Mark',
