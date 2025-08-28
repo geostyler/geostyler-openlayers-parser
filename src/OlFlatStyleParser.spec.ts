@@ -43,6 +43,7 @@ import polygon_simple from '../data/styles/polygon_simple';
 import polygon_transparentpolygon from '../data/styles/polygon_transparentpolygon';
 import scaleDenom_line from '../data/styles/scaleDenom_line';
 import scaleDenom_line_circle from '../data/styles/scaleDenom_line_circle';
+import scaleDenom_line_nestedFilter from '../data/styles/scaleDenom_line_nestedFilter';
 import text_placement_line from '../data/styles/text_placement_line';
 import text_placement_point from '../data/styles/text_placement_point';
 import unsupported_properties from '../data/styles/unsupported_properties';
@@ -86,6 +87,7 @@ import flat_polygon_simple from '../data/olFlatStyles/polygon_simple';
 import flat_polygon_transparentpolygon from '../data/olFlatStyles/polygon_transparentpolygon';
 import flat_scaleDenom_line from '../data/olFlatStyles/scaleDenom_line';
 import flat_scaleDenom_line_circle from '../data/olFlatStyles/scaleDenom_line_circle';
+import flat_scaleDenom_line_nestedFilter from '../data/olFlatStyles/scaleDenom_line_nestedFilter';
 import flat_text_placement_line from '../data/olFlatStyles/text_placement_line';
 import flat_text_placement_point from '../data/olFlatStyles/text_placement_point';
 import flat_unsupported_properties from '../data/olFlatStyles/unsupported_properties';
@@ -318,6 +320,11 @@ const testCases: TestCase[] = [
     name: 'two symbolizers with different scale denominator ranges',
     olFlatStyle: flat_scaleDenom_line_circle,
     gsStyle: scaleDenom_line_circle
+  },
+  {
+    name: 'line symbolizer with scale denominator range and nested filter',
+    olFlatStyle: flat_scaleDenom_line_nestedFilter,
+    gsStyle: scaleDenom_line_nestedFilter
   },
   {
     name: 'GS style with unsupported properties',

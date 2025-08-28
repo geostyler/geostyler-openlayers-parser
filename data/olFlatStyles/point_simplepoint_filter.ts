@@ -7,12 +7,12 @@ const scale = ['*', ['resolution'], inchesPerMeter * dpi];
 const pointSimplePoint: FlatStyleLike =[
   {
     filter: ['all',
+      ['>=', scale, 10000],
+      ['<', scale, 20000],
       ['==', ['get', 'NAME'], 'New York'],
       ['!',
         ['>', ['get', 'POPULATION'], 100000]
-      ],
-      ['>=', scale, 10000],
-      ['<', scale, 20000]
+      ]
     ],
     style: {
       'circle-fill-color': '#FF0000',

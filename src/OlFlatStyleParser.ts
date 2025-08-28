@@ -3,6 +3,7 @@ import {
   FillSymbolizer,
   IconSymbolizer,
   isGeoStylerBooleanFunction,
+  isGeoStylerFunction,
   isSprite,
   JoinType,
   LineSymbolizer,
@@ -602,11 +603,11 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * 2. FlatStyle[] if input Style consists of
    *    one rule with multiple symbolizers, no filter, no scaleDenominator
    * 3. FlatRule[] if input Style consists of
-   *    multiple rules, no filter, no scaleDenominator
+   *    multiple rules, or contains filters or scaleDenominators
    *
    * @param geoStylerStyle A GeoStyler-Style Style
    */
-  flatStyleLikeFromGeoStylerStyle(geoStylerStyle: Style): FlatStyle | FlatStyle[] | FlatRule[] | undefined {
+  flatStyleLikeFromGeoStylerStyle(geoStylerStyle: Style): FlatStyle | FlatStyle[] | FlatRule[] {
     const rules = geoStylerStyle.rules;
     const nrRules = rules.length;
     if (nrRules === 1) {
@@ -629,9 +630,9 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         } else {
           return this.flatStyleArrayFromGeoStylerStyle(geoStylerStyle);
         }
-      }/*  else {
-        return this.geoStylerStyleToOlParserStyleFct(geoStylerStyle);
-      } */
+      } else {
+        return this.flatRuleArrayFromGeoStylerStyle(geoStylerStyle);
+      }
     } else {
       return this.flatRuleArrayFromGeoStylerStyle(geoStylerStyle);
     }
@@ -678,43 +679,51 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     const flatRules: FlatRule[] = [];
 
     // calculate scale for resolution (from ol-util MapUtil)
-    /* const dpi = 25.4 / 0.28;
-      const mpu = METERS_PER_UNIT.m;
-      const inchesPerMeter = 39.37;
-      const scale = resolution * mpu * inchesPerMeter * dpi; */
+    const dpi = 25.4 / 0.28;
+    const inchesPerMeter = 39.37;
+    const scale = ['*', ['resolution'], inchesPerMeter * dpi];
 
     rules.forEach((rule: Rule) => {
+      let minScaleFilter: EncodedExpression | undefined;
+      let maxScaleFilter: EncodedExpression | undefined;
+      let flatFilters: EncodedExpression[] = [];
       let flatFilter: EncodedExpression | undefined;
       const flatStyles: FlatStyle[] = [];
 
       // handling scale denominator
-      /* let minScale = rule?.scaleDenominator?.min;
-        let maxScale = rule?.scaleDenominator?.max;
-        let isWithinScale = true;
-        if (minScale || maxScale) {
-          minScale = isGeoStylerFunction(minScale) ? OlStyleUtil.evaluateNumberFunction(minScale) : minScale;
-          maxScale = isGeoStylerFunction(maxScale) ? OlStyleUtil.evaluateNumberFunction(maxScale) : maxScale;
-          if (minScale && scale < minScale) {
-            isWithinScale = false;
-          }
-          if (maxScale && scale >= maxScale) {
-            isWithinScale = false;
-          }
-        } */
+      let minScale = rule?.scaleDenominator?.min;
+      let maxScale = rule?.scaleDenominator?.max;
+      if (minScale || maxScale) {
+        minScale = isGeoStylerFunction(minScale) ? OlStyleUtil.evaluateNumberFunction(minScale) : minScale;
+        maxScale = isGeoStylerFunction(maxScale) ? OlStyleUtil.evaluateNumberFunction(maxScale) : maxScale;
+        if (minScale !== undefined) {
+          minScaleFilter = ['>=', scale, minScale];
+          flatFilters.push(minScaleFilter);
+        }
+        if (maxScale !== undefined) {
+          maxScaleFilter = ['<', scale, maxScale];
+          flatFilters.push(maxScaleFilter);
+        }
+      }
 
       // handling filter
-      /* let matchesFilter = false;
-        if (!rule.filter) {
-          matchesFilter = true;
-        } else {
-          try {
-            matchesFilter = this.geoStylerFilterToOlParserFilter(feature, rule.filter);
-          } catch (e) {
-            matchesFilter = false;
-          }
-        } */
       if (rule.filter) {
-        flatFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+        const ruleFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+        if (ruleFilter) {
+          if (Array.isArray(ruleFilter) && ruleFilter[0] === 'all' && (minScaleFilter || maxScaleFilter)) {
+            // remove all since we anyway combine the filters with an all
+            ruleFilter.shift();
+            flatFilters = [...flatFilters, ...ruleFilter];
+          } else {
+          flatFilters.push(ruleFilter);
+          }
+        }
+      }
+
+      if (flatFilters.length === 1) {
+        flatFilter = flatFilters[0];
+      } else if (flatFilters.length > 1) {
+        flatFilter = ['all', ...flatFilters];
       }
 
       // if (isWithinScale && matchesFilter) {
