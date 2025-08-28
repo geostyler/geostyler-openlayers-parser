@@ -9,7 +9,6 @@ const pointStyledLabel: FlatStyle = {
   'text-offset-x': 0,
   'text-offset-y': 5,
   'text-rotation': 45,
-  'text-placement': 'point',
 };
 
 export default pointStyledLabel;
