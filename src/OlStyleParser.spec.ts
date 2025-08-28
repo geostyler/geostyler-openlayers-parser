@@ -1051,7 +1051,7 @@ describe('OlStyleParser implements StyleParser', () => {
 
     const scaleWithinFirst = scaleDenomLineCircle?.rules?.[0].scaleDenominator?.min as number;
     const scaleWithinSecond = scaleDenomLineCircle?.rules?.[1].scaleDenominator?.min as number;
-    const scaleBeyond = scaleDenomLineCircle?.rules?.[1].scaleDenominator?.max as number;
+    const scaleBeyond = scaleDenomLineCircle?.rules?.[1].scaleDenominator?.min as number - 1;
 
     const resolutionWithinFirst = getResolutionForScale(scaleWithinFirst, 'm');
     const resolutionWithinSecond = getResolutionForScale(scaleWithinSecond, 'm');

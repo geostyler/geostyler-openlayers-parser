@@ -16,7 +16,7 @@ const scaleDenomLineCircle: FlatStyleLike = [
       'stroke-line-dash-offset': 5
     }
   }, {
-    filter: ['all', ['>=', scale, 500], ['<', scale, 1000]],
+    filter: ['>=', scale, 800],
     style: {
       'circle-radius': 6,
       'circle-fill-color': '#FF0000',
