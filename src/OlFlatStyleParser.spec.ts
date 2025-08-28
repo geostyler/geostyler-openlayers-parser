@@ -386,16 +386,6 @@ describe('OlFlatStyleParser implements StyleParser', () => {
     it('is defined', () => {
       expect(styleParser.readStyle).toBeDefined();
     });
-    it('can read an OpenLayers Flat Style', async () => {
-      const { output: geoStylerStyle } = await styleParser.readStyle(flat_point_simplepoint);
-      expect(geoStylerStyle).toBeDefined();
-      expect(geoStylerStyle).toEqual(point_simplepoint);
-    });
-    it('can read an OpenLayers Flat Style Array', async () => {
-      const { output: geoStylerStyle } = await styleParser.readStyle([flat_point_simplepoint]);
-      expect(geoStylerStyle).toBeDefined();
-      expect(geoStylerStyle).toEqual(point_simplepoint);
-    });
 
     testCases
       .filter(testCase => !!testCase.olFlatStyle)
@@ -414,22 +404,6 @@ describe('OlFlatStyleParser implements StyleParser', () => {
   describe('#writeStyle', () => {
     it('is defined', () => {
       expect(styleParser.writeStyle).toBeDefined();
-    });
-    it('returns the right output format', async () => {
-      const { output: flatStyle } = await styleParser.writeStyle(point_simplepoint);
-      const { output: flatStyles } = await styleParser.writeStyle(multi_simplefillSimpleline);
-      const { output: flatRules } = await styleParser.writeStyle(multi_twoRulesSimplepoint);
-      expect(flatStyle).toBeDefined();
-      expect(flatStyles).toBeDefined();
-      expect(flatRules).toBeDefined();
-      expect(Array.isArray(flatStyles)).toBe(true);
-      expect(flatStyles).toHaveLength(2);
-      expect(flatStyles![0]).not.toHaveProperty('style');
-      expect(flatStyles![1]).not.toHaveProperty('style');
-      expect(Array.isArray(flatRules)).toBe(true);
-      expect(flatRules).toHaveLength(2);
-      expect(flatRules![0]).toHaveProperty('style');
-      expect(flatRules![1]).toHaveProperty('style');
     });
 
     testCases

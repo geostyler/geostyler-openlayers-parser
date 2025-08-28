@@ -616,16 +616,8 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       const hasMinScale = geoStylerStyle?.rules?.[0]?.scaleDenominator?.min !== undefined ? true : false;
       const hasMaxScale = geoStylerStyle?.rules?.[0]?.scaleDenominator?.max !== undefined ? true : false;
       const hasScaleDenominator = hasMinScale || hasMaxScale ? true : false;
-      const hasFunctions = OlStyleUtil.containsGeoStylerFunctions(geoStylerStyle);
-
-      const nrSymbolizers = geoStylerStyle.rules[0].symbolizers.length;
-      /* const hasTextSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
-        return symbolizer.kind === 'Text';
-      }); */
-      const hasDynamicIconSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
-        return symbolizer.kind === 'Icon' && typeof(symbolizer.image) === 'string' && symbolizer.image.includes('{{');
-      });
-      if (!hasFilter && !hasScaleDenominator && !hasDynamicIconSymbolizer && !hasFunctions) {
+      if (!hasFilter && !hasScaleDenominator) {
+        const nrSymbolizers = geoStylerStyle.rules[0].symbolizers.length;
         if (nrSymbolizers === 1) {
           return this.flatStyleFromGeoStylerStyle(geoStylerStyle);
         } else {
@@ -658,14 +650,28 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * @param geoStylerStyle GeoStyler-Style Style
    * @return An array of OpenLayers Style Objects
    */
-  flatStyleArrayFromGeoStylerStyle(geoStylerStyle: Style): FlatStyle[] {
+  flatStyleArrayFromGeoStylerStyle(geoStylerStyle: Style): FlatStyle | FlatStyle[] {
     const rule = geoStylerStyle.rules[0];
     const flatStyles: FlatStyle[] = [];
+    rule.symbolizers.sort((symb1: Symbolizer, symb2: Symbolizer) => {
+      return symb1.kind < symb2.kind ? -1 : 1;
+    });
+    let prevKind: string | null = null;
     rule.symbolizers.forEach((symbolizer: Symbolizer) => {
       const flatStyle = this.flatStyleFromSymbolizer(symbolizer);
-      flatStyles.push(flatStyle);
+      if (prevKind !== symbolizer.kind) {
+        let mergedStyle = flatStyle;
+        const lastStyle = flatStyles.pop();
+        if (lastStyle) {
+          mergedStyle = Object.assign(lastStyle, flatStyle);
+        }
+        flatStyles.push(mergedStyle);
+        prevKind = symbolizer.kind;
+      } else {
+        flatStyles.push(flatStyle);
+      }
     });
-    return flatStyles;
+    return flatStyles.length === 1 ? flatStyles[0] : flatStyles;
   }
 
   /**
