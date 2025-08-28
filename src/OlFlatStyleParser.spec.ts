@@ -8,6 +8,7 @@ import filter_comparison_propertyFunction from '../data/styles/filter_comparison
 import filter_nestedFilter from '../data/styles/filter_nestedFilter';
 import filter_resolution from '../data/styles/filter_resolution';
 import filter_simpleFilter from '../data/styles/filter_simpleFilter';
+import function_boolean from '../data/styles/function_boolean';
 import function_case from '../data/styles/function_case';
 import function_markSymbolizer from '../data/styles/function_markSymbolizer';
 import function_nested_fillSymbolizer from '../data/styles/function_nested_fillSymbolizer';
@@ -291,7 +292,7 @@ const testCases: TestCase[] = [
   {
     name: 'style with boolean function',
     olFlatStyle: flat_function_boolean,
-    gsStyle: filter_resolution
+    gsStyle: function_boolean
   },
   {
     name: 'style with case function',
