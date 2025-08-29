@@ -295,7 +295,7 @@ const testCases: TestCase[] = [
   {
     name: 'resolution-based filter',
     olFlatStyle: flat_filter_resolution,
-    gsStyle: filter_resolution
+    gsTargetStyle: filter_resolution
   },
   {
     name: 'style with boolean function',
