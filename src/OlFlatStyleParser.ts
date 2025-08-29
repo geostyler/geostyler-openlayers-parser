@@ -518,7 +518,33 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     };
 
     if (flatRule.filter) {
-      rule.filter = OlFlatStyleUtil.olFilterToGsFilter(flatRule.filter);
+      if (
+        Array.isArray(flatRule.filter) &&
+        flatRule.filter.length === 3 &&
+        ['>=', '<'].includes(flatRule.filter[0]) &&
+        Array.isArray(flatRule.filter[1]) &&
+        flatRule.filter[1].length === 1 &&
+        flatRule.filter[1][0] === 'resolution' &&
+        !OlFlatStyleUtil.isExpression(flatRule.filter[2])
+      ) {
+        const resolution = flatRule.filter[2];
+
+        const dpi = 25.4 / 0.28;
+        const inchesPerMeter = 39.37;
+        const scale = resolution * inchesPerMeter * dpi;
+        if (flatRule.filter[0] === '>=') {
+          rule.scaleDenominator = {
+            min: scale
+          };
+        }
+        if (flatRule.filter[0] === '<') {
+          rule.scaleDenominator = {
+            max: scale
+          };
+        }
+      } else {
+        rule.filter = OlFlatStyleUtil.olFilterToGsFilter(flatRule.filter);
+      }
     }
 
     return rule;
