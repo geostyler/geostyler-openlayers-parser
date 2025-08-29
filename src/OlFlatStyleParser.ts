@@ -189,17 +189,39 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['stroke-color']);
 
-    return {
-      kind: 'Fill',
-      color: fillColor,
-      fillOpacity,
-      outlineColor,
-      outlineOpacity,
-      outlineWidth: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['stroke-width']),
-      outlineCap: OlFlatStyleUtil.olExpressionToGsExpression<CapType>(flatStyle['stroke-line-cap']),
-      outlineJoin: OlFlatStyleUtil.olExpressionToGsExpression<JoinType>(flatStyle['stroke-line-join']),
-      outlineDasharray: OlFlatStyleUtil.olExpressionToGsExpression<number[]>(flatStyle['stroke-line-dash']),
+    const symbolizer: FillSymbolizer = {
+      kind: 'Fill'
     };
+
+    if (fillColor !== undefined) {
+      symbolizer.color = fillColor;
+    }
+    if (fillOpacity !== undefined) {
+      symbolizer.fillOpacity = fillOpacity;
+    }
+    if (outlineColor !== undefined) {
+      symbolizer.outlineColor = outlineColor;
+    }
+    const outlineDasharray = OlFlatStyleUtil.olExpressionToGsExpression<number[]>(flatStyle['stroke-line-dash']);
+    if (outlineDasharray !== undefined) {
+      symbolizer.outlineDasharray = outlineDasharray;
+    }
+    if (outlineOpacity !== undefined) {
+      symbolizer.outlineOpacity = outlineOpacity;
+    }
+    const outlineWidth = OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['stroke-width']);
+    if (outlineWidth !== undefined) {
+      symbolizer.outlineWidth = outlineWidth;
+    }
+    const outlineCap = OlFlatStyleUtil.olExpressionToGsExpression<CapType>(flatStyle['stroke-line-cap']);
+    if (outlineCap !== undefined) {
+      symbolizer.outlineCap = outlineCap;
+    }
+    const outlineJoin = OlFlatStyleUtil.olExpressionToGsExpression<JoinType>(flatStyle['stroke-line-join']);
+    if (outlineJoin !== undefined) {
+      symbolizer.outlineJoin = outlineJoin;
+    }
+    return symbolizer;
   }
 
   flatStyleToGeoStylerLineSymbolizer(flatStyle: FlatStyle): LineSymbolizer {

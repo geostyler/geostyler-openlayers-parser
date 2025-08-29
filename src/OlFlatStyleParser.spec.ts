@@ -57,6 +57,7 @@ import flat_function_case from '../data/olFlatStyles/function_case';
 import flat_function_markSymbolizer from '../data/olFlatStyles/function_markSymbolizer';
 import flat_function_nested_fillSymbolizer from '../data/olFlatStyles/function_nested_fillSymbolizer';
 import flat_line_simpleline from '../data/olFlatStyles/line_simpleline';
+import flat_multi_simplefillSimpleline_merged from '../data/olFlatStyles/multi_simplefillSimpleline_merged';
 import flat_multi_simplefillSimpleline from '../data/olFlatStyles/multi_simplefillSimpleline';
 import flat_multi_simplelineLabel from '../data/olFlatStyles/multi_simplelineLabel';
 import flat_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
@@ -259,7 +260,12 @@ const testCases: TestCase[] = [
   {
     name: 'multiple symbolizers of different kinds',
     olFlatStyle: flat_multi_simplefillSimpleline,
-    gsStyle: multi_simplefillSimpleline
+    gsTargetStyle: multi_simplefillSimpleline
+  },
+  {
+    name: 'multiple symbolizers of different kinds (merged)',
+    gsStyle: multi_simplefillSimpleline,
+    olTargetFlatStyle: flat_multi_simplefillSimpleline_merged
   },
   {
     name: 'multiple symbolizers of same kind',
