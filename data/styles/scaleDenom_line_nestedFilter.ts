@@ -1,10 +1,23 @@
 import { Style } from 'geostyler-style';
 
-const scaleDenomLineCircle: Style = {
+const scaleDenomLineNestedFilter: Style = {
   name: 'OL Style',
   rules: [
     {
       name: 'OL Style Rule 0',
+      filter: [
+        '&&',
+        ['==', 'state', 'germany'],
+        [
+          '||',
+          ['>=', 'population', 100000],
+          ['<', 'population', 200000]
+        ],
+        [
+          '!',
+          ['==', 'name', 'Schalke']
+        ]
+      ],
       scaleDenominator: {
         min: 0,
         max: 500
@@ -18,19 +31,8 @@ const scaleDenomLineCircle: Style = {
         join: 'miter',
         dashOffset: 5
       }]
-    }, {
-      name: 'OL Style Rule 1',
-      scaleDenominator: {
-        min: 800
-      },
-      symbolizers: [{
-        kind: 'Mark',
-        wellKnownName: 'circle',
-        color: '#FF0000',
-        radius: 6
-      }]
     }
   ]
 };
 
-export default scaleDenomLineCircle;
+export default scaleDenomLineNestedFilter;

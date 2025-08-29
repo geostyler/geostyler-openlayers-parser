@@ -14,6 +14,30 @@ const unsupportedProperties: Style = {
         image: 'peter.png',
         anchor: 'bottom-left'
       }]
+    },
+    {
+      name: 'Text placement line-center',
+      symbolizers: [{
+        kind: 'Text',
+        placement: 'line-center'
+      }]
+    },
+    {
+      name: 'Mark symbolizer used as graphic fill',
+      symbolizers: [{
+        kind: 'Fill',
+        graphicFill: {
+          kind: 'Mark',
+          wellKnownName: 'circle'
+        }
+      }]
+    },
+    {
+      name: 'Dynamic icon path',
+      symbolizers: [{
+        kind: 'Icon',
+        image: '{{path}}',
+      }]
     }
   ]
 };

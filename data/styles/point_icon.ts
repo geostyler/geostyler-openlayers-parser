@@ -1,6 +1,6 @@
 import { Style } from 'geostyler-style';
 
-const pointSimplePoint: Style = {
+const pointIconPoint: Style = {
   name: 'OL Style',
   rules: [
     {
@@ -17,4 +17,4 @@ const pointSimplePoint: Style = {
   ]
 };
 
-export default pointSimplePoint;
+export default pointIconPoint;

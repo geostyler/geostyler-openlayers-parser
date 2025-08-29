@@ -1,7 +1,7 @@
 import { FlatStyle } from 'ol/style/flat';
 
-const textPlacementLine: FlatStyle = {
-  'text-placement': 'line',
+const textPlacementPoint: FlatStyle = {
+  'text-placement': 'point',
   'text-fill-color': '#333',
   'text-value': 'name',
   'text-offset-x': 0,
@@ -9,4 +9,4 @@ const textPlacementLine: FlatStyle = {
   'text-stroke-width': 5
 };
 
-export default textPlacementLine;
+export default textPlacementPoint;
