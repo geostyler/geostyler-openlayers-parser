@@ -181,11 +181,11 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
 
   flatStyleToGeoStylerFillSymbolizer(flatStyle: FlatStyle): FillSymbolizer {
     // NOTE: If fillColor is an expression, we cannot detect the opacity
-    const [fillColor, fillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['fill-color'])
+    const [fillColor, fillOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['fill-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['fill-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['fill-color']);
 
-    const [outlineColor, outlineOpacity] = OlFlatStyleUtil.isExpression(flatStyle['stroke-color'])
+    const [outlineColor, outlineOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['stroke-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['stroke-color']);
 
@@ -225,7 +225,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
   }
 
   flatStyleToGeoStylerLineSymbolizer(flatStyle: FlatStyle): LineSymbolizer {
-    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isExpression(flatStyle['stroke-color'])
+    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['stroke-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['stroke-color']);
 
@@ -246,18 +246,18 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
   }
 
   flatTextStyleToGeoStylerTextSymbolizer(flatStyle: FlatStyle): TextSymbolizer {
-    const [textFillColor, textFillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['text-fill-color'])
+    const [textFillColor, textFillOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['text-fill-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-fill-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['text-fill-color']);
 
-    const [textStrokeColor, textStrokeOpacity] = OlFlatStyleUtil.isExpression(flatStyle['text-stroke-color'])
+    const [textStrokeColor, textStrokeOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['text-stroke-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['text-stroke-color']);
 
     let font: TextSymbolizer['font'] = undefined;
     let fontSize: TextSymbolizer['size'] = undefined;
 
-    if (OlFlatStyleUtil.isExpression(flatStyle['text-font'])) {
+    if (OlFlatStyleUtil.isOlExpression(flatStyle['text-font'])) {
       // NOTE: If font is an expression, we cannot detect the size
       font = [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-font'])];
     } else if (flatStyle['text-font']) {
@@ -320,11 +320,11 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
   }
 
   flatCircleStyleToGeoStylerMarkSymbolizer(flatStyle: FlatStyle): MarkSymbolizer {
-    const [fillColor, fillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['circle-fill-color'])
+    const [fillColor, fillOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['circle-fill-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['circle-fill-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['circle-fill-color']);
 
-    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isExpression(flatStyle['circle-stroke-color'])
+    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['circle-stroke-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['circle-stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['circle-stroke-color']);
 
@@ -345,11 +345,11 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
   }
 
   flatShapeStyleToGeoStylerMarkSymbolizer(flatStyle: FlatStyle): MarkSymbolizer {
-    const [fillColor, fillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['shape-fill-color'])
+    const [fillColor, fillOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['shape-fill-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['shape-fill-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['shape-fill-color']);
 
-    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isExpression(flatStyle['shape-stroke-color'])
+    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['shape-stroke-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['shape-stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['shape-stroke-color']);
 
@@ -424,18 +424,18 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
   }
 
   flatTextStyleToGeoStylerMarkSymbolizer(flatStyle: FlatStyle): MarkSymbolizer {
-    const [fillColor, fillOpacity] = OlFlatStyleUtil.isExpression(flatStyle['text-fill-color'])
+    const [fillColor, fillOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['text-fill-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-fill-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['text-fill-color']);
 
-    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isExpression(flatStyle['text-stroke-color'])
+    const [strokeColor, strokeOpacity] = OlFlatStyleUtil.isOlExpression(flatStyle['text-stroke-color'])
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['text-stroke-color']);
 
     let font: TextSymbolizer['font'] = undefined;
     let fontSize: TextSymbolizer['size'] = undefined;
 
-    if (OlFlatStyleUtil.isExpression(flatStyle['text-font'])) {
+    if (OlFlatStyleUtil.isOlExpression(flatStyle['text-font'])) {
       // NOTE: If font is an expression, we cannot detect the size
       font = [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-font'])];
     } else if (flatStyle['text-font']) {
@@ -476,7 +476,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
 
     if (OlFlatStyleUtil.hasFlatText(flatStyle)) {
       if (
-        !OlFlatStyleUtil.isExpression(flatStyle['text-font']) &&
+        !OlFlatStyleUtil.isOlExpression(flatStyle['text-font']) &&
         flatStyle['text-font'] &&
         OlStyleUtil.getIsMarkSymbolizerFont(flatStyle['text-font'])
       ) {
@@ -525,7 +525,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         Array.isArray(flatRule.filter[1]) &&
         flatRule.filter[1].length === 1 &&
         flatRule.filter[1][0] === 'resolution' &&
-        !OlFlatStyleUtil.isExpression(flatRule.filter[2])
+        !OlFlatStyleUtil.isOlExpression(flatRule.filter[2])
       ) {
         const resolution = flatRule.filter[2];
 

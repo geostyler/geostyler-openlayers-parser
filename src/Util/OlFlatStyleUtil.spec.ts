@@ -676,20 +676,20 @@ describe('OlFlatStyleUtil', () => {
     });
   });
 
-  describe('isExpression', () => {
+  describe('isOlExpression', () => {
     it('returns true for an expression', () => {
-      const isExpression = OlFlatStyleUtil.isExpression(expression);
+      const isExpression = OlFlatStyleUtil.isOlExpression(expression);
       expect(isExpression).toBe(true);
     });
     Object.keys(primitives).forEach((key) => {
       it(`returns false for primitive ${key}`, () => {
-        const isExpression = OlFlatStyleUtil.isExpression(primitives[key]);
+        const isExpression = OlFlatStyleUtil.isOlExpression(primitives[key]);
         expect(isExpression).toBe(false);
       });
     });
     Object.keys(objects).forEach((key) => {
       it(`returns false for ${key}`, () => {
-        const isExpression = OlFlatStyleUtil.isExpression(objects[key]);
+        const isExpression = OlFlatStyleUtil.isOlExpression(objects[key]);
         expect(isExpression).toBe(false);
       });
     });
