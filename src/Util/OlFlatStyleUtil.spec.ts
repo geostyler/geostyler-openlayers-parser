@@ -695,86 +695,40 @@ describe('OlFlatStyleUtil', () => {
     });
   });
 
-  describe('isOlFilter', () => {
+  describe('isOlExpression', () => {
     it('returns true for a filter', () => {
-      const isFilter = OlFlatStyleUtil.isOlFilter(comparisonFilter);
+      const isFilter = OlFlatStyleUtil.isOlExpression(comparisonFilter);
       expect(isFilter).toBe(true);
     });
     it('returns false for primitives', () => {
       Object.keys(primitives).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isOlFilter(primitives[key]);
+        const isFilter = OlFlatStyleUtil.isOlExpression(primitives[key]);
         expect(isFilter).toBe(false);
       });
     });
     it('returns false for objects and non-filter arrays', () => {
       Object.keys(objects).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isOlFilter(objects[key]);
+        const isFilter = OlFlatStyleUtil.isOlExpression(objects[key]);
         expect(isFilter).toBe(false);
       });
     });
   });
 
-  describe('isGsFilter', () => {
+  describe('isGsExpression', () => {
     it('returns true for a filter', () => {
-      const isFilter = OlFlatStyleUtil.isGsFilter(comparisonFilter);
+      const isFilter = OlFlatStyleUtil.isGsExpression(comparisonFilter);
       expect(isFilter).toBe(true);
     });
     it('returns false for primitives', () => {
       Object.keys(primitives).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isGsFilter(primitives[key]);
+        const isFilter = OlFlatStyleUtil.isGsExpression(primitives[key]);
         expect(isFilter).toBe(false);
       });
     });
     it('returns false for objects and non-filter arrays', () => {
       Object.keys(objects).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isGsFilter(objects[key]);
+        const isFilter = OlFlatStyleUtil.isGsExpression(objects[key]);
         expect(isFilter).toBe(false);
-      });
-    });
-  });
-
-  describe('isOlComparisonFilter', () => {
-    it('returns true for a comparison filter', () => {
-      const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(comparisonFilter);
-      expect(isComparisonFilter).toBe(true);
-    });
-    it('returns false for primitives', () => {
-      Object.keys(primitives).forEach((key) => {
-        const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(primitives[key]);
-        expect(isComparisonFilter).toBe(false);
-      });
-    });
-    it('returns false for non-comparison-filter arrays', () => {
-      const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(nonComparisonFilter);
-      expect(isComparisonFilter).toBe(false);
-    });
-    it('returns false for objects and non-filter arrays', () => {
-      Object.keys(objects).forEach((key) => {
-        const isComparisonFilter = OlFlatStyleUtil.isOlComparisonFilter(objects[key]);
-        expect(isComparisonFilter).toBe(false);
-      });
-    });
-  });
-
-  describe('isGsComparisonFilter', () => {
-    it('returns true for a comparison filter', () => {
-      const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(comparisonFilter);
-      expect(isComparisonFilter).toBe(true);
-    });
-    it('returns false for primitives', () => {
-      Object.keys(primitives).forEach((key) => {
-        const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(primitives[key]);
-        expect(isComparisonFilter).toBe(false);
-      });
-    });
-    it('returns false for non-comparison-filter arrays', () => {
-      const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(nonComparisonFilter);
-      expect(isComparisonFilter).toBe(false);
-    });
-    it('returns false for objects and non-filter arrays', () => {
-      Object.keys(objects).forEach((key) => {
-        const isComparisonFilter = OlFlatStyleUtil.isGsComparisonFilter(objects[key]);
-        expect(isComparisonFilter).toBe(false);
       });
     });
   });
@@ -979,51 +933,39 @@ describe('OlFlatStyleUtil', () => {
     });
   });
 
-  describe('olFilterToGsFilter', () => {
+  describe('olExpressionToGsFilter', () => {
     const filterFixtures = testCases.filter(f => f.gsFilter);
     filterFixtures.forEach(({name, olExpr, gsFilter}) => {
       it(`converts ${name}`, () => {
-        const output = OlFlatStyleUtil.olFilterToGsFilter(olExpr);
+        const output = OlFlatStyleUtil.olExpressionToGsFilter(olExpr);
         expect(output).toEqual(gsFilter);
       });
     });
   });
 
-  describe('gsFilterToOlFilter', () => {
+  describe('gsFilterToOlExpression', () => {
     const filterFixtures = testCases.filter(f => f.gsFilter);
     filterFixtures.forEach(({name, olExpr, gsFilter}) => {
       it(`converts ${name}`, () => {
-        const output = OlFlatStyleUtil.gsFilterToOlFilter(gsFilter);
+        const output = OlFlatStyleUtil.gsFilterToOlExpression(gsFilter);
         expect(output).toEqual(olExpr);
       });
     });
   });
 
-  // TODO: implement this
-  // describe('gsExpressionToOlExpression', () => {
-  //   const gsExpressionFixture = expressionFixtures.filter(f => f.gsExpr);
-  //   gsExpressionFixture.forEach(({name, olExpr, gsExpr, exception}) => {
-  //     if (exception) {
-  //       it(`throws an error for ${name}`, () => {
-  //         expect(() => OlFlatStyleUtil.gsExpressionToOlExpression(gsExpr!)).toThrow(exception);
-  //       });
-  //     } else {
-  //       it(`converts ${name}`, () => {
-  //         const output = OlFlatStyleUtil.gsExpressionToOlExpression(gsExpr!);
-  //         expect(output).toEqual(olExpr);
-  //       });
-  //     }
-  //   });
-  // });
-
-  // TODO: implement this
-  // describe('gsFilterToOlExpression', () => {
-  //   const filterFixtures = expressionFixtures.filter(f => f.gsFilter);
-  //   filterFixtures.forEach(({name, olExpr, gsFilter}) => {
-  //     it(`converts ${name}`, () => {
-  //       const output = OlFlatStyleUtil.gsFilterToOlExpression(gsFilter!);
-  //       expect(output).toEqual(olExpr);
-  //     });
-  //   });
-  // });
+  describe('gsExpressionToOlExpression', () => {
+    const gsExpressionFixture = testCases.filter(f => f.gsExpr);
+    gsExpressionFixture.forEach(({name, olExpr, gsExpr, exception}) => {
+      if (exception) {
+        it(`throws an error for ${name}`, () => {
+          expect(() => OlFlatStyleUtil.gsExpressionToOlExpression(gsExpr!)).toThrow(exception);
+        });
+      } else {
+        it(`converts ${name}`, () => {
+          const output = OlFlatStyleUtil.gsExpressionToOlExpression(gsExpr!);
+          expect(output).toEqual(olExpr);
+        });
+      }
+    });
+  });
 });
