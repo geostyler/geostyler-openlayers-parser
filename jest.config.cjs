@@ -15,6 +15,6 @@ module.exports = {
   ],
   testRegex: '/src/.*\\.spec.ts$',
   collectCoverageFrom: [
-    'src/*.ts'
+    'src/**/*.ts'
   ]
 };
