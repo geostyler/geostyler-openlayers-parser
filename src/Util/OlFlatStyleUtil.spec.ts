@@ -1,9 +1,11 @@
 import { FlatCircle, FlatFill, FlatIcon, FlatStroke, FlatStyle, FlatText, Rule } from 'ol/style/flat';
-import type { ExpressionValue } from 'ol/expr/expression';
-import OlFlatStyleUtil, { type GsFilterExpression, type OlFilterExpression } from './OlFlatStyleUtil';
+import OlFlatStyleUtil, {
+  GeoStylerExpression, GeoStylerExpressionOrValue,
+  OpenLayersExpression,
+  OpenLayersExpressionOrValue
+} from './OlFlatStyleUtil';
 import { ColorLike } from 'ol/colorlike';
 import { Color } from 'ol/color';
-import { GeoStylerFunction } from 'geostyler-style/dist/functions';
 import { Filter } from 'geostyler-style';
 
 const flatStyle: FlatStyle = {
@@ -22,29 +24,25 @@ const flatRuleArray: Rule[] = [
   flatRule
 ];
 
-const expression = ['==', 'name', 'value'];
+const gsFilter: GeoStylerExpression<boolean> = ['==', 'name', 'value'];
 
-const comparisonFilter: GsFilterExpression = ['==', ['get', 'name'], 'value'];
-
-const nonComparisonFilter: OlFilterExpression = ['all', false, true];
-
-const primitives = {
-  // eslint-disable-next-line id-blacklist
-  string: 'string',
-  // eslint-disable-next-line id-blacklist
-  number: 1,
-  // eslint-disable-next-line id-blacklist
-  boolean: true,
-
-  null: null,
-  // eslint-disable-next-line id-blacklist
-  undefined: undefined
+const gsExpression: GeoStylerExpression<number> = {
+  name: 'add',
+  args: [1, 2]
 };
 
-const objects = {
-  object: {},
-  'non-expression array': [1, 2, 3]
-};
+const olExpression: OpenLayersExpression = ['==', ['get', 'name'], 'value'];
+
+const literals = {
+  'a string': 'string',
+  'a number': 1,
+  'a boolean': true,
+  'a null value': null,
+  'an undefined value': undefined,
+  'an object': {},
+  'a non-expression array': [1, 2, 3]
+} as const;
+
 
 const rgbaArray: Color = [255, 0, 0, 1];
 const rgbString: ColorLike = 'rgb(255, 0, 0)';
@@ -78,9 +76,9 @@ const flatShape: FlatStyle = {
 
 interface TestCase {
   name: string;
-  gsExpr: GeoStylerFunction;
+  gsExpr: GeoStylerExpressionOrValue<unknown>;
   gsFilter?: Filter;
-  olExpr?: ExpressionValue;
+  olExpr?: OpenLayersExpressionOrValue;
   exception?: string;
 }
 
@@ -678,56 +676,29 @@ describe('OlFlatStyleUtil', () => {
 
   describe('isOlExpression', () => {
     it('returns true for an expression', () => {
-      const isExpression = OlFlatStyleUtil.isOlExpression(expression);
+      const isExpression = OlFlatStyleUtil.isOlExpression(olExpression);
       expect(isExpression).toBe(true);
     });
-    Object.keys(primitives).forEach((key) => {
-      it(`returns false for primitive ${key}`, () => {
-        const isExpression = OlFlatStyleUtil.isOlExpression(primitives[key]);
-        expect(isExpression).toBe(false);
-      });
-    });
-    Object.keys(objects).forEach((key) => {
+    Object.keys(literals).forEach((key: keyof typeof literals) => {
       it(`returns false for ${key}`, () => {
-        const isExpression = OlFlatStyleUtil.isOlExpression(objects[key]);
+        const isExpression = OlFlatStyleUtil.isOlExpression(literals[key] as any);
         expect(isExpression).toBe(false);
-      });
-    });
-  });
-
-  describe('isOlExpression', () => {
-    it('returns true for a filter', () => {
-      const isFilter = OlFlatStyleUtil.isOlExpression(comparisonFilter);
-      expect(isFilter).toBe(true);
-    });
-    it('returns false for primitives', () => {
-      Object.keys(primitives).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isOlExpression(primitives[key]);
-        expect(isFilter).toBe(false);
-      });
-    });
-    it('returns false for objects and non-filter arrays', () => {
-      Object.keys(objects).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isOlExpression(objects[key]);
-        expect(isFilter).toBe(false);
       });
     });
   });
 
   describe('isGsExpression', () => {
     it('returns true for a filter', () => {
-      const isFilter = OlFlatStyleUtil.isGsExpression(comparisonFilter);
+      const isFilter = OlFlatStyleUtil.isGsExpression(gsFilter);
       expect(isFilter).toBe(true);
     });
-    it('returns false for primitives', () => {
-      Object.keys(primitives).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isGsExpression(primitives[key]);
-        expect(isFilter).toBe(false);
-      });
+    it('returns true for a filter', () => {
+      const isFilter = OlFlatStyleUtil.isGsExpression(gsExpression);
+      expect(isFilter).toBe(true);
     });
-    it('returns false for objects and non-filter arrays', () => {
-      Object.keys(objects).forEach((key) => {
-        const isFilter = OlFlatStyleUtil.isGsExpression(objects[key]);
+    Object.keys(literals).forEach((key: keyof typeof literals) => {
+      it(`returns false for ${key}`, () => {
+        const isFilter = OlFlatStyleUtil.isGsExpression(literals[key]);
         expect(isFilter).toBe(false);
       });
     });
@@ -934,10 +905,10 @@ describe('OlFlatStyleUtil', () => {
   });
 
   describe('olExpressionToGsFilter', () => {
-    const filterFixtures = testCases.filter(f => f.gsFilter);
+    const filterFixtures = testCases.filter(f => f.olExpr);
     filterFixtures.forEach(({name, olExpr, gsFilter}) => {
       it(`converts ${name}`, () => {
-        const output = OlFlatStyleUtil.olExpressionToGsFilter(olExpr);
+        const output = OlFlatStyleUtil.olExpressionToGsFilter(olExpr!);
         expect(output).toEqual(gsFilter);
       });
     });
