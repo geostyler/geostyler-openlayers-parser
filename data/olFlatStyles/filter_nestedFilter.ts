@@ -1,6 +1,6 @@
-import { Rule } from 'ol/style/flat';
+import { FlatStyleLike } from 'ol/style/flat';
 
-const filterNestedFilter: Rule[] = [
+const filterNestedFilter: FlatStyleLike = [
   {
     filter: [
       'all',

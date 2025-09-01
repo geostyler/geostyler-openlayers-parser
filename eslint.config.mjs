@@ -13,7 +13,8 @@ export default tsEslint.config({
     importPlugin.flatConfigs.recommended
   ],
   files: [
-    'src/**/*.{js,mjs,cjs,ts,jsx,tsx}'
+    'src/**/*.{js,mjs,cjs,ts,jsx,tsx}',
+    'data/**/*.{js,mjs,cjs,ts,jsx,tsx}'
   ],
   plugins: {
     '@stylistic': stylisticPlugin,

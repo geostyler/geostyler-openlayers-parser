@@ -1,29 +1,26 @@
-import { invert } from 'lodash';
-import {
-  FlatStyle,
-  FlatStyleLike,
-  Rule as FlatRule,
-  ColorExpression,
-} from 'ol/style/flat';
-
-import {
+import { invert, isEqual } from 'lodash';
+import type { ColorExpression, FlatStyle, FlatStyleLike, Rule as FlatRule } from 'ol/style/flat';
+import { LiteralValue } from 'ol/expr/expression';
+import type {
+  CombinationFilter,
+  ComparisonFilter,
+  Expression,
   Fatan,
   Fatan2,
   Filter,
   Fin,
   Finterpolate,
   FstrDefaultIfBlank,
-  GeoStylerFunction,
+  FunctionCall,
+  GeoStylerFunction, NegationFilter,
   Operator,
   PropertyType,
-  Expression as StyleExpression
+  FCaseParameter, FInterpolateParameter,
+  Fcase
 } from 'geostyler-style';
-
 import OlStyleUtil from './OlStyleUtil';
 
-export type Expression = any[];
-
-const comparisonFilterNames = [
+const olExpressionOperators = [
   '==',
   '!=',
   '<',
@@ -31,37 +28,10 @@ const comparisonFilterNames = [
   '>',
   '>=',
   'between',
-];
-
-const filterNames = [
-  ...comparisonFilterNames,
   'all',
   'any',
-  '!'
-];
-
-export type FilterExpression = [typeof filterNames[number], ...any[]];
-export type ComparisonFilterExpression = [typeof comparisonFilterNames[number], ...any[]];
-
-// TODO continue here
-const filterNameMap: Record<Operator, typeof filterNames[number] | null> = {
-  '==': '==',
-  '*=': null,
-  '!=': '!=',
-  '<': '<',
-  '<=': '<=',
-  '>': '>',
-  '>=': '>=',
-  '<=x<=': 'between',
-  '&&': 'all',
-  '||': 'any',
-  '!': '!',
-};
-
-const invertedFilterMap: Partial<Record<typeof filterNames[number], Operator>> =
-  invert(filterNameMap) as Partial<Record<typeof filterNames[number], Operator>> ;
-
-const expressionNames = [
+  '!',
+  'in',
   'get',
   '*',
   '/',
@@ -80,48 +50,63 @@ const expressionNames = [
   'case',
   'interpolate',
   'string',
-  '<',
-  '<=',
-  '>',
-  '>=',
-  '==',
-  '!=',
-  '!',
-  'all',
-  'any',
-  'between',
-  'in',
   'to-string',
+  'match',
+  'literal'
 ] as const;
 
-const functionNameMap: Record<GeoStylerFunction['name'], typeof expressionNames[number]| null> = {
+export type OpenLayersOperator = typeof olExpressionOperators[number];
+export type OpenLayersExpression = [OpenLayersOperator, ...unknown[]];
+export type OpenLayersValue = LiteralValue;
+export type OpenLayersExpressionOrValue = OpenLayersExpression | OpenLayersValue;
+
+export type GeoStylerExpression<T extends PropertyType> = T extends boolean ? Filter | Expression<T> : Expression<T>;
+export type GeoStylerExpressionOrValue<T extends PropertyType> = GeoStylerExpression<T> | T;
+
+const gsComparisonFilterToOlOperator = {
+  '==': '==',
+  '!=': '!=',
+  '<': '<',
+  '<=': '<=',
+  '>': '>',
+  '>=': '>=',
+  '<=x<=': 'between',
+  '*=': null,
+} as const;
+const gsFilterToOlOperator: Record<Operator, OpenLayersOperator | null> = {
+  ...gsComparisonFilterToOlOperator,
+  '&&': 'all',
+  '||': 'any',
+  '!': '!',
+};
+const olOperatorToGsFilter = invert(gsFilterToOlOperator) as Record<OpenLayersOperator, Operator>;
+
+const gsFunctionToOlOperator: Record<GeoStylerFunction['name'], OpenLayersOperator | null> = {
   // ---- string ----
-  numberFormat: null,
-  // numberFormat: 'number-format', // TODO: this could be done in theory but gs and mb use different format approaches
-  strAbbreviate: null,
-  strCapitalize: null,
-  strConcat: null,
-  strDefaultIfBlank: 'string',
-  strEndsWith: null,
-  strEqualsIgnoreCase: null,
-  strIndexOf: null,
-  strLastIndexOf: null,
-  strLength: null,
-  strMatches: null,
-  strReplace: null,
-  strStartsWith: null,
-  strStripAccents: null,
-  strSubstring: null,
-  strSubstringStart: null,
-  strToLowerCase: null,
-  strToUpperCase: null,
   strToString: 'to-string',
-  strTrim: null,
+  strDefaultIfBlank: 'string',
+  numberFormat: null, // unsupported
+  // numberFormat: 'number-format', // TODO: this could be done in theory but gs and mb use different format approaches
+  strAbbreviate: null, // unsupported
+  strCapitalize: null, // unsupported
+  strConcat: null, // unsupported
+  strEndsWith: null, // unsupported
+  strEqualsIgnoreCase: null, // unsupported
+  strIndexOf: null, // unsupported
+  strLastIndexOf: null, // unsupported
+  strLength: null, // unsupported
+  strMatches: null, // unsupported
+  strReplace: null, // unsupported
+  strStartsWith: null, // unsupported
+  strStripAccents: null, // unsupported
+  strSubstring: null, // unsupported
+  strSubstringStart: null, // unsupported
+  strToLowerCase: null, // unsupported
+  strToUpperCase: null, // unsupported
+  strTrim: null, // unsupported
   // ---- number ----
   add: '+',
   abs: 'abs',
-  acos: null,
-  asin: null,
   // openlayers uses atan if only one argument is passed
   // atan2 is used for two arguments
   atan: 'atan',
@@ -129,36 +114,37 @@ const functionNameMap: Record<GeoStylerFunction['name'], typeof expressionNames[
   ceil: 'ceil',
   cos: 'cos',
   div: '/',
-  exp: null,
   floor: 'floor',
   interpolate: 'interpolate',
-  log: null,
-  // – : 'ln2'
-  // – : 'log10'
-  // – : 'log2'
-  max: null,
-  min: null,
   modulo: '%',
   mul: '*',
-  pi: null,
-  // - : 'e',
   pow: '^',
-  random: null,
-  rint: null,
   round: 'round',
   sin: 'sin',
   sqrt: 'sqrt',
   sub: '-',
-  tan: null,
-  toDegrees: null,
-  toNumber: null,
-  toRadians: null,
+  acos: null, // unsupported
+  asin: null, // unsupported
+  exp: null, // unsupported
+  log: null, // unsupported
+  // – : 'ln2'
+  // – : 'log10'
+  // – : 'log2'
+  max: null, // unsupported
+  min: null, // unsupported
+  pi: null, // unsupported
+  // - : 'e',
+  random: null, // unsupported
+  rint: null, // unsupported
+  tan: null, // unsupported
+  toDegrees: null, // unsupported
+  toNumber: null, // unsupported
+  toRadians: null, // unsupported
   // ---- boolean ----
   all: 'all',
   // eslint-disable-next-line id-blacklist
   any: 'any',
   between: 'between',
-  double2bool: null,
   equalTo: '==',
   greaterThan: '>',
   greaterThanOrEqualTo: '>=',
@@ -167,15 +153,14 @@ const functionNameMap: Record<GeoStylerFunction['name'], typeof expressionNames[
   lessThanOrEqualTo: '<=',
   not: '!',
   notEqualTo: '!=',
-  parseBoolean: null,
+  double2bool: null, // unsupported
+  parseBoolean: null, // unsupported
   // ---- unknown ----
   case: 'case',
   property: 'get',
-  step: null
+  step: null // unsupported
 };
-
-const invertedFunctionNameMap: Partial<Record<typeof expressionNames[number], GeoStylerFunction['name']>> =
-  invert(functionNameMap);
+const olOperatorToGsFunction = invert(gsFunctionToOlOperator) as Record<OpenLayersOperator, GeoStylerFunction['name']>;
 
 class OlFlatStyleUtil {
   public static isFlatRule(flatStyle: FlatStyle | FlatRule): flatStyle is FlatRule {
@@ -187,9 +172,7 @@ class OlFlatStyleUtil {
     if (!isArray) {
       return false;
     }
-
-    const hasFlatRules = flatStyleLike.every(style => OlFlatStyleUtil.isFlatRule(style));
-    return hasFlatRules;
+    return flatStyleLike.every(style => OlFlatStyleUtil.isFlatRule(style));
   }
 
   public static isFlatStyle(flatStyleLike: FlatStyleLike): flatStyleLike is FlatStyle {
@@ -209,51 +192,28 @@ class OlFlatStyleUtil {
     if (isFlatRuleArray) {
       return false;
     }
-    const hasFlatStyles = flatStyleLike.every(
+    return flatStyleLike.every(
       style => OlFlatStyleUtil.isFlatStyle(style)
     );
-    return hasFlatStyles;
   }
 
-  public static isExpression(flatStyleProp: any): flatStyleProp is Expression {
-    const isUndefined = flatStyleProp === undefined;
-    const isArray = Array.isArray(flatStyleProp);
-    if (isUndefined || !isArray) {
-      return false;
-    }
-
-    const hasOperator = typeof flatStyleProp[0] == 'string';
-    const isExpressionName = expressionNames.includes(flatStyleProp[0]);
-    return hasOperator && isExpressionName;
+  public static isOlExpression(value?: OpenLayersExpressionOrValue): value is OpenLayersExpression {
+    return Array.isArray(value) && typeof value[0] == 'string';
   }
 
-  public static isFilter(flatStyleProp: any): flatStyleProp is FilterExpression {
-    const isUndefined = flatStyleProp === undefined;
-    const isArray = Array.isArray(flatStyleProp);
-    if (isUndefined || !isArray) {
+  public static isGsExpression<T extends PropertyType>(value?: GeoStylerExpressionOrValue<T>):
+    value is GeoStylerExpression<T> {
+    if (!value) {
       return false;
     }
-
-    const hasOperator = typeof flatStyleProp[0] == 'string';
-    const isFilterName = filterNames.includes(flatStyleProp[0]);
-    return hasOperator && isFilterName;
-  }
-
-  public static isComparisonFilter(filter: FilterExpression): filter is  ComparisonFilterExpression {
-    const isUndefined = filter === undefined;
-    const isArray = Array.isArray(filter);
-    if (isUndefined || !isArray) {
-      return false;
-    }
-
-    const hasOperator = typeof filter[0] == 'string';
-    const isComparisonFilterName = comparisonFilterNames.includes(filter[0]);
-    return hasOperator && isComparisonFilterName;
+    const isFunctionCall = typeof value === 'object'  && 'name' in value && 'args' in value;
+    const isFilter = Array.isArray(value) && typeof value[0] == 'string';
+    return isFunctionCall || isFilter;
   }
 
   public static getColorAndOpacity(
     flatStyleProp: ColorExpression | undefined
-  ): [string | StyleExpression<string> | undefined, number | undefined] {
+  ): [GeoStylerExpressionOrValue<string> | undefined, number | undefined] {
     if (flatStyleProp === undefined) {
       return [undefined, undefined];
     }
@@ -278,8 +238,7 @@ class OlFlatStyleUtil {
   }
 
   public static hasFlatFill(flatStyle: FlatStyle) {
-    const hasFill = ('fill-color' in flatStyle) && flatStyle['fill-color'] !== undefined;
-    return hasFill;
+    return ('fill-color' in flatStyle) && flatStyle['fill-color'] !== undefined;
   }
 
   public static hasFlatStroke(flatStyle: FlatStyle) {
@@ -289,57 +248,63 @@ class OlFlatStyleUtil {
   }
 
   public static hasFlatText(flatStyle: FlatStyle) {
-    const hasTextValue = ('text-value' in flatStyle) && flatStyle['text-value'] !== undefined;
-    return hasTextValue;
+    return ('text-value' in flatStyle) && flatStyle['text-value'] !== undefined;
   }
 
   public static hasFlatIcon(flatStyle: FlatStyle) {
-    const hasIconSrc = ('icon-src' in flatStyle) && flatStyle['icon-src'] !== undefined;
-    return hasIconSrc;
+    return ('icon-src' in flatStyle) && flatStyle['icon-src'] !== undefined;
   }
 
   public static hasFlatCircle(flatStyle: FlatStyle) {
-    const hasCircleRadius = ('circle-radius' in flatStyle) && flatStyle['circle-radius'] !== undefined;
-    return hasCircleRadius;
+    return ('circle-radius' in flatStyle) && flatStyle['circle-radius'] !== undefined;
   }
 
-  public static olExpressionToGsExpression<T extends PropertyType>(olExpression: any): StyleExpression<T> {
-    if (!OlFlatStyleUtil.isExpression(olExpression)) {
-      return olExpression;
+  public static hasFlatShape(flatStyle: FlatStyle) {
+    return ('shape-points' in flatStyle) && flatStyle['shape-points'] !== undefined;
+  }
+
+  public static olExpressionToGsExpression<T extends PropertyType>(olExpression?: OpenLayersExpressionOrValue):
+    GeoStylerExpressionOrValue<T> {
+    if (!OlFlatStyleUtil.isOlExpression(olExpression)) {
+      // special case for 'pi'
+      if (olExpression === Math.PI) {
+        return { name: 'pi' } as GeoStylerExpressionOrValue<T>;
+      }
+      return olExpression as T; // literal value: return as is
     }
 
-    const olExpressionName = olExpression[0] as typeof expressionNames[number];
-    const functionName = invertedFunctionNameMap[olExpressionName];
+    const olOperator = olExpression[0] as OpenLayersOperator;
 
     let func: GeoStylerFunction;
-    const args = olExpression.slice(1);
-    switch (functionName) {
+    const args = olExpression.slice(1) as OpenLayersExpressionOrValue[];
+    switch (olOperator) {
       case 'case': {
-        const gsArgs: any[] = [];
-        const fallback = OlFlatStyleUtil.olExpressionToGsExpression(args.pop());
+        const cases: FCaseParameter[] = [];
+        const fallback = OlFlatStyleUtil.olExpressionToGsExpression<T>(args.pop());
         args.forEach((a, index) => {
           const gsIndex = Math.floor(index / 2);
           if (index % 2 === 0) {
-            gsArgs[gsIndex] = {
-              case: OlFlatStyleUtil.olExpressionToGsExpression(a)
+            cases[gsIndex] = {
+              case: OlFlatStyleUtil.olExpressionToGsExpression<boolean>(a) as Expression<boolean>,
+              value: undefined
             };
           } else {
-            gsArgs[gsIndex] = {
-              ...gsArgs[gsIndex] as any,
+            cases[gsIndex] = {
+              ...cases[gsIndex],
               value: OlFlatStyleUtil.olExpressionToGsExpression(a)
             };
           }
         });
         func = {
-          name: functionName,
-          args: [fallback, ...gsArgs]
+          name: 'case',
+          args: [fallback, ...cases]
         };
         break;
       }
       case 'interpolate': {
         // currently only supporting linear interpolation
         const interpolationType = (args.shift() as [string])[0];
-        const input = OlFlatStyleUtil.olExpressionToGsExpression(args.shift());
+        const input = OlFlatStyleUtil.olExpressionToGsExpression(args.shift()!);
         const gsArgs: any[] = [];
 
         args.forEach((a, index) => {
@@ -358,37 +323,58 @@ class OlFlatStyleUtil {
         // adding the interpolation type and the input as the first args
         gsArgs.unshift({name: interpolationType}, input);
         func = {
-          name: functionName,
+          name: 'interpolate',
           args: gsArgs as Finterpolate['args']
         };
         break;
       }
-      case 'strDefaultIfBlank': {
+      case 'string': {
+        let funcArgs: FstrDefaultIfBlank['args'];
+        // one arg: duplicate it to match GS expression signature (2 args)
+        if (args.length === 1) {
+          const singleArg =
+            OlFlatStyleUtil.olExpressionToGsExpression(
+              args[0] as OpenLayersExpressionOrValue
+            ) as string | Expression<string>;
+          funcArgs = [singleArg, singleArg]; // duplicate arg if single
+        }
+        // more than two args: first one has to be turned into another strDefaultIfBlank function
+        else if (args.length > 2) {
+          const lastArg = OlFlatStyleUtil.olExpressionToGsExpression(
+            args[args.length - 1] as OpenLayersExpressionOrValue
+          ) as string | Expression<string>;
+          const firstArg = OlFlatStyleUtil.olExpressionToGsExpression(
+            ['string', ...args.slice(0, -1)]
+          ) as string | Expression<string>;
+          funcArgs = [firstArg, lastArg];
+        }
+        // two args
+        else {
+          funcArgs = args.map(OlFlatStyleUtil.olExpressionToGsExpression) as FstrDefaultIfBlank['args'];
+        }
         func = {
-          name: functionName,
-          // gs function only allows two args
-          args: args
-            .slice(0, 2)
-            .map(OlFlatStyleUtil.olExpressionToGsExpression) as FstrDefaultIfBlank['args']
+          name: 'strDefaultIfBlank',
+          args: funcArgs
         };
         break;
       }
       case 'in': {
-        const needle = OlFlatStyleUtil.olExpressionToGsExpression(args.shift());
+        const needle = OlFlatStyleUtil.olExpressionToGsExpression(args.shift()!);
         let haystack: number[] | string[] = [];
-        if (args[0] === 'literal') {
-          haystack = args[0].pop();
+        const firstArg = args[0] as OpenLayersExpressionOrValue;
+        const firstArgOperator = OlFlatStyleUtil.getOlExpressionOperator(firstArg);
+        if (firstArgOperator === 'literal') {
+          haystack = (firstArg as OpenLayersExpression)[1] as string[];
         } else {
-          haystack = args[0];
+          haystack = firstArg as number[];
         }
         func = {
-          name: functionName,
+          name: 'in',
           args: [needle, ...haystack]
         } as Fin;
         break;
       }
-      case 'atan':
-      case 'atan2': {
+      case 'atan': {
         const atanFunc = {
           name: args.length === 1 ? 'atan' : 'atan2',
           args: args.map(OlFlatStyleUtil.olExpressionToGsExpression)
@@ -400,48 +386,225 @@ class OlFlatStyleUtil {
         }
         break;
       }
-      default:
+      case 'match': {
+        const gsArgs: any[] = [];
+        const input = OlFlatStyleUtil.olExpressionToGsExpression(args[0]);
+        const fallback = OlFlatStyleUtil.olExpressionToGsExpression(args[args.length - 1]);
+        args.slice(1, -1).forEach((a, index) => {
+          const gsIndex = Math.floor(index / 2);
+          if (index % 2 === 0) {
+            gsArgs[gsIndex] = {
+              case: {
+                name: 'equalTo',
+                args: [input, OlFlatStyleUtil.olExpressionToGsExpression(a)]
+              }
+            };
+          } else {
+            gsArgs[gsIndex] = {
+              ...gsArgs[gsIndex] as any,
+              value: OlFlatStyleUtil.olExpressionToGsExpression(a)
+            };
+          }
+        });
+        func = {
+          name: 'case',
+          args: [fallback, ...gsArgs]
+        };
+        break;
+      }
+      default: {
+        const functionName = olOperatorToGsFunction[olOperator];
+        if (!functionName) {
+          throw new Error(`OpenLayers operator cannot be converted to a GeoStyler function: ${olOperator}`);
+        }
         func = {
           name: functionName,
           args: args.map(OlFlatStyleUtil.olExpressionToGsExpression)
         } as GeoStylerFunction;
         break;
+      }
     }
-    return func as StyleExpression<T>;
+    return func as GeoStylerExpression<T>;
   }
 
-  public static olFilterToGsFilter(olFilter: any): Filter | undefined {
-    const isExpression = OlFlatStyleUtil.isExpression(olFilter);
-    const isFilter = OlFlatStyleUtil.isFilter(olFilter);
-    const isComparisonFilter = OlFlatStyleUtil.isComparisonFilter(olFilter);
-    if (!isFilter && !isExpression) {
-      return olFilter;
-    }
-
-    let filter: Filter;
-    if (isFilter) {
-      const olExpressionName = olFilter[0] as typeof filterNames[number];
-      const filterName = invertedFilterMap[olExpressionName];
-      const args = olFilter.slice(1);
-
-      let propertyName: string | StyleExpression<string> = args.shift();
+  /**
+   * This will attempt to generate a GeoStyler filter from an OpenLayers expression if possible.
+   * If not, it will fall back to generating a GeoStyler expression.
+   * @param olExpression
+   */
+  public static olExpressionToGsFilter(olExpression: OpenLayersExpressionOrValue):
+    GeoStylerExpressionOrValue<boolean> {
+    const olOperator = OlFlatStyleUtil.getOlExpressionOperator(olExpression);
+    const canBeAFilter =  olOperator != null && olOperator in olOperatorToGsFilter;
+    if (canBeAFilter) {
+      const filterName = olOperatorToGsFilter[olOperator];
+      const args = (olExpression as OpenLayersExpression).slice(1);
+      const firstArg = args.shift() as OpenLayersExpressionOrValue;
+      const canBeAComparisonFilter = filterName in gsComparisonFilterToOlOperator;
+      let propertyName: string;
       // In GeoStyler, the first argument of a comparison filter
       // is the property name as plain string. So if the first argument
       // is a 'get' expression, we extract the property name from it.
-      if (isComparisonFilter && Array.isArray(propertyName) && propertyName[0] === 'get') {
-        propertyName = propertyName[1];
+      const firstArgOperator = OlFlatStyleUtil.getOlExpressionOperator(firstArg);
+      if (canBeAComparisonFilter && firstArgOperator === 'get') {
+        propertyName = (firstArg as OpenLayersExpression)[1] as string;
+      } else {
+        propertyName = firstArg as string;
       }
 
-      filter = [
+      return [
         filterName,
-        OlFlatStyleUtil.olFilterToGsFilter(propertyName),
-        ...args.map(OlFlatStyleUtil.olFilterToGsFilter)
+        OlFlatStyleUtil.olExpressionToGsFilter(propertyName),
+        ...args.map(OlFlatStyleUtil.olExpressionToGsFilter)
       ] as Filter;
-    } else {
-      filter = OlFlatStyleUtil.olExpressionToGsExpression(olFilter);
     }
 
-    return filter;
+    return OlFlatStyleUtil.olExpressionToGsExpression(olExpression);
+  }
+
+  public static gsExpressionToOlExpression<T extends PropertyType>(gsExpression: GeoStylerExpressionOrValue<T>):
+    OpenLayersExpressionOrValue | null {
+    if (!OlFlatStyleUtil.isGsExpression(gsExpression)) {
+      return gsExpression as OpenLayersValue;
+    }
+    if (Array.isArray(gsExpression)) {
+      return OlFlatStyleUtil.gsFilterToOlExpression(gsExpression as Filter);
+    }
+    const gsFuncName = (gsExpression as FunctionCall<T>).name;
+    const gsFuncArgs = (gsExpression as FunctionCall<T>).args;
+    const olOperator = gsFunctionToOlOperator[gsFuncName];
+
+    switch (gsFuncName) {
+      case 'pi': return Math.PI;
+      case 'interpolate': {
+        const gsInterpolateArgs = gsFuncArgs as Finterpolate['args'];
+        const type = (gsInterpolateArgs[0]).name;
+        const input = OlFlatStyleUtil.gsExpressionToOlExpression(gsInterpolateArgs[1]);
+        const olArgs = gsFuncArgs.slice(2).map((arg: FInterpolateParameter) =>  [arg.stop, arg.value]).flat();
+        return ['interpolate', [type], input, ...olArgs];
+      }
+      case 'case': {
+        const gsCaseArgs = gsFuncArgs as Fcase['args'];
+        const fallback = gsCaseArgs[0];
+        let isMatchOperator = true;
+        let matchInput = null;
+        // first we check if all cases are comparing against a similar expression/value; if yes, this function can
+        // become a `match` expression instead of a `case` one
+        for (let i = 1; i < gsCaseArgs.length; i++) {
+          const arg = gsCaseArgs[i] as FCaseParameter;
+          if (typeof arg.case !== 'object' || arg.case.name !== 'equalTo') {
+            isMatchOperator = false;
+            break;
+          }
+          if (matchInput === null) {
+            matchInput = arg.case.args[0];
+          } else if (!isEqual(matchInput, arg.case.args[0])) {
+            isMatchOperator = false;
+            break;
+          }
+        }
+        if (isMatchOperator && matchInput) {
+          const valueArgs = gsCaseArgs.slice(1).map(
+            (arg: FCaseParameter) => [(arg.case as FunctionCall<boolean>).args[1], arg.value]).flat();
+          return ['match',
+            OlFlatStyleUtil.gsExpressionToOlExpression(matchInput),
+            ...valueArgs.map(OlFlatStyleUtil.gsExpressionToOlExpression),
+            fallback];
+        }
+        const olArgs = gsFuncArgs.slice(1).map((arg: FCaseParameter) => [arg.case, arg.value]).flat();
+        return ['case', ...olArgs.map(OlFlatStyleUtil.gsExpressionToOlExpression), fallback];
+      }
+      case 'in': {
+        const input = OlFlatStyleUtil.gsExpressionToOlExpression(gsFuncArgs[0]);
+        const haystack = gsFuncArgs.slice(1).map(OlFlatStyleUtil.gsExpressionToOlExpression);
+        const isStr = haystack.every(v => typeof v === 'string');
+        return ['in', input, isStr ? ['literal', haystack] : haystack];
+      }
+      case 'strDefaultIfBlank': {
+        // identical args: a single arg can be used in the OL expression
+        if (gsFuncArgs[0] === gsFuncArgs[1]) {
+          return ['string', OlFlatStyleUtil.gsExpressionToOlExpression(gsFuncArgs[0])];
+        }
+        const values: GeoStylerExpressionOrValue<unknown>[] = [];
+        function collectValues<U extends PropertyType>(gsExpr: GeoStylerExpressionOrValue<U>) {
+          if (!OlFlatStyleUtil.isGsExpression(gsExpr) || Array.isArray(gsExpr)) {
+            values.unshift(gsExpr);
+            return;
+          }
+          const gsFunc = gsExpr as FunctionCall<U>;
+          if (gsFunc.name === 'strDefaultIfBlank') {
+            values.unshift(gsFunc.args[1]);
+            collectValues(gsFunc.args[0]);
+          } else {
+            values.unshift(gsFunc);
+          }
+        }
+        collectValues(gsExpression);
+        return ['string', ...values.map(OlFlatStyleUtil.gsExpressionToOlExpression)];
+      }
+    }
+    if (!olOperator) {
+      throw new Error(`GeoStyler function not supported in OpenLayers flat style: ${gsFuncName}`);
+    }
+    if (!gsFuncArgs) {
+      return [olOperator];
+    }
+    return [olOperator, ...gsFuncArgs.map(OlFlatStyleUtil.gsExpressionToOlExpression)];
+  }
+
+  public static gsFilterToOlExpression<T extends PropertyType>(gsFilter: GeoStylerExpressionOrValue<T>):
+    OpenLayersExpressionOrValue | null {
+    const gsOperator = OlFlatStyleUtil.getGsFilterOperator(gsFilter);
+    const isFilter = gsOperator && gsOperator in gsFilterToOlOperator;
+    if (isFilter) {
+      const isComparisonFilter = gsOperator in gsComparisonFilterToOlOperator;
+      const olOperator = gsFilterToOlOperator[gsOperator];
+      const args = (gsFilter as CombinationFilter | ComparisonFilter | NegationFilter).slice(1);
+
+      const firstArg = args.shift();
+      // In GeoStyler, the first argument of a comparison filter
+      // can be the property name used in the comparison. In that case, we convert it to a 'get' expression.
+      let firstOlArg;
+      if (typeof firstArg === 'string' && isComparisonFilter) {
+        firstOlArg = ['get', firstArg];
+      } else {
+        firstOlArg = OlFlatStyleUtil.gsFilterToOlExpression(firstArg as GeoStylerExpressionOrValue<boolean>);
+      }
+      return [
+        olOperator,
+        firstOlArg,
+        ...args.map(OlFlatStyleUtil.gsFilterToOlExpression)
+      ] as OpenLayersExpression;
+    }
+
+    return OlFlatStyleUtil.gsExpressionToOlExpression<T>(gsFilter);
+  }
+
+  private static getOlExpressionOperator(olExpression: OpenLayersExpressionOrValue): OpenLayersOperator | null {
+    const isUndefined = olExpression === undefined;
+    const isArray = Array.isArray(olExpression);
+    if (isUndefined || !isArray) {
+      return null;
+    }
+    const hasOperator = typeof olExpression[0] == 'string';
+    if (!hasOperator) {
+      return null;
+    }
+    return olExpression[0] as OpenLayersOperator;
+  }
+
+  private static getGsFilterOperator<T extends PropertyType>(value?: GeoStylerExpressionOrValue<T>):
+    Operator | null {
+    const isUndefined = value === undefined;
+    const isArray = Array.isArray(value);
+    if (isUndefined || !isArray) {
+      return null;
+    }
+    const hasOperator = typeof value[0] == 'string';
+    if (!hasOperator) {
+      return null;
+    }
+    return value[0];
   }
 }
 
