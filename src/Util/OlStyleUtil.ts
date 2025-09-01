@@ -265,7 +265,7 @@ class OlStyleUtil {
    *
    * @param olFont the `font` property of an OpenLayers text style
    */
-  public static getFontNameFromOlFont(olFont: string) {
+  public static getFontNameFromOlFont(olFont?: string) {
     const parts = olFont.match(/(?:\d+\S+) '?"?([^,'"]+)/);
     if (!parts) {
       throw new Error(`Could not find font family name in the following string: ${olFont}`);

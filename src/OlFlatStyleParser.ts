@@ -260,7 +260,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     if (OlFlatStyleUtil.isOlExpression(flatStyle['text-font'])) {
       // NOTE: If font is an expression, we cannot detect the size
       font = [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-font'])];
-    } else if (flatStyle['text-font']) {
+    } else if (typeof flatStyle['text-font'] === 'string') {
       font = [OlStyleUtil.getFontNameFromOlFont(flatStyle['text-font'])];
       fontSize = OlStyleUtil.getSizeFromOlFont(flatStyle['text-font']);
     }
@@ -438,7 +438,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     if (OlFlatStyleUtil.isOlExpression(flatStyle['text-font'])) {
       // NOTE: If font is an expression, we cannot detect the size
       font = [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['text-font'])];
-    } else if (flatStyle['text-font']) {
+    } else if (typeof flatStyle['text-font'] === 'string') {
       font = [OlStyleUtil.getFontNameFromOlFont(flatStyle['text-font'])];
       fontSize = OlStyleUtil.getSizeFromOlFont(flatStyle['text-font']);
     }
@@ -477,7 +477,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     if (OlFlatStyleUtil.hasFlatText(flatStyle)) {
       if (
         !OlFlatStyleUtil.isOlExpression(flatStyle['text-font']) &&
-        flatStyle['text-font'] &&
+        typeof flatStyle['text-font'] === 'string' &&
         OlStyleUtil.getIsMarkSymbolizerFont(flatStyle['text-font'])
       ) {
         symbolizers.push(this.flatTextStyleToGeoStylerMarkSymbolizer(flatStyle));
@@ -543,7 +543,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
           };
         }
       } else {
-        rule.filter = OlFlatStyleUtil.olFilterToGsFilter(flatRule.filter);
+        rule.filter = OlFlatStyleUtil.olExpressionToGsFilter(flatRule.filter);
       }
     }
 
@@ -763,14 +763,14 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
 
       // handling filter
       if (rule.filter) {
-        const ruleFilter = OlFlatStyleUtil.gsFilterToOlFilter(rule.filter);
+        const ruleFilter = OlFlatStyleUtil.gsFilterToOlExpression(rule.filter);
         if (ruleFilter) {
           if (Array.isArray(ruleFilter) && ruleFilter[0] === 'all' && (minScaleFilter || maxScaleFilter)) {
             // remove all since we anyway combine the filters with an all
             ruleFilter.shift();
-            flatFilters = [...flatFilters, ...ruleFilter];
+            flatFilters = [...flatFilters, ...ruleFilter as EncodedExpression[]];
           } else {
-          flatFilters.push(ruleFilter);
+            flatFilters.push(ruleFilter);
           }
         }
       }
