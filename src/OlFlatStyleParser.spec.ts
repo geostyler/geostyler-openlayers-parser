@@ -7,6 +7,7 @@ import lineSimpleLine from '../data/styles/line_simpleline';
 import textPlacementLine from '../data/styles/text_placement_line';
 import pointIconSimple from '../data/styles/point_icon_simple';
 import pointSimplePoint from '../data/styles/point_simplepoint';
+import pointOpaquePoint from '../data/styles/point_opaquepoint';
 import multiTwoRulesSimplepoint from '../data/styles/multi_twoRulesSimplepoint';
 import filterSimpleFilter from '../data/styles/filter_simpleFilter';
 import filterNestedFilter from '../data/styles/filter_nestedFilter';
@@ -16,6 +17,7 @@ import ol_line_simpleline from '../data/olFlatStyles/line_simpleline';
 import ol_text_placement_line from '../data/olFlatStyles/text_placement_line';
 import ol_point_icon_simple from '../data/olFlatStyles/point_icon_simple';
 import ol_point_simplepoint from '../data/olFlatStyles/point_simplepoint';
+import ol_point_opaquepoint from '../data/olFlatStyles/point_opaquepoint';
 import ol_multi_twoRulesSimplepoint from '../data/olFlatStyles/multi_twoRulesSimplepoint';
 import ol_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
 import ol_filter_nestedFilter from '../data/olFlatStyles/filter_nestedFilter';
@@ -64,6 +66,12 @@ describe('OlFlatStyleParser implements StyleParser', () => {
       const { output: geostylerStyle } = await styleParser.readStyle(ol_point_simplepoint);
       expect(geostylerStyle).toBeDefined();
       expect(geostylerStyle).toEqual(pointSimplePoint);
+    });
+
+    it('reads a FlatCircle style with fill and stroke opacity', async () => {
+      const { output: geostylerStyle } = await styleParser.readStyle(ol_point_opaquepoint);
+      expect(geostylerStyle).toBeDefined();
+      expect(geostylerStyle).toEqual(pointOpaquePoint);
     });
 
     it('reads a style from a FlatStyleArray', async () => {
