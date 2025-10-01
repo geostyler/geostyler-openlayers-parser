@@ -1,3 +1,13 @@
+## [5.2.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.1.2...v5.2.0) (2025-10-01)
+
+### Features
+
+* add WellKnownNames to support extra styles from QGIS ([#828](https://github.com/geostyler/geostyler-openlayers-parser/issues/828)) ([97c9ea1](https://github.com/geostyler/geostyler-openlayers-parser/commit/97c9ea18c59f28a7d19943b5ee7c0951284d7ce4))
+
+### Bug Fixes
+
+* **OlFlatStyleParser:** set fillOpacity on circle styles ([#905](https://github.com/geostyler/geostyler-openlayers-parser/issues/905)) ([d343752](https://github.com/geostyler/geostyler-openlayers-parser/commit/d34375253732d0baad36d02eb9ac837c7ead167f))
+
 ## [5.1.2](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.1.1...v5.1.2) (2025-06-11)
 
 ### Bug Fixes
