@@ -276,7 +276,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       wellKnownName: 'circle',
       radius: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['circle-radius']),
       color: fillColor,
-      opacity: fillOpacity,
+      fillOpacity,
       strokeColor,
       strokeOpacity,
       strokeWidth: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['circle-stroke-width']),
