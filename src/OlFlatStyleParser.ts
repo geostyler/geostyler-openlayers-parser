@@ -517,37 +517,104 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       symbolizers,
     };
 
+    const dpi = 25.4 / 0.28;
+    const inchesPerMeter = 39.37;
+
     if (flatRule.filter) {
+      const scaleExpression = ['*', ['resolution'], inchesPerMeter * dpi];
+
       if (
         Array.isArray(flatRule.filter) &&
-        flatRule.filter.length === 3 &&
-        ['>=', '<'].includes(flatRule.filter[0]) &&
-        Array.isArray(flatRule.filter[1]) &&
-        flatRule.filter[1].length === 1 &&
-        flatRule.filter[1][0] === 'resolution' &&
-        !OlFlatStyleUtil.isOlExpression(flatRule.filter[2])
+        flatRule.filter.length >= 2 &&
+        flatRule.filter[0] === 'all'
       ) {
-        const resolution = flatRule.filter[2];
+        for (let i = flatRule.filter.length - 1; i > 0; i--) {
+          const subFilter = flatRule.filter[i];
 
-        const dpi = 25.4 / 0.28;
-        const inchesPerMeter = 39.37;
-        const scale = resolution * inchesPerMeter * dpi;
-        if (flatRule.filter[0] === '>=') {
-          rule.scaleDenominator = {
-            min: scale
-          };
+          if (isScaleBased(subFilter, scaleExpression)) {
+            setRuleScalesFromScaleBasedFilter(subFilter);
+            flatRule.filter.splice(i, 1);
+          }
+
+          if (isResolutionBased(subFilter)) {
+            setRuleScalesFromResolutionBasedFilter(subFilter);
+            flatRule.filter.splice(i, 1);
+          }
         }
-        if (flatRule.filter[0] === '<') {
-          rule.scaleDenominator = {
-            max: scale
-          };
+
+        if (flatRule.filter.length === 1) {
+          delete flatRule.filter;
         }
-      } else {
+      }
+
+      if (isScaleBased(flatRule.filter, scaleExpression)) {
+        setRuleScalesFromScaleBasedFilter(flatRule.filter);
+        delete flatRule.filter;
+      }
+
+      if (isResolutionBased(flatRule.filter)) {
+        setRuleScalesFromResolutionBasedFilter(flatRule.filter);
+        delete flatRule.filter;
+      }
+
+      if (flatRule.filter) {
         rule.filter = OlFlatStyleUtil.olExpressionToGsFilter(flatRule.filter);
       }
     }
 
     return rule;
+
+    function isScaleBased(filter: any, scaleExpression: (string | number | string[])[]) {
+      return Array.isArray(filter) &&
+        filter.length === 3 &&
+        ['>=', '<'].includes(filter[0]) &&
+        JSON.stringify(filter[1]) === JSON.stringify(scaleExpression) &&
+        !OlFlatStyleUtil.isOlExpression(filter[2]);
+    }
+
+    function setRuleScalesFromScaleBasedFilter(filter: any) {
+      const scale = filter[2];
+      if (filter[0] === '>=') {
+        rule.scaleDenominator = {
+          ...rule.scaleDenominator,
+          min: scale
+        };
+      }
+      if (filter[0] === '<') {
+        rule.scaleDenominator = {
+          ...rule.scaleDenominator,
+          max: scale
+        };
+      }
+    }
+
+    function isResolutionBased(filter: any) {
+      return Array.isArray(filter) &&
+        filter.length === 3 &&
+        ['>=', '<'].includes(filter[0]) &&
+        Array.isArray(filter[1]) &&
+        filter[1].length === 1 &&
+        filter[1][0] === 'resolution' &&
+        !OlFlatStyleUtil.isOlExpression(filter[2]);
+    }
+
+    function setRuleScalesFromResolutionBasedFilter(filter: any) {
+      const resolution = filter[2];
+
+      const scale = resolution * inchesPerMeter * dpi;
+      if (filter[0] === '>=') {
+        rule.scaleDenominator = {
+          ...rule.scaleDenominator,
+          min: scale
+        };
+      }
+      if (filter[0] === '<') {
+        rule.scaleDenominator = {
+          ...rule.scaleDenominator,
+          max: scale
+        };
+      }
+    }
   }
 
   flatRuleArrayToGeoStylerStyle(flatRuleArray: FlatRule[]): Style {

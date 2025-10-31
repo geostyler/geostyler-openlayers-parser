@@ -5,6 +5,7 @@ import { FlatStyleLike } from 'ol/style/flat';
 import { Style, UnsupportedProperties } from 'geostyler-style';
 
 import filter_comparison_propertyFunction from '../data/styles/filter_comparison_propertyFunction';
+import filter_nested_resolution from '../data/styles/filter_nested_resolution';
 import filter_nestedFilter from '../data/styles/filter_nestedFilter';
 import filter_resolution from '../data/styles/filter_resolution';
 import filter_simpleFilter from '../data/styles/filter_simpleFilter';
@@ -49,6 +50,7 @@ import text_placement_point from '../data/styles/text_placement_point';
 import unsupported_properties from '../data/styles/unsupported_properties';
 
 import flat_filter_comparison_propertyFunction from '../data/olFlatStyles/filter_comparison_propertyFunction';
+import flat_filter_nested_resolution from '../data/olFlatStyles/filter_nested_resolution';
 import flat_filter_nestedFilter from '../data/olFlatStyles/filter_nestedFilter';
 import flat_filter_resolution from '../data/olFlatStyles/filter_resolution';
 import flat_filter_simpleFilter from '../data/olFlatStyles/filter_simpleFilter';
@@ -208,9 +210,9 @@ const testCases: TestCase[] = [
     gsStyle: point_simplepoint
   },
   {
-    name: 'mark symbolizer with filter',
+    name: 'mark symbolizer with filter and scale denominator',
     olFlatStyle: flat_point_simplepoint_filter,
-    gsStyle: point_simplepoint_filter
+    gsTargetStyle: point_simplepoint_filter
   },
   {
     name: 'line symbolizer',
@@ -298,6 +300,11 @@ const testCases: TestCase[] = [
     gsTargetStyle: filter_resolution
   },
   {
+    name: 'nested resolution-based filter',
+    olFlatStyle: flat_filter_nested_resolution,
+    gsTargetStyle: filter_nested_resolution
+  },
+  {
     name: 'style with boolean function',
     olFlatStyle: flat_function_boolean,
     gsStyle: function_boolean
@@ -320,17 +327,17 @@ const testCases: TestCase[] = [
   {
     name: 'line symbolizer with scale denominator range',
     olFlatStyle: flat_scaleDenom_line,
-    gsStyle: scaleDenom_line
+    gsTargetStyle: scaleDenom_line
   },
   {
     name: 'two symbolizers with different scale denominator ranges',
     olFlatStyle: flat_scaleDenom_line_circle,
-    gsStyle: scaleDenom_line_circle
+    gsTargetStyle: scaleDenom_line_circle
   },
   {
     name: 'line symbolizer with scale denominator range and nested filter',
     olFlatStyle: flat_scaleDenom_line_nestedFilter,
-    gsStyle: scaleDenom_line_nestedFilter
+    gsTargetStyle: scaleDenom_line_nestedFilter
   },
   {
     name: 'GS style with unsupported properties',
