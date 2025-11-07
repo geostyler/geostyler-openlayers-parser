@@ -419,7 +419,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       strokeWidth: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['shape-stroke-width']),
       radius: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['shape-radius']),
       offset: OlFlatStyleUtil.olExpressionToGsExpression<[number, number]>(flatStyle['shape-displacement']),
-      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['shape-rotation']) || 0,
+      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['shape-rotation']),
     };
   }
 
@@ -457,7 +457,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       strokeOpacity,
       strokeWidth: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-stroke-width']),
       radius: (fontSize !== 0) ? fontSize : 5,
-      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-rotation']) || 0,
+      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-rotation']),
       offset: [
         OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-offset-x']),
         OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-offset-y']),
@@ -1098,8 +1098,6 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
    * @return The OL FlatStyle object
    */
   flatStyleFromMarkSymbolizer(symbolizer: MarkSymbolizer/* , feat?: OlFeature */): FlatStyle {
-    // let stroke: any;
-
     /* for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof MarkSymbolizer])) {
         (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
@@ -1113,13 +1111,6 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ? OlStyleUtil.getRgbaColor(strokeColor, strokeOpacity)
       : symbolizer.strokeColor as string;
 
-    /* if (symbolizer.strokeColor || symbolizer.strokeWidth !== undefined) {
-      stroke = new this.OlStyleStrokeConstructor({
-        color: sColor,
-        width: symbolizer.strokeWidth as number
-      });
-    } */
-
     const color = symbolizer.color as string;
     // const opacity = symbolizer.opacity as number;
     const radius = symbolizer.radius as number;
@@ -1127,10 +1118,6 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
     const fColor = color && (fillOpacity !== undefined)
       ? OlStyleUtil.getRgbaColor(color, fillOpacity ?? 1)
       : color;
-
-    /* const fill = new this.OlStyleFillConstructor({
-      color: fColor
-    }); */
 
     let flatStyle: FlatStyle;
     const baseProps = {
@@ -1193,6 +1180,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         flatStyle = {
           'shape-points': 4,
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
           'shape-radius2': 0,
           'shape-angle': 0,
@@ -1205,6 +1193,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         flatStyle = {
           'shape-points': 4,
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
           'shape-radius2': 0,
           'shape-angle': 45 * Math.PI / 180,
@@ -1216,6 +1205,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         flatStyle = {
           'shape-points': 2,
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
           'shape-angle': Math.PI / 4,
           ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
@@ -1226,6 +1216,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         flatStyle = {
           'shape-points': 2,
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
           'shape-angle': 2 * Math.PI - (Math.PI / 4),
           ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
@@ -1236,6 +1227,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         flatStyle = {
           'shape-points': 2,
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
           'shape-angle': 0,
           ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
@@ -1246,6 +1238,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         flatStyle = {
           'shape-points': 2,
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
           'shape-angle': Math.PI / 2,
           ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
@@ -1260,6 +1253,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         flatStyle = {
           'shape-points': 3,
           ...(baseProps.fColor ? { 'shape-fill-color': baseProps.fColor } : {}),
+          ...(baseProps.sColor ? { 'shape-stroke-color': baseProps.sColor } : {}),
           ...(baseProps.radius ? { 'shape-radius': baseProps.radius } : {}),
           'shape-angle': Math.PI / 2,
           ...(baseProps.displacement ? { 'shape-displacement': baseProps.displacement } : {}),
