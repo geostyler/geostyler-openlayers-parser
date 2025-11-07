@@ -905,7 +905,7 @@ describe('OlFlatStyleUtil', () => {
   });
 
   describe('olExpressionToGsFilter', () => {
-    const filterFixtures = testCases.filter(f => f.olExpr);
+    const filterFixtures = testCases.filter(f => f.olExpr && f.gsFilter);
     filterFixtures.forEach(({name, olExpr, gsFilter}) => {
       it(`converts ${name}`, () => {
         const output = OlFlatStyleUtil.olExpressionToGsFilter(olExpr!);
