@@ -1,3 +1,9 @@
+## [5.3.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.2.0...v5.3.0) (2025-11-12)
+
+### Features
+
+* **OlFlatStyleParser:** support reading icon-width ([#908](https://github.com/geostyler/geostyler-openlayers-parser/issues/908)) ([787821e](https://github.com/geostyler/geostyler-openlayers-parser/commit/787821ed3e8504f0d6a6abd3af228dacfa89ccfb))
+
 ## [5.2.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.1.2...v5.2.0) (2025-10-01)
 
 ### Features
