@@ -257,7 +257,9 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
         flatStyle['icon-offset']
       ),
       opacity: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-opacity']),
-      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-rotation'])
+      rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-rotation']),
+      // we use the icon-width here to be consistent with OlStyleParser
+      size: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-width']),
     };
   }
 
