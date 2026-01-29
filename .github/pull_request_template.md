@@ -1,4 +1,4 @@
-# Thank you 💞
+<!-- # Thank you 💞
 
 Thank you for considering giving code and/or documentation back to this project, you're awesome and we appreciate your work.
 
@@ -6,21 +6,15 @@ Thank you for considering giving code and/or documentation back to this project,
 
 Please review the [guidelines for contributing](https://github.com/geostyler/geostyler/blob/master/CONTRIBUTING.md) and the [code of conduct](https://github.com/geostyler/geostyler/blob/master/CODE_OF_CONDUCT.md) of this repository. This makes it easy for you to give back and for us to accept your changes.
 
-Please use the template below the line for the pull request description, and make sure to tick off the boxes in the checklists. In your final pull request everything above the next horizontal line can be removed to not distract reviewers or other readers.
-
-Again: thank you for your contribution.
-
-<!-- You can remove everything above this line, and also the line itself -->
-
-------------
+Please use the template below the line for the pull request description, and make sure to tick off the boxes in the checklists. -->
 
 ## Description
 
-Please give a short description of the changes you propose. Please use prose and try not to be too technical, if possible. Make sure to mention people that you think should know about the PR.
+<!-- Please give a short description of the changes you propose. Please use prose and try not to be too technical, if possible. Make sure to mention people that you think should know about the PR. -->
 
 ## Related issues or pull requests
 
-Please list issues or pull requests that the changes you propose are related to. It does not matter if they are still open and/or unmerged, any link is appreciated.
+<!-- Please list issues or pull requests that the changes you propose are related to. It does not matter if they are still open and/or unmerged, any link is appreciated. -->
 
 ## Pull request type
 
