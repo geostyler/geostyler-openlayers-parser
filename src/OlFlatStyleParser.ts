@@ -240,6 +240,7 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       placement: OlFlatStyleUtil.olExpressionToGsExpression<'point' | 'line' | 'line-center'>(
         flatStyle['text-placement']
       ),
+      repeat: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-repeat']),
       rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['text-rotation']),
       justify: OlFlatStyleUtil.olExpressionToGsExpression<'left' | 'center' | 'right'>(
         flatStyle['text-justify']

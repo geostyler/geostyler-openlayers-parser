@@ -489,6 +489,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const rotation = olTextStyle.getRotation();
     const allowOverlap = olTextStyle.getOverflow() ? olTextStyle.getOverflow() : undefined;
     const placement = olTextStyle.getPlacement();
+    const repeat = olTextStyle.getRepeat();
     const text = olTextStyle.getText();
     const label = Array.isArray(text) ? text[0] : text;
     let fontSize = Infinity;
@@ -516,6 +517,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       kind: 'Text',
       label,
       placement,
+      repeat,
       allowOverlap,
       color: olFillStyle ? OlStyleUtil.getHexColor(olFillStyle.getColor() as string) : undefined,
       size: isFinite(fontSize) ? fontSize : undefined,
@@ -1401,7 +1403,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       offsetX: (symbolizer.offset ? symbolizer.offset[0] : 0) as number,
       offsetY: (symbolizer.offset ? symbolizer.offset[1] : 0) as number,
       rotation: typeof(symbolizer.rotate) === 'number' ? symbolizer.rotate * DEGREES_TO_RADIANS : undefined,
-      placement: placement as 'line' | 'point'
+      placement: placement as 'line' | 'point',
+      repeat: symbolizer.repeat as number
       // TODO check why props match
       // textAlign: symbolizer.pitchAlignment,
       // textBaseline: symbolizer.anchor

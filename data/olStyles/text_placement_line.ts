@@ -5,6 +5,7 @@ const olTextPlacementStyle = new OlStyle({
   text: new OlStyleText({
     text: 'name',
     placement:'line',
+    repeat: 100,
     stroke: new OlStyleStroke({
       width: 5
     })
