@@ -8,6 +8,7 @@ const textStyle: Style = {
       symbolizers: [{
         kind: 'Text',
         placement:'line',
+        repeat: 100,
         allowOverlap: undefined,
         fontStyle: undefined,
         fontWeight: undefined,

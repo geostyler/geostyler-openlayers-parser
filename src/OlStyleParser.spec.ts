@@ -306,7 +306,7 @@ describe('OlStyleParser implements StyleParser', () => {
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(text_placement_point);
     });
-    it('can read an OpenLayers TextSymbolizer with placement line', async () => {
+    it('can read an OpenLayers TextSymbolizer with placement line and repeat', async () => {
       const { output: geoStylerStyle } = await styleParser.readStyle(ol_text_placement_line);
       expect(geoStylerStyle).toBeDefined();
       expect(geoStylerStyle).toEqual(text_placement_line);
@@ -1236,6 +1236,20 @@ describe('OlStyleParser implements StyleParser', () => {
     const style: OlStyle = styles[0];
     const olPlacement = style.getText()?.getPlacement();
     expect(olPlacement).toEqual('line');
+  });
+
+  it('can write a TextSymbolizer with repeat', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(text_placement_line);
+    olStyle = olStyle as OlParserStyleFct;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({name: 'GeoStyler'});
+    const styles = olStyle(testFeature, 1);
+    expect(styles).toHaveLength(1);
+
+    const style: OlStyle = styles[0];
+    const olPlacement = style.getText()?.getRepeat();
+    expect(olPlacement).toEqual(100);
   });
 
   it('can write a TextSymbolizer with placement line-center to line ', async () => {
