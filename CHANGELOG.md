@@ -1,3 +1,9 @@
+## [5.4.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.3.0...v5.4.0) (2026-01-29)
+
+### Features
+
+* parse TextSymbolizer repeat ([#913](https://github.com/geostyler/geostyler-openlayers-parser/issues/913)) ([52fb6d8](https://github.com/geostyler/geostyler-openlayers-parser/commit/52fb6d8b6fefe0459c168f549c5ed394d9c90ba9))
+
 ## [5.3.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.2.0...v5.3.0) (2025-11-12)
 
 ### Features
