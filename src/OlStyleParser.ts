@@ -38,6 +38,8 @@ import OlStyleCircle from 'ol/style/Circle';
 import OlStyleFill from 'ol/style/Fill';
 import OlStyleIcon, { Options as OlStyleIconOptions }  from 'ol/style/Icon';
 import OlStyleRegularshape from 'ol/style/RegularShape';
+import OlLineString from 'ol/geom/LineString';
+import OlMultiLineString from 'ol/geom/MultiLineString';
 import { METERS_PER_UNIT } from 'ol/proj/Units';
 
 import OlStyleUtil, { DEGREES_TO_RADIANS } from './Util/OlStyleUtil';
@@ -53,6 +55,7 @@ import {
   LINE_WELLKNOWNNAMES,
   NOFILL_WELLKNOWNNAMES
 } from './Util/OlSvgUtil';
+import OlGraphicStrokeUtil from './Util/OlGraphicStrokeUtil';
 
 export interface OlParserStyleFct {
   (feature?: any, resolution?: number): any;
@@ -167,6 +170,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   OlStyleCircleConstructor = OlStyleCircle;
   OlStyleIconConstructor = OlStyleIcon;
   OlStyleRegularshapeConstructor = OlStyleRegularshape;
+  OlLineStringContructor = OlLineString;
+  OlMultiLineStringConstructor = OlMultiLineString;
+  OlPointConstructor = OlGeomPoint;
 
   constructor(ol?: any) {
     if (ol) {
@@ -178,6 +184,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       this.OlStyleCircleConstructor = ol.style.Circle;
       this.OlStyleIconConstructor = ol.style.Icon;
       this.OlStyleRegularshapeConstructor = ol.style.RegularShape;
+      this.OlLineStringContructor = ol.geom.LineString;
+      this.OlMultiLineStringConstructor = ol.geom.MultiLineString;
+      this.OlPointConstructor = ol.geom.Point;
     }
   }
 
@@ -749,6 +758,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       const hasMaxScale = geoStylerStyle?.rules?.[0]?.scaleDenominator?.max !== undefined ? true : false;
       const hasScaleDenominator = hasMinScale || hasMaxScale ? true : false;
       const hasFunctions = OlStyleUtil.containsGeoStylerFunctions(geoStylerStyle);
+      const hasGraphicStroke = OlGraphicStrokeUtil.containsGraphicStroke(geoStylerStyle);
 
       const nrSymbolizers = geoStylerStyle.rules[0].symbolizers.length;
       const hasTextSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
@@ -757,7 +767,14 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       const hasDynamicIconSymbolizer = rules[0].symbolizers.some((symbolizer: Symbolizer) => {
         return symbolizer.kind === 'Icon' && typeof(symbolizer.image) === 'string' && symbolizer.image.includes('{{');
       });
-      if (!hasFilter && !hasScaleDenominator && !hasTextSymbolizer && !hasDynamicIconSymbolizer && !hasFunctions) {
+      if (
+        !hasFilter
+        && !hasScaleDenominator
+        && !hasTextSymbolizer
+        && !hasDynamicIconSymbolizer
+        && !hasFunctions
+        && !hasGraphicStroke
+      ) {
         if (nrSymbolizers === 1) {
           return this.geoStylerStyleToOlStyle(geoStylerStyle);
         } else {
@@ -858,16 +875,25 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
               }
             }
 
-            const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symb, feature);
-            // either an OlStyle or an ol.StyleFunction. OpenLayers only accepts an array
+            const olSymbolizer: any = this.getOlSymbolizerFromSymbolizer(symb, feature, resolution);
+            // either an OlStyle, OlStyle[] or an ol.StyleFunction. OpenLayers only accepts an array
             // of OlStyles, not ol.StyleFunctions.
             // So we have to check it and in case of an ol.StyleFunction call that function
             // and add the returned style to const styles.
-            if (typeof olSymbolizer !== 'function') {
-              styles.push(olSymbolizer);
-            } else {
+            if (typeof olSymbolizer === 'function') {
               const styleFromFct: any = olSymbolizer(feature, resolution);
               styles.push(styleFromFct);
+            } else if (Array.isArray(olSymbolizer)) {
+              olSymbolizer.forEach((s) => {
+                if (typeof s === 'function') {
+                  const styleFromFct: any = s(feature, resolution);
+                  styles.push(styleFromFct);
+                } else {
+                  styles.push(s);
+                }
+              });
+            } else {
+              styles.push(olSymbolizer);
             }
           });
         }
@@ -995,7 +1021,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @param symbolizer A GeoStyler-Style Symbolizer.
    * @return The OpenLayers Style object or a StyleFunction
    */
-  getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer, feature?: OlFeature): OlStyle {
+  getOlSymbolizerFromSymbolizer(symbolizer: Symbolizer, feature?: OlFeature, resolution?: number): OlStyle {
     let olSymbolizer: any;
     symbolizer = structuredClone(symbolizer);
 
@@ -1010,7 +1036,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         olSymbolizer = this.getOlTextSymbolizerFromTextSymbolizer(symbolizer, feature);
         break;
       case 'Line':
-        olSymbolizer = this.getOlLineSymbolizerFromLineSymbolizer(symbolizer, feature);
+        olSymbolizer = this.getOlLineSymbolizerFromLineSymbolizer(symbolizer, feature, resolution);
         break;
       case 'Fill':
         olSymbolizer = this.getOlPolygonSymbolizerFromFillSymbolizer(symbolizer, feature);
@@ -1195,7 +1221,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * @param symbolizer A GeoStyler-Style LineSymbolizer.
    * @return The OL Style object
    */
-  getOlLineSymbolizerFromLineSymbolizer(symbolizer: LineSymbolizer, feat?: OlFeature): OlStyle | OlStyleStroke {
+  getOlLineSymbolizerFromLineSymbolizer(
+    symbolizer: LineSymbolizer, feat?: OlFeature, resolution?: number
+  ): OlStyle | OlStyleStroke | OlStyle[] {
+    // graphicStroke will always be evaluated in a function, so we
+    // can assume that the feature is available.
+    if (symbolizer.graphicStroke) {
+      // If graphicStroke is set, we ignore unrelated stroke properties
+      return this.getOlGraphicStrokeFromGraphicStroke(symbolizer, feat!, resolution!);
+    }
     for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof LineSymbolizer])) {
         (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
@@ -1216,6 +1250,106 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         lineDashOffset: symbolizer.dashOffset as number
       })
     });
+  }
+
+  getOlGraphicStrokeFromGraphicStroke(
+    symbolizer: LineSymbolizer, feat: OlFeature, resolution: number
+  ) {
+    const geom = feat.getGeometry();
+    if (!geom || !(geom instanceof this.OlLineStringContructor || geom instanceof this.OlMultiLineStringConstructor)) {
+      throw new Error(
+        'GraphicStroke can only be applied to (Multi-)LineString geometries'
+      );
+    }
+
+    const graphicStroke = symbolizer.graphicStroke!;
+    const symbolSize = this.getSymbolSizeFromGraphicStroke(graphicStroke, feat);
+    if (symbolSize <= 0) {
+      console.warn('Symbol size must be greater than zero for graphic stroke. No graphic will be drawn.');
+      return [];
+    }
+    const symbolRotation = graphicStroke.rotate;
+    const evaluatedSymbolRotation = isGeoStylerFunction(symbolRotation)
+      ? OlStyleUtil.evaluateNumberFunction(symbolRotation, feat)
+      : symbolRotation ?? 0;
+    // We currently do not support expressions for dasharrays
+    const dashArray = symbolizer.dasharray as number[] | undefined;
+    const dashOffset = symbolizer.dashOffset || 0;
+    const evaluatedDashOffset = isGeoStylerFunction(dashOffset)
+      ? OlStyleUtil.evaluateNumberFunction(dashOffset, feat)
+      : dashOffset;
+
+    const symbolizerGenerator = (modifiedGraphicStroke: any) => {
+      return this.getOlSymbolizerFromSymbolizer(modifiedGraphicStroke, feat, resolution);
+    };
+
+    if (geom instanceof this.OlLineStringContructor) {
+      return OlGraphicStrokeUtil.processLineStringGraphicStroke(
+        geom,
+        symbolSize,
+        resolution,
+        dashArray,
+        evaluatedDashOffset,
+        evaluatedSymbolRotation,
+        graphicStroke,
+        symbolizerGenerator,
+        this.OlPointConstructor
+      );
+    } else {
+      // For every line in the MultiLineString, we start the pattern at the
+      // beginning of the line. This means that the pattern can be
+      // discontinuous at vertices where the lines connect.
+      return geom.getLineStrings().flatMap(line =>
+        OlGraphicStrokeUtil.processLineStringGraphicStroke(
+          line,
+          symbolSize,
+          resolution,
+          dashArray,
+          evaluatedDashOffset,
+          evaluatedSymbolRotation,
+          graphicStroke,
+          symbolizerGenerator,
+          this.OlPointConstructor
+        )
+      );
+    }
+  }
+
+  /**
+   * Get the size of a symbol from graphicStroke.
+   * @param graphicStroke The graphicStroke from the LineSymbolizer.
+   * @param feat The feature.
+   * @returns The size of the symbol in pixels.
+   */
+  getSymbolSizeFromGraphicStroke(
+    graphicStroke: LineSymbolizer['graphicStroke'], feat: OlFeature
+  ) {
+    let size = 0;
+    if (graphicStroke!.kind === 'Mark') {
+      const radius = graphicStroke!.radius;
+      if (isGeoStylerFunction(radius)) {
+        size = OlStyleUtil.evaluateNumberFunction(radius, feat) * 2;
+      } else {
+        size = (radius ?? 0) * 2;
+      }
+      if (size <= 0) {
+        return size;
+      }
+      const strokeWidth = graphicStroke!.strokeWidth;
+      if (isGeoStylerFunction(strokeWidth)) {
+        size += OlStyleUtil.evaluateNumberFunction(strokeWidth, feat);
+      } else {
+        size += strokeWidth ?? 0;
+      }
+    } else if (graphicStroke!.kind === 'Icon') {
+      const iconSize = graphicStroke!.size;
+      if (isGeoStylerFunction(iconSize)) {
+        size = OlStyleUtil.evaluateNumberFunction(iconSize, feat);
+      } else {
+        size = iconSize ?? 0;
+      }
+    }
+    return size;
   }
 
   /**

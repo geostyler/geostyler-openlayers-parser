@@ -55,11 +55,15 @@ export const getSvgProperties = (svgString: string): MarkSymbolizer | undefined 
   const parser = new DOMParser();
   const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = svgDoc.querySelector('svg');
-  const width = svgElement?.getAttribute('width');
   if (!svgElement) {
     return;
   };
 
+  const width = svgElement.getAttribute('width');
+  const viewBox = svgElement.getAttribute('viewBox');
+  if (!viewBox) {
+    return;
+  }
   const firstChildElement = Array.from(svgElement.children).find((child) => {
     return child instanceof Element;
   });
@@ -67,15 +71,19 @@ export const getSvgProperties = (svgString: string): MarkSymbolizer | undefined 
   const wellKnownName = firstChildElement?.getAttribute('id') as WellKnownName;
   const styleString = firstChildElement?.getAttribute('style') ?? '';
   const styleComponents = getStyleComponents(styleString);
+  const {
+    radius,
+    strokeWidth
+  } = getSizesFromSvg(Number(width), Number(styleComponents['stroke-width']), viewBox);
 
   const symbolizer: MarkSymbolizer = {
     kind: 'Mark',
     wellKnownName,
-    radius: Number(width) / 2,
+    radius,
     ...styleComponents.fill && { color: styleComponents.fill },
     ...styleComponents['fill-opacity'] && { fillOpacity: Number(styleComponents['fill-opacity']) },
     ...styleComponents.stroke && { strokeColor: styleComponents.stroke },
-    ...styleComponents['stroke-width'] && { strokeWidth: Number(styleComponents['stroke-width']) },
+    ...styleComponents['stroke-width'] && { strokeWidth },
     ...styleComponents['stroke-opacity'] && { strokeOpacity: Number(styleComponents['stroke-opacity']) }
   };
 
@@ -350,4 +358,64 @@ const svgArcToCanvas = (
 
   // Draw the arc
   ctx.arc(cx, cy, rx, startAngle, endAngle, !sweepFlag);
+};
+
+/**
+ * Get the SVG sizes for a point symbolizer. Currently assumes square SVGs.
+ * @param radius The radius of the symbol in px
+ * @param strokeWidth The stroke width of the symbol in px
+ * @param unpaddedSizeSimpleV The unpadded size of the symbol in ViewBox units
+ * @returns An object containing the calculated SVG sizes
+ */
+export const getSvgSizes = (radius: number, strokeWidth: number, unpaddedSizeSimpleV: number) => {
+  // We add the stroke width in viewbox units twice to the unpadded size.
+  // We then recompute the viewbox in order to contain the whole shape
+  // including stroke. The height in pixels will be calculated in a way that
+  // the radius of the shape corresponds to the provided radius, i.e. the
+  // actual SVG (incl. transparent paddings) will be bigger than the provided
+  // radius.
+  const unpaddedSizeSimplePx = radius * 2;
+
+  const vPerPixel = unpaddedSizeSimpleV / unpaddedSizeSimplePx;
+  const pixelPerV = unpaddedSizeSimplePx / unpaddedSizeSimpleV;
+
+  // for some reason whe have to use the stroke width as padding for the clipping
+  const clippingPaddingPx = strokeWidth;
+  const clippingPaddingV = clippingPaddingPx * vPerPixel;
+
+  const strokeWidthV = strokeWidth * vPerPixel;
+
+  const paddingV = clippingPaddingV + strokeWidthV;
+  const paddingPx = paddingV * pixelPerV;
+
+  const sizeV = unpaddedSizeSimpleV + paddingV;
+  const minV = -(sizeV / 2);
+
+  const heightPx = unpaddedSizeSimplePx + paddingPx;
+
+  return {
+    minV,
+    sizeV,
+    heightPx
+  };
+};
+
+export const getSizesFromSvg = (widthPx: number, strokeWidthV: number, viewBox: string) => {
+  const isStroked = !Number.isNaN(strokeWidthV);
+
+  const viewBoxValues = viewBox.split(' ').map(parseFloat);
+  const sizeV = viewBoxValues[2];
+  const pixelPerV = widthPx / sizeV;
+  const vPerPixel = sizeV / widthPx;
+  const strokeV = isStroked ? strokeWidthV : vPerPixel;
+
+  const unpaddedSizeV = sizeV - 2 * strokeV;
+
+  const radius = (unpaddedSizeV / 2) * pixelPerV;
+  const strokeWidth = isStroked ? strokeV * pixelPerV : undefined;
+
+  return {
+    radius,
+    strokeWidth
+  };
 };

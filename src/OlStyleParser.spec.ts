@@ -7,6 +7,8 @@ import OlStyleIcon from 'ol/style/Icon';
 import OlStyleText, { Options as TextOptions } from 'ol/style/Text';
 import OlStyleFill, { Options as FillOptions } from 'ol/style/Fill';
 import OlFeature from 'ol/Feature';
+import OlLineString from 'ol/geom/LineString';
+import OlPoint from 'ol/geom/Point';
 
 import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
 
@@ -31,6 +33,8 @@ import point_simpledot from '../data/styles/point_simpledot';
 import point_simpleplus from '../data/styles/point_simpleplus';
 import point_simpletimes from '../data/styles/point_simpletimes';
 import line_simpleline from '../data/styles/line_simpleline';
+import line_graphicstroke from '../data/styles/line_graphicStroke';
+import line_graphicstroke_dasharray from '../data/styles/line_graphicStrokeDashArray';
 import filter_simplefilter from '../data/styles/filter_simpleFilter';
 import filter_nestedfilter from '../data/styles/filter_nestedFilter';
 import filter_invalidfilter from '../data/styles/filter_invalidFilter';
@@ -855,6 +859,52 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStroke?.getColor()).toEqual(expecSymb.color);
     expect(olStroke?.getWidth()).toBeCloseTo(expecSymb.width as number);
     expect(olStroke?.getLineDash()).toEqual(expecSymb.dasharray);
+  });
+  it('can write an OpenLayers LineSymbolizer with graphicStroke', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(line_graphicstroke);
+    olStyle = olStyle as OlStyle;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({
+      geometry: new OlLineString([[0, 0], [0, 20]])
+    });
+    const resolution = 1;
+    const expecSymb = (line_graphicstroke.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
+    const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution)[0];
+    const geometry = evaluatedStyle.getGeometry();
+    expect(geometry).toBeInstanceOf(OlPoint);
+
+    const iconStyle = evaluatedStyle.getImage();
+    const svgString = getDecodedSvg(iconStyle.getSrc() as string);
+    const { wellKnownName, color } = getSvgProperties(svgString) as MarkSymbolizer;
+
+    expect(wellKnownName).toEqual(cleanWellKnownName(expecSymb.wellKnownName));
+    expect(color).toEqual(expecSymb.color);
+  });
+  it('can write an OpenLayers LineSymbolizer with graphicStroke with dash array', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(line_graphicstroke_dasharray);
+    olStyle = olStyle as OlStyle;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({
+      geometry: new OlLineString([[0, 0], [0, 60]])
+    });
+    const resolution = 1;
+    const expecSymb = (line_graphicstroke_dasharray.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
+    const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution);
+    // 4 symbols fit into dash pattern
+    expect(evaluatedStyle).toHaveLength(4);
+
+    const coordsGeom1 = evaluatedStyle[0].getGeometry().getCoordinates();
+    const coordsGeom2 = evaluatedStyle[1].getGeometry().getCoordinates();
+    const coordsGeom3 = evaluatedStyle[2].getGeometry().getCoordinates();
+    const coordsGeom4 = evaluatedStyle[3].getGeometry().getCoordinates();
+
+    // for all geometries the first ordinate is always 0, so we only check the second.
+    expect(coordsGeom1[1]).toBeCloseTo(5);
+    expect(coordsGeom2[1]).toBeCloseTo(15);
+    expect(coordsGeom3[1]).toBeCloseTo(35);
+    expect(coordsGeom4[1]).toBeCloseTo(45);
   });
   it('can write an OpenLayers PolygonSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(polygon_transparentpolygon);
