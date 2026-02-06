@@ -19,6 +19,9 @@ import {
 
 import OlFeature from 'ol/Feature';
 import { colors } from './colors';
+// import OlGeomPoint from 'ol/geom/Point';
+// import OlLineString from 'ol/geom/LineString';
+// import { Coordinate } from 'ol/coordinate';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
