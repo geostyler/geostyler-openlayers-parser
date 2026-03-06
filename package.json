@@ -60,7 +60,7 @@
     "@types/color-name": "^2.0.0",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.16",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "babel-jest": "^30.0.0",
