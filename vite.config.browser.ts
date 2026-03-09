@@ -11,7 +11,6 @@ export default defineConfig({
       formats: ['iife'],
       fileName: 'olStyleParser',
     },
-    sourcemap: true,
     rollupOptions: {
       output: {
         dir: 'dist',
@@ -19,7 +18,8 @@ export default defineConfig({
         generatedCode: 'es5',
         format: 'iife',
       },
-    }
+    },
+    sourcemap: true,
   },
   define: {
     appName: 'GeoStyler'

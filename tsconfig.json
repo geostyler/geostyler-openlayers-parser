@@ -16,7 +16,7 @@
     "rootDir": "src",
     "sourceMap": true,
     "strictNullChecks": true,
-    "target": "ES2022",
+    "target": "ES2022"
   },
   "exclude": [
     "node_modules",
@@ -29,6 +29,7 @@
     "data",
     "coverage",
     "browser",
-    "vite.config.ts"
+    "vite.config.browser.ts",
+    "vite.config.dist.ts"
   ]
 }

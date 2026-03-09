@@ -25,8 +25,9 @@
   },
   "homepage": "https://github.com/geostyler/geostyler-openlayers-parser#readme",
   "scripts": {
-    "build:browser": "vite build",
-    "build": "npm run build:browser && tsc -p tsconfig.json",
+    "build-browser": "vite build --config vite.config.browser.ts",
+    "build-dist": "vite build --config vite.config.dist.ts && tsc -p tsconfig.json --emitDeclarationOnly",
+    "build": "npm run build-browser && npm run build-dist",
     "typecheck": " tsc --noEmit --project tsconfig.json",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
@@ -39,8 +40,7 @@
   },
   "dependencies": {
     "css-font-parser": "^2.0.0",
-    "geostyler-style": "^11.0.1",
-    "lodash": "^4.17.21"
+    "geostyler-style": "^11.0.1"
   },
   "peerDependencies": {
     "ol": ">=7.4"
@@ -59,7 +59,6 @@
     "@terrestris/eslint-config-typescript": "^10.0.0",
     "@types/color-name": "^2.0.0",
     "@types/jest": "^30.0.0",
-    "@types/lodash": "^4.17.16",
     "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
