@@ -1,3 +1,9 @@
+## [5.4.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.4.0...v5.4.1) (2026-03-16)
+
+### Bug Fixes
+
+* use vite for the build ([0dfdb3e](https://github.com/geostyler/geostyler-openlayers-parser/commit/0dfdb3e2be149b7dc67182fb76c77050ffd84c9d))
+
 ## [5.4.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.3.0...v5.4.0) (2026-01-29)
 
 ### Features
