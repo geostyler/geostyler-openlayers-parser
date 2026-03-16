@@ -1,4 +1,3 @@
-import { invert } from 'lodash';
 import {
   FlatStyle,
   FlatStyleLike,
@@ -40,6 +39,22 @@ const filterNames = [
   '!'
 ];
 
+/**
+ * Native replacement for lodash's invert function to avoid adding the whole library as a dependency.
+ *
+ * @param obj - The object to invert
+ * @returns The inverted object
+ */
+function invert(obj: Record<string, string | null>): Record<string, string | null> {
+  return Object.entries(obj)
+    .reduce((acc, [key, value]) => {
+      if (value !== null) {
+        acc[value] = key;
+      }
+      return acc;
+    }, {} as Record<string, string | null>);
+}
+
 export type FilterExpression = [typeof filterNames[number], ...any[]];
 export type ComparisonFilterExpression = [typeof comparisonFilterNames[number], ...any[]];
 
@@ -59,7 +74,7 @@ const filterNameMap: Record<Operator, typeof filterNames[number] | null> = {
 };
 
 const invertedFilterMap: Partial<Record<typeof filterNames[number], Operator>> =
-  invert(filterNameMap) as Partial<Record<typeof filterNames[number], Operator>> ;
+  invert(filterNameMap) as Partial<Record<typeof filterNames[number], Operator>>;
 
 const expressionNames = [
   'get',
@@ -94,7 +109,7 @@ const expressionNames = [
   'to-string',
 ] as const;
 
-const functionNameMap: Record<GeoStylerFunction['name'], typeof expressionNames[number]| null> = {
+const functionNameMap: Record<GeoStylerFunction['name'], typeof expressionNames[number] | null> = {
   // ---- string ----
   numberFormat: null,
   // numberFormat: 'number-format', // TODO: this could be done in theory but gs and mb use different format approaches
@@ -239,7 +254,7 @@ class OlFlatStyleUtil {
     return hasOperator && isFilterName;
   }
 
-  public static isComparisonFilter(filter: FilterExpression): filter is  ComparisonFilterExpression {
+  public static isComparisonFilter(filter: FilterExpression): filter is ComparisonFilterExpression {
     const isUndefined = filter === undefined;
     const isArray = Array.isArray(filter);
     if (isUndefined || !isArray) {
@@ -356,7 +371,7 @@ class OlFlatStyleUtil {
           }
         });
         // adding the interpolation type and the input as the first args
-        gsArgs.unshift({name: interpolationType}, input);
+        gsArgs.unshift({ name: interpolationType }, input);
         func = {
           name: functionName,
           args: gsArgs as Finterpolate['args']
