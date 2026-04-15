@@ -1,6 +1,53 @@
 import { MarkSymbolizer } from 'geostyler-style';
 import OlStyleUtil from './OlStyleUtil';
-import { LINE_WELLKNOWNNAMES, NOFILL_WELLKNOWNNAMES, svgDefinition } from './OlSvgUtil';
+import { getSvgSizes, LINE_WELLKNOWNNAMES, NOFILL_WELLKNOWNNAMES, svgDefinition } from './OlSvgUtil';
+
+// The sizes in viewbox units for the different SVGs. This currently assumes
+// square SVGs.
+export const SVG_SIZES: Record<string, number> = {
+  arrow: 20,
+  arrowhead: 20,
+  asterisk_fill: 20,
+  backslash: 24,
+  carrow: 20,
+  circle: 20,
+  cross: 24,
+  cross_fill: 20,
+  cross2: 24,
+  decagon: 20,
+  diagonal_half_square: 20,
+  diamond: 20,
+  equilateral_triangle: 20,
+  filled_arrowhead: 20,
+  half_arc: 20,
+  half_square: 20,
+  heart: 20,
+  hexagon: 20,
+  horline: 24,
+  left_half_triangle: 20,
+  line: 24,
+  oarrow: 20,
+  octagon: 20,
+  parallelogram_left: 20,
+  parallelogram_right: 20,
+  pentagon: 20,
+  quarter_arc: 20,
+  quarter_circle: 20,
+  quarter_square: 20,
+  right_half_triangle: 20,
+  rounded_square: 20,
+  semi_circle: 20,
+  shield: 20,
+  slash: 24,
+  square: 20,
+  square_with_corners: 20,
+  star: 20,
+  star_diamond: 20,
+  third_arc: 20,
+  third_circle: 20,
+  trapezoid: 20,
+  triangle: 20
+};
 
 // Shape definitions, all are roughly scaled to 20x20 in coordinates between (-10,-10) to (10,10)
 export const pointSvgs: svgDefinition = {
@@ -84,19 +131,26 @@ export const isPointDefinedAsSvg = (wellKnownName: string) => cleanWellKnownName
 export const getPointSvg = (
   symbolizer: MarkSymbolizer
 ) => {
-  const { wellKnownName, radius, color, fillOpacity, strokeColor, strokeWidth, strokeOpacity } = symbolizer;
-  const dimensions = (radius as number ?? 6) * 2;  // Default to 12 pixels
-
+  const { wellKnownName, radius = 6, color, fillOpacity, strokeColor, strokeWidth, strokeOpacity } = symbolizer;
   if (!isPointDefinedAsSvg(wellKnownName)) {
     throw new Error('Unknown wellKnownName: ' + wellKnownName);
   }
 
   const cleanedWellKnownName = cleanWellKnownName(wellKnownName);
 
+  const defaultedStrokeWidth = strokeWidth ?? 1;
+
+  const svgSize = SVG_SIZES[cleanedWellKnownName];
+  const {
+    minV,
+    sizeV,
+    heightPx
+  } = getSvgSizes(radius as number, defaultedStrokeWidth as number, svgSize);
+
   const svgHeader = '<svg xmlns="http://www.w3.org/2000/svg" ' +
-    'width="' + dimensions + '" ' +
-    'height="' + dimensions + '" ' +
-    'viewBox="-12 -12 24 24">';
+    'width="' + heightPx + '" ' +
+    'height="' + heightPx + '" ' +
+    `viewBox="${minV} ${minV} ${sizeV} ${sizeV}">`;
   const svgFooter = '</svg>';
 
   let svgBody = pointSvgs[cleanedWellKnownName] + ' ';
@@ -125,7 +179,7 @@ export const getPointSvg = (
     svgStyle += 'stroke:' + strokeColor + '; ';
   };
   if (strokeWidth) {
-    const scaleFactor = dimensions / 24;
+    const scaleFactor = heightPx / sizeV;
     svgStyle += 'stroke-width:' + Number(strokeWidth) / scaleFactor + '; ';
   };
   if (OlStyleUtil.checkOpacity(strokeOpacity)) {
