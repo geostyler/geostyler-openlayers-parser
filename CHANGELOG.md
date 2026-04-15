@@ -1,3 +1,9 @@
+## [5.5.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.4.1...v5.5.0) (2026-04-15)
+
+### Features
+
+* **LineSymbolizer:** support graphicStroke incl. dasharray ([#918](https://github.com/geostyler/geostyler-openlayers-parser/issues/918)) ([b7883c6](https://github.com/geostyler/geostyler-openlayers-parser/commit/b7883c65abeb4aaadbb10b2f438124c3010f120f))
+
 ## [5.4.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.4.0...v5.4.1) (2026-03-16)
 
 ### Bug Fixes
