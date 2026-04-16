@@ -845,8 +845,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         let maxScale = rule?.scaleDenominator?.max;
         let isWithinScale = true;
         if (minScale || maxScale) {
-          minScale = isGeoStylerFunction(minScale) ? OlStyleUtil.evaluateNumberFunction(minScale) : minScale;
-          maxScale = isGeoStylerFunction(maxScale) ? OlStyleUtil.evaluateNumberFunction(maxScale) : maxScale;
+          minScale = isGeoStylerFunction(minScale)
+            ? OlStyleUtil.evaluateFunction(minScale, feature) as number
+            : minScale;
+          maxScale = isGeoStylerFunction(maxScale)
+            ? OlStyleUtil.evaluateFunction(maxScale, feature) as number
+            : maxScale;
           if (minScale && scale < minScale) {
             isWithinScale = false;
           }
@@ -874,7 +878,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
             }
 
             if (isGeoStylerBooleanFunction(symb.visibility)) {
-              const visibility = OlStyleUtil.evaluateBooleanFunction(symb.visibility);
+              const visibility = OlStyleUtil.evaluateFunction(symb.visibility, feature) as boolean;
               if (!visibility) {
                 styles.push(null);
               }
@@ -1275,13 +1279,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
     const symbolRotation = graphicStroke.rotate;
     const evaluatedSymbolRotation = isGeoStylerFunction(symbolRotation)
-      ? OlStyleUtil.evaluateNumberFunction(symbolRotation, feat)
+      ? OlStyleUtil.evaluateFunction(symbolRotation, feat) as number
       : symbolRotation ?? 0;
     // We currently do not support expressions for dasharrays
     const dashArray = symbolizer.dasharray as number[] | undefined;
     const dashOffset = symbolizer.dashOffset || 0;
     const evaluatedDashOffset = isGeoStylerFunction(dashOffset)
-      ? OlStyleUtil.evaluateNumberFunction(dashOffset, feat)
+      ? OlStyleUtil.evaluateFunction(dashOffset, feat) as number
       : dashOffset;
 
     const symbolizerGenerator = (modifiedGraphicStroke: any) => {
@@ -1319,7 +1323,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     if (graphicStroke!.kind === 'Mark') {
       const radius = graphicStroke!.radius;
       if (isGeoStylerFunction(radius)) {
-        size = OlStyleUtil.evaluateNumberFunction(radius, feat) * 2;
+        size = (OlStyleUtil.evaluateFunction(radius, feat) as number) * 2;
       } else {
         size = (radius ?? 0) * 2;
       }
@@ -1328,14 +1332,14 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       }
       const strokeWidth = graphicStroke!.strokeWidth;
       if (isGeoStylerFunction(strokeWidth)) {
-        size += OlStyleUtil.evaluateNumberFunction(strokeWidth, feat);
+        size += OlStyleUtil.evaluateFunction(strokeWidth, feat) as number;
       } else {
         size += strokeWidth ?? 0;
       }
     } else if (graphicStroke!.kind === 'Icon') {
       const iconSize = graphicStroke!.size;
       if (isGeoStylerFunction(iconSize)) {
-        size = OlStyleUtil.evaluateNumberFunction(iconSize, feat);
+        size = OlStyleUtil.evaluateFunction(iconSize, feat) as number;
       } else {
         size = iconSize ?? 0;
       }
