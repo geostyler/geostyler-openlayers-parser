@@ -4,7 +4,11 @@ import {
 
 import OlGeomPoint from 'ol/geom/Point';
 import OlLineString from 'ol/geom/LineString';
+import OlMultiLineString from 'ol/geom/MultiLineString';
+import OlPolygon from 'ol/geom/Polygon';
+import OlMultiPolygon from 'ol/geom/MultiPolygon';
 import { Coordinate } from 'ol/coordinate';
+import { Geometry } from 'ol/geom';
 
 /**
  * Offers some utility functions to work with OpenLayers Graphic Strokes.
@@ -299,6 +303,37 @@ class OlGraphicStrokeUtil {
       styleClone.setGeometry(tick);
       return styleClone;
     });
+  }
+
+  public static getLineStringsFromGeometry(geom: Geometry | undefined, constructors: {
+    LineString: typeof OlLineString;
+    MultiLineString: typeof OlMultiLineString;
+    Polygon: typeof OlPolygon;
+    MultiPolygon: typeof OlMultiPolygon;
+  }) {
+    if (!geom) {
+      throw new Error(
+        'GraphicStroke can only be applied to features with geometries'
+      );
+    }
+    if (geom instanceof constructors.LineString) {
+      return [geom];
+    } else if (geom instanceof constructors.MultiLineString) {
+      return geom.getLineStrings();
+    } else if (geom instanceof constructors.Polygon) {
+      const linearRings = geom.getLinearRings();
+      return linearRings.map(ring => new constructors.LineString(ring.getCoordinates()));
+    } else if (geom instanceof constructors.MultiPolygon) {
+      const polygons = geom.getPolygons();
+      return polygons.flatMap(polygon => {
+        const linearRings = polygon.getLinearRings();
+        return linearRings.map(ring => new constructors.LineString(ring.getCoordinates()));
+      });
+    }
+
+    throw new Error(
+      'GraphicStroke can only be applied to (Multi-)LineString or (Multi-)Polygon geometries'
+    );
   }
 }
 

@@ -1,6 +1,9 @@
 import OlGraphicStrokeUtil from './OlGraphicStrokeUtil';
 import OlLineString from 'ol/geom/LineString';
+import OlMultiLineString from 'ol/geom/MultiLineString';
 import OlGeomPoint from 'ol/geom/Point';
+import OlPolygon from 'ol/geom/Polygon';
+import OlMultiPolygon from 'ol/geom/MultiPolygon';
 import { Style, MarkSymbolizer } from 'geostyler-style';
 
 describe('OlGraphicStrokeUtil', () => {
@@ -539,6 +542,73 @@ describe('OlGraphicStrokeUtil', () => {
       );
 
       expect(styles.length).toBeGreaterThanOrEqual(0);
+    });
+  });
+  describe('#getLineStringsFromGeometry', () => {
+    it('is defined', () => {
+      expect(OlGraphicStrokeUtil.getLineStringsFromGeometry).toBeDefined();
+    });
+    it('returns an array of LineStrings with length 1 if given a LineString', () => {
+      const geom = new OlLineString([[0, 0], [10, 0]]);
+      const constructors = {
+        LineString: OlLineString,
+        MultiLineString: OlLineString, // Not used for this test
+        Polygon: OlPolygon, // Not used for this test
+        MultiPolygon: OlMultiPolygon // Not used for this test
+      };
+      const result = OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(OlLineString);
+    });
+    it('returns an array of LineStrings if given a MultiLineString', () => {
+      const geom = new OlMultiLineString([[[0, 0], [10, 0]], [[10, 0], [10, 10]]]);
+      const constructors = {
+        LineString: OlLineString,
+        MultiLineString: OlMultiLineString,
+        Polygon: OlPolygon,
+        MultiPolygon: OlMultiPolygon
+      };
+      const result = OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      expect(result).toHaveLength(2);
+      result.forEach(line => {
+        expect(line).toBeInstanceOf(OlLineString);
+      });
+    });
+    it('returns an array of LineStrings if given a Polygon', () => {
+      const geom = new OlPolygon([[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]);
+      const constructors = {
+        LineString: OlLineString,
+        MultiLineString: OlMultiLineString,
+        Polygon: OlPolygon,
+        MultiPolygon: OlMultiPolygon
+      };
+      const result = OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(OlLineString);
+    });
+    it('returns an array of LineStrings if given a MultiPolygon', () => {
+      const geom = new OlMultiPolygon([[[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]]);
+      const constructors = {
+        LineString: OlLineString,
+        MultiLineString: OlMultiLineString,
+        Polygon: OlPolygon,
+        MultiPolygon: OlMultiPolygon
+      };
+      const result = OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(OlLineString);
+    });
+    it('throws an error for other geometry types', () => {
+      const geom = new OlGeomPoint([0, 0]);
+      const constructors = {
+        LineString: OlLineString,
+        MultiLineString: OlMultiLineString,
+        Polygon: OlPolygon,
+        MultiPolygon: OlMultiPolygon
+      };
+      expect(() => {
+        OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      }).toThrow();
     });
   });
 });
