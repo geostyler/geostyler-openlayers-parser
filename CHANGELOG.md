@@ -1,3 +1,9 @@
+## [5.6.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.6.0...v5.6.1) (2026-04-16)
+
+### Bug Fixes
+
+* evaluating geostyler functions ([#934](https://github.com/geostyler/geostyler-openlayers-parser/issues/934)) ([06dd87f](https://github.com/geostyler/geostyler-openlayers-parser/commit/06dd87fc029bfa58abb1786ddb18967d697f143f))
+
 ## [5.6.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.5.0...v5.6.0) (2026-04-16)
 
 ### Features
