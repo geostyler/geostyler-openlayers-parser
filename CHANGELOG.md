@@ -1,3 +1,9 @@
+## [5.6.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.5.0...v5.6.0) (2026-04-16)
+
+### Features
+
+* **LineSymbolizer:** support graphicStroke for (multi-)polygons ([#933](https://github.com/geostyler/geostyler-openlayers-parser/issues/933)) ([dce71eb](https://github.com/geostyler/geostyler-openlayers-parser/commit/dce71eb2af78b6e8b5395b7fcd74aee11aaa94bd))
+
 ## [5.5.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.4.1...v5.5.0) (2026-04-15)
 
 ### Features
