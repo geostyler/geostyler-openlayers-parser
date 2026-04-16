@@ -40,6 +40,8 @@ import OlStyleIcon, { Options as OlStyleIconOptions }  from 'ol/style/Icon';
 import OlStyleRegularshape from 'ol/style/RegularShape';
 import OlLineString from 'ol/geom/LineString';
 import OlMultiLineString from 'ol/geom/MultiLineString';
+import OlPolygon from 'ol/geom/Polygon';
+import OlMultiPolygon from 'ol/geom/MultiPolygon';
 import { METERS_PER_UNIT } from 'ol/proj/Units';
 
 import OlStyleUtil, { DEGREES_TO_RADIANS } from './Util/OlStyleUtil';
@@ -123,7 +125,6 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         roundLimit: 'none',
         spacing: 'none',
         graphicFill: 'none',
-        graphicStroke: 'none',
         perpendicularOffset: 'none'
       },
       RasterSymbolizer: 'none',
@@ -172,6 +173,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   OlStyleRegularshapeConstructor = OlStyleRegularshape;
   OlLineStringContructor = OlLineString;
   OlMultiLineStringConstructor = OlMultiLineString;
+  OlPolygonConstructor = OlPolygon;
+  OlMultiPolygonConstructor = OlMultiPolygon;
   OlPointConstructor = OlGeomPoint;
 
   constructor(ol?: any) {
@@ -186,6 +189,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       this.OlStyleRegularshapeConstructor = ol.style.RegularShape;
       this.OlLineStringContructor = ol.geom.LineString;
       this.OlMultiLineStringConstructor = ol.geom.MultiLineString;
+      this.OlPolygonConstructor = ol.geom.Polygon;
+      this.OlMultiPolygonConstructor = ol.geom.MultiPolygon;
       this.OlPointConstructor = ol.geom.Point;
     }
   }
@@ -1255,12 +1260,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   getOlGraphicStrokeFromGraphicStroke(
     symbolizer: LineSymbolizer, feat: OlFeature, resolution: number
   ) {
-    const geom = feat.getGeometry();
-    if (!geom || !(geom instanceof this.OlLineStringContructor || geom instanceof this.OlMultiLineStringConstructor)) {
-      throw new Error(
-        'GraphicStroke can only be applied to (Multi-)LineString geometries'
-      );
-    }
+    const lineStrings = OlGraphicStrokeUtil.getLineStringsFromGeometry(feat.getGeometry(), {
+      LineString: this.OlLineStringContructor,
+      MultiLineString: this.OlMultiLineStringConstructor,
+      Polygon: this.OlPolygonConstructor,
+      MultiPolygon: this.OlMultiPolygonConstructor
+    });
 
     const graphicStroke = symbolizer.graphicStroke!;
     const symbolSize = this.getSymbolSizeFromGraphicStroke(graphicStroke, feat);
@@ -1283,9 +1288,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       return this.getOlSymbolizerFromSymbolizer(modifiedGraphicStroke, feat, resolution);
     };
 
-    if (geom instanceof this.OlLineStringContructor) {
-      return OlGraphicStrokeUtil.processLineStringGraphicStroke(
-        geom,
+    // For every line in the MultiLineString, we start the pattern at the
+    // beginning of the line. This means that the pattern can be
+    // discontinuous at vertices where the lines connect.
+    return lineStrings.flatMap(line =>
+      OlGraphicStrokeUtil.processLineStringGraphicStroke(
+        line,
         symbolSize,
         resolution,
         dashArray,
@@ -1294,25 +1302,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         graphicStroke,
         symbolizerGenerator,
         this.OlPointConstructor
-      );
-    } else {
-      // For every line in the MultiLineString, we start the pattern at the
-      // beginning of the line. This means that the pattern can be
-      // discontinuous at vertices where the lines connect.
-      return geom.getLineStrings().flatMap(line =>
-        OlGraphicStrokeUtil.processLineStringGraphicStroke(
-          line,
-          symbolSize,
-          resolution,
-          dashArray,
-          evaluatedDashOffset,
-          evaluatedSymbolRotation,
-          graphicStroke,
-          symbolizerGenerator,
-          this.OlPointConstructor
-        )
-      );
-    }
+      )
+    );
   }
 
   /**

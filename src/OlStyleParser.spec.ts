@@ -8,7 +8,10 @@ import OlStyleText, { Options as TextOptions } from 'ol/style/Text';
 import OlStyleFill, { Options as FillOptions } from 'ol/style/Fill';
 import OlFeature from 'ol/Feature';
 import OlLineString from 'ol/geom/LineString';
+import OlMultiLineString from 'ol/geom/MultiLineString';
 import OlPoint from 'ol/geom/Point';
+import OlPolygon from 'ol/geom/Polygon';
+import OlMultiPolygon from 'ol/geom/MultiPolygon';
 
 import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
 
@@ -905,6 +908,48 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(coordsGeom2[1]).toBeCloseTo(15);
     expect(coordsGeom3[1]).toBeCloseTo(35);
     expect(coordsGeom4[1]).toBeCloseTo(45);
+  });
+  it('can write an OpenLayers LineSymbolizer with graphicStroke for MultiLineStrings', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(line_graphicstroke);
+    olStyle = olStyle as OlStyle;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({
+      geometry: new OlMultiLineString([[[0, 0], [0, 20]], [[10, 0], [10, 20]]])
+    });
+    const resolution = 1;
+    const expecSymb = (line_graphicstroke.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
+    const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution)[0];
+    const geometry = evaluatedStyle.getGeometry();
+    expect(geometry).toBeInstanceOf(OlPoint);
+  });
+  it('can write an OpenLayers LineSymbolizer with graphicStroke for Polygons', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(line_graphicstroke);
+    olStyle = olStyle as OlStyle;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({
+      geometry: new OlPolygon([[[0, 0], [0, 20], [20, 20], [20, 0], [0, 0]]])
+    });
+    const resolution = 1;
+    const expecSymb = (line_graphicstroke.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
+    const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution)[0];
+    const geometry = evaluatedStyle.getGeometry();
+    expect(geometry).toBeInstanceOf(OlPoint);
+  });
+  it('can write an OpenLayers LineSymbolizer with graphicStroke for MultiPolygons', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(line_graphicstroke);
+    olStyle = olStyle as OlStyle;
+    expect(olStyle).toBeDefined();
+
+    const testFeature = new OlFeature({
+      geometry: new OlMultiPolygon([[[[0, 0], [0, 20], [20, 20], [20, 0], [0, 0]]], [[[10, 10], [10, 30], [30, 30], [30, 10], [10, 10]]]])
+    });
+    const resolution = 1;
+    const expecSymb = (line_graphicstroke.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
+    const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution)[0];
+    const geometry = evaluatedStyle.getGeometry();
+    expect(geometry).toBeInstanceOf(OlPoint);
   });
   it('can write an OpenLayers PolygonSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(polygon_transparentpolygon);
