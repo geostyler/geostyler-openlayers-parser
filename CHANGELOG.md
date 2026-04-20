@@ -1,3 +1,9 @@
+## [5.7.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.6.1...v5.7.0) (2026-04-20)
+
+### Features
+
+* add support for else-rules ([#936](https://github.com/geostyler/geostyler-openlayers-parser/issues/936)) ([a903c60](https://github.com/geostyler/geostyler-openlayers-parser/commit/a903c609f610c7e69ee5ec86ce0fb8d513453c7f))
+
 ## [5.6.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.6.0...v5.6.1) (2026-04-16)
 
 ### Bug Fixes
