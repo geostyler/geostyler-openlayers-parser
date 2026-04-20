@@ -895,7 +895,6 @@ describe('OlStyleParser implements StyleParser', () => {
       geometry: new OlLineString([[0, 0], [0, 60]])
     });
     const resolution = 1;
-    const expecSymb = (line_graphicstroke_dasharray.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
     const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution);
     // 4 symbols fit into dash pattern
     expect(evaluatedStyle).toHaveLength(4);
@@ -920,7 +919,6 @@ describe('OlStyleParser implements StyleParser', () => {
       geometry: new OlMultiLineString([[[0, 0], [0, 20]], [[10, 0], [10, 20]]])
     });
     const resolution = 1;
-    const expecSymb = (line_graphicstroke.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
     const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution)[0];
     const geometry = evaluatedStyle.getGeometry();
     expect(geometry).toBeInstanceOf(OlPoint);
@@ -934,7 +932,6 @@ describe('OlStyleParser implements StyleParser', () => {
       geometry: new OlPolygon([[[0, 0], [0, 20], [20, 20], [20, 0], [0, 0]]])
     });
     const resolution = 1;
-    const expecSymb = (line_graphicstroke.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
     const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution)[0];
     const geometry = evaluatedStyle.getGeometry();
     expect(geometry).toBeInstanceOf(OlPoint);
@@ -945,10 +942,12 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olStyle).toBeDefined();
 
     const testFeature = new OlFeature({
-      geometry: new OlMultiPolygon([[[[0, 0], [0, 20], [20, 20], [20, 0], [0, 0]]], [[[10, 10], [10, 30], [30, 30], [30, 10], [10, 10]]]])
+      geometry: new OlMultiPolygon([
+        [[[0, 0], [0, 20], [20, 20], [20, 0], [0, 0]]],
+        [[[10, 10], [10, 30], [30, 30], [30, 10], [10, 10]]]
+      ])
     });
     const resolution = 1;
-    const expecSymb = (line_graphicstroke.rules[0].symbolizers[0] as LineSymbolizer).graphicStroke as MarkSymbolizer;
     const evaluatedStyle = (olStyle as unknown as OlParserStyleFct)(testFeature, resolution)[0];
     const geometry = evaluatedStyle.getGeometry();
     expect(geometry).toBeInstanceOf(OlPoint);
@@ -1236,7 +1235,7 @@ describe('OlStyleParser implements StyleParser', () => {
     // second rule still matches, since there is no filter defined for it
     const bonnFilterIcon2ndRule = bonnStyle[1].getImage();
     const bonnFilterSvg2ndRule = getDecodedSvg(bonnFilterIcon2ndRule.getSrc() as string);
-    let { radius: radius2ndRule } = getSvgProperties(bonnFilterSvg2ndRule) as MarkSymbolizer;
+    const { radius: radius2ndRule } = getSvgProperties(bonnFilterSvg2ndRule) as MarkSymbolizer;
     const expecBonnSymbolizer2ndRule: MarkSymbolizer = filter_simplefilter.rules[1].symbolizers[0] as MarkSymbolizer;
     expect(radius2ndRule).toBeCloseTo(expecBonnSymbolizer2ndRule.radius as number);
 
