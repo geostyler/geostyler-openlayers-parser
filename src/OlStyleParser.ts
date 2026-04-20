@@ -831,6 +831,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   geoStylerStyleToOlParserStyleFct(geoStylerStyle: Style): OlParserStyleFct {
     const rules = structuredClone(geoStylerStyle.rules);
     const olStyle = (feature: any, resolution: number): any[] => {
+      let alreadyMatchedByRule = false;
       const styles: any[] = [];
 
       // calculate scale for resolution (from ol-util MapUtil)
@@ -870,8 +871,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
             matchesFilter = false;
           }
         }
-
         if (isWithinScale && matchesFilter) {
+          // elseRule only applies to features that were not matched by previous rules
+          if (rule.elseRule && alreadyMatchedByRule) {
+            return;
+          }
+          alreadyMatchedByRule = true;
+
           rule.symbolizers.forEach((symb: Symbolizer) => {
             if (symb.visibility === false) {
               styles.push(null);

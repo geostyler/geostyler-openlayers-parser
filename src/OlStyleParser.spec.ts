@@ -38,6 +38,8 @@ import point_simpletimes from '../data/styles/point_simpletimes';
 import line_simpleline from '../data/styles/line_simpleline';
 import line_graphicstroke from '../data/styles/line_graphicStroke';
 import line_graphicstroke_dasharray from '../data/styles/line_graphicStrokeDashArray';
+import rule_elseRule from '../data/styles/rule_elseRule';
+import rule_elseRule_filter from '../data/styles/rule_elseRule_filter';
 import filter_simplefilter from '../data/styles/filter_simpleFilter';
 import filter_nestedfilter from '../data/styles/filter_nestedFilter';
 import filter_invalidfilter from '../data/styles/filter_invalidFilter';
@@ -1231,6 +1233,13 @@ describe('OlStyleParser implements StyleParser', () => {
     const expecBonnSymbolizer: MarkSymbolizer = filter_simplefilter.rules[0].symbolizers[0] as MarkSymbolizer;
     expect(radius).toBeCloseTo(expecBonnSymbolizer.radius as number);
 
+    // second rule still matches, since there is no filter defined for it
+    const bonnFilterIcon2ndRule = bonnStyle[1].getImage();
+    const bonnFilterSvg2ndRule = getDecodedSvg(bonnFilterIcon2ndRule.getSrc() as string);
+    let { radius: radius2ndRule } = getSvgProperties(bonnFilterSvg2ndRule) as MarkSymbolizer;
+    const expecBonnSymbolizer2ndRule: MarkSymbolizer = filter_simplefilter.rules[1].symbolizers[0] as MarkSymbolizer;
+    expect(radius2ndRule).toBeCloseTo(expecBonnSymbolizer2ndRule.radius as number);
+
     const notBonnFeat = new OlFeature();
     notBonnFeat.set('Name', 'Koblenz');
     const notBonnStyle = olStyle(notBonnFeat, 1);
@@ -1298,6 +1307,72 @@ describe('OlStyleParser implements StyleParser', () => {
     const { radius } = getSvgProperties(noMatchFilterSvg) as MarkSymbolizer;
     const expecNoMatchSymbolizer: MarkSymbolizer = filter_invalidfilter.rules[1].symbolizers[0] as MarkSymbolizer;
     expect(radius).toBeCloseTo(expecNoMatchSymbolizer.radius as number);
+  });
+  it('can write an OpenLayers style with an else rule', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(rule_elseRule);
+    olStyle = olStyle as OlParserStyleFct;
+    expect(olStyle).toBeDefined();
+
+    const bonnFeat = new OlFeature();
+    bonnFeat.set('Name', 'Bonn');
+    const bonnStyle = olStyle(bonnFeat, 1);
+    expect(bonnStyle).toBeDefined();
+    const bonnFilterIcon = bonnStyle[0].getImage();
+    const bonnFilterSvg = getDecodedSvg(bonnFilterIcon.getSrc() as string);
+    let { radius } = getSvgProperties(bonnFilterSvg) as MarkSymbolizer;
+    const expecBonnSymbolizer: MarkSymbolizer = rule_elseRule.rules[0].symbolizers[0] as MarkSymbolizer;
+    expect(radius).toBeCloseTo(expecBonnSymbolizer.radius as number);
+
+    // second does not match, since it is an else rule
+    const bonnFilterIcon2ndRule = bonnStyle[1];
+    expect(bonnFilterIcon2ndRule).toBeUndefined();
+
+    const notBonnFeat = new OlFeature();
+    notBonnFeat.set('Name', 'Koblenz');
+    const notBonnStyle = olStyle(notBonnFeat, 1);
+    expect(notBonnStyle).toBeDefined();
+    const notBonnFilterIcon = notBonnStyle[0].getImage() as OlStyleIcon;
+    const notBonnFilterSvg = getDecodedSvg(notBonnFilterIcon.getSrc() as string);
+    ({ radius } = getSvgProperties(notBonnFilterSvg) as MarkSymbolizer);
+    const expecNotBonnSymbolizer: MarkSymbolizer = rule_elseRule.rules[1].symbolizers[0] as MarkSymbolizer;
+    expect(radius).toBeCloseTo(expecNotBonnSymbolizer.radius as number);
+  });
+  it('can write an OpenLayers style with an else rule and filter', async () => {
+    let { output: olStyle } = await styleParser.writeStyle(rule_elseRule_filter);
+    olStyle = olStyle as OlParserStyleFct;
+    expect(olStyle).toBeDefined();
+
+    // falls into first rule
+    const bonnFeat = new OlFeature();
+    bonnFeat.set('Name', 'Bonn');
+    const bonnStyle = olStyle(bonnFeat, 1);
+    expect(bonnStyle).toBeDefined();
+    const bonnFilterIcon = bonnStyle[0].getImage();
+    const bonnFilterSvg = getDecodedSvg(bonnFilterIcon.getSrc() as string);
+    let { radius } = getSvgProperties(bonnFilterSvg) as MarkSymbolizer;
+    const expecBonnSymbolizer: MarkSymbolizer = rule_elseRule_filter.rules[0].symbolizers[0] as MarkSymbolizer;
+    expect(radius).toBeCloseTo(expecBonnSymbolizer.radius as number);
+
+    // second does not match, since it is an else rule
+    const bonnFilterIcon2ndRule = bonnStyle[1];
+    expect(bonnFilterIcon2ndRule).toBeUndefined();
+
+    // falls into else rule
+    const cologneFeat = new OlFeature();
+    cologneFeat.set('Name', 'Cologne');
+    const cologneStyle = olStyle(cologneFeat, 1);
+    expect(cologneStyle).toBeDefined();
+    const cologneFilterIcon = cologneStyle[0].getImage() as OlStyleIcon;
+    const cologneFilterSvg = getDecodedSvg(cologneFilterIcon.getSrc() as string);
+    ({ radius } = getSvgProperties(cologneFilterSvg) as MarkSymbolizer);
+    const expectCologneSymbolizer: MarkSymbolizer = rule_elseRule_filter.rules[1].symbolizers[0] as MarkSymbolizer;
+    expect(radius).toBeCloseTo(expectCologneSymbolizer.radius as number);
+
+    // does not fall into any rule
+    const koblenzFeat = new OlFeature();
+    koblenzFeat.set('Name', 'Koblenz');
+    const koblenzStyle = olStyle(koblenzFeat, 1);
+    expect(koblenzStyle[0]).toBeUndefined();
   });
 
   it('can write a simple polygon with just fill', async () => {
