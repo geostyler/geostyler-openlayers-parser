@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "css-font-parser": "^2.0.0",
-    "geostyler-style": "^11.0.1"
+    "geostyler-style": "^11.1.0"
   },
   "peerDependencies": {
     "ol": ">=7.4"
