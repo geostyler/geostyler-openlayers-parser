@@ -6,6 +6,10 @@
 
 [GeoStyler Style](https://github.com/geostyler/geostyler) Parser implementation for OpenLayers styles
 
+## :rocket: GeoStyler Code Sprint 2026
+
+We are happy to announce the next **online-only** GeoStyler Code Sprint from **28.-30.09.2026**. Be part of it! More infos on https://geostyler.org.
+
 ### How to use
 
 The example below shows how to take a raw GeoStyler style, use the OpenLayersParser to parse the style into
