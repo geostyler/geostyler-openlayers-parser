@@ -1,3 +1,9 @@
+## [5.7.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.7.0...v5.7.1) (2026-06-24)
+
+### Bug Fixes
+
+* ensure browser build is included in releases ([1046f99](https://github.com/geostyler/geostyler-openlayers-parser/commit/1046f99c05c2b0a7872d9919ddd9dd6ffec21e11))
+
 ## [5.7.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.6.1...v5.7.0) (2026-04-20)
 
 ### Features
