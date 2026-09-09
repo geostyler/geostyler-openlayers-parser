@@ -58,6 +58,7 @@ import {
   NOFILL_WELLKNOWNNAMES
 } from './Util/OlSvgUtil';
 import OlGraphicStrokeUtil from './Util/OlGraphicStrokeUtil';
+import type { OlRuntime } from './Util/OlRuntime';
 
 export interface OlParserStyleFct {
   (feature?: any, resolution?: number): any;
@@ -162,37 +163,34 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
 
   title = 'OpenLayers Style Parser';
   olIconStyleCache: any = {};
+  olRuntime: OlRuntime = {
+    style: {
+      Style: OlStyle,
+      Image: OlStyleImage,
+      Fill: OlStyleFill,
+      Stroke: OlStyleStroke,
+      Text: OlStyleText,
+      Circle: OlStyleCircle,
+      Icon: OlStyleIcon,
+      Regularshape: OlStyleRegularshape,
+    },
+    geom: {
+      LineString: OlLineString,
+      MultiLineString: OlMultiLineString,
+      Polygon: OlPolygon,
+      MultiPolygon: OlMultiPolygon,
+      Point: OlGeomPoint
+    },
+    Feature: OlFeature,
+    ImageState: OlImageState
+  };
+  olGraphicStrokeUtil: OlGraphicStrokeUtil;
 
-  OlStyleConstructor = OlStyle;
-  OlStyleImageConstructor = OlStyleImage;
-  OlStyleFillConstructor = OlStyleFill;
-  OlStyleStrokeConstructor = OlStyleStroke;
-  OlStyleTextConstructor = OlStyleText;
-  OlStyleCircleConstructor = OlStyleCircle;
-  OlStyleIconConstructor = OlStyleIcon;
-  OlStyleRegularshapeConstructor = OlStyleRegularshape;
-  OlLineStringContructor = OlLineString;
-  OlMultiLineStringConstructor = OlMultiLineString;
-  OlPolygonConstructor = OlPolygon;
-  OlMultiPolygonConstructor = OlMultiPolygon;
-  OlPointConstructor = OlGeomPoint;
-
-  constructor(ol?: any) {
+  constructor(ol?: OlRuntime) {
     if (ol) {
-      this.OlStyleConstructor = ol.style.Style;
-      this.OlStyleImageConstructor = ol.style.Image;
-      this.OlStyleFillConstructor = ol.style.Fill;
-      this.OlStyleStrokeConstructor = ol.style.Stroke;
-      this.OlStyleTextConstructor = ol.style.Text;
-      this.OlStyleCircleConstructor = ol.style.Circle;
-      this.OlStyleIconConstructor = ol.style.Icon;
-      this.OlStyleRegularshapeConstructor = ol.style.RegularShape;
-      this.OlLineStringContructor = ol.geom.LineString;
-      this.OlMultiLineStringConstructor = ol.geom.MultiLineString;
-      this.OlPolygonConstructor = ol.geom.Polygon;
-      this.OlMultiPolygonConstructor = ol.geom.MultiPolygon;
-      this.OlPointConstructor = ol.geom.Point;
+      this.olRuntime = ol;
     }
+    this.olGraphicStrokeUtil = new OlGraphicStrokeUtil(this.olRuntime);
   }
 
   isOlParserStyleFct = (x: any): x is OlParserStyleFct => {
@@ -207,7 +205,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    */
   getPointSymbolizerFromOlStyle(olStyle: OlStyle): PointSymbolizer {
     let pointSymbolizer: PointSymbolizer;
-    if (olStyle.getImage() instanceof this.OlStyleCircleConstructor) {
+    if (olStyle.getImage() instanceof this.olRuntime.style.Circle) {
       // circle
       const olCircleStyle: OlStyleCircle = olStyle.getImage() as OlStyleCircle;
       const olFillStyle = olCircleStyle.getFill();
@@ -227,7 +225,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         offset: offset[0] || offset[1] ? offset : undefined
       };
       pointSymbolizer = circleSymbolizer;
-    } else if (olStyle.getImage() instanceof this.OlStyleRegularshapeConstructor) {
+    } else if (olStyle.getImage() instanceof this.olRuntime.style.Regularshape) {
       const olRegularStyle: OlStyleRegularshape = olStyle.getImage() as OlStyleRegularshape;
       const olFillStyle = olRegularStyle.getFill();
       const olStrokeStyle = olRegularStyle.getStroke();
@@ -321,7 +319,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           throw new Error('Could not parse OlStyle.');
       }
       pointSymbolizer = markSymbolizer;
-    } else if (olStyle.getText() instanceof this.OlStyleTextConstructor) {
+    } else if (olStyle.getText() instanceof this.olRuntime.style.Text) {
       const olTextStyle: OlStyleText = olStyle.getText() as OlStyleText;
       const olFillStyle = olTextStyle.getFill();
       const olStrokeStyle = olTextStyle.getStroke();
@@ -610,11 +608,11 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   getStyleTypeFromOlStyle(olStyle: OlStyle): StyleType {
     let styleType: StyleType;
 
-    if (olStyle.getImage() instanceof this.OlStyleImageConstructor) {
+    if (olStyle.getImage() instanceof this.olRuntime.style.Image) {
       styleType = 'Point';
-    } else if (olStyle.getText() instanceof this.OlStyleTextConstructor) {
+    } else if (olStyle.getText() instanceof this.olRuntime.style.Text) {
       styleType = 'Point';
-    } else if (olStyle.getFill() instanceof this.OlStyleFillConstructor) {
+    } else if (olStyle.getFill() instanceof this.olRuntime.style.Fill) {
       styleType = 'Fill';
     } else if (olStyle.getStroke() && !olStyle.getFill()) {
       styleType = 'Line';
@@ -1059,15 +1057,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       default: {
         // Return the OL default style since the TS type binding does not allow
         // us to set olSymbolizer to undefined
-        const fill = new this.OlStyleFillConstructor({
+        const fill = new this.olRuntime.style.Fill({
           color: 'rgba(255,255,255,0.4)'
         });
-        const stroke = new this.OlStyleStrokeConstructor({
+        const stroke = new this.olRuntime.style.Stroke({
           color: '#3399CC',
           width: 1.25
         });
-        olSymbolizer = new this.OlStyleConstructor({
-          image: new this.OlStyleCircleConstructor({
+        olSymbolizer = new this.olRuntime.style.Style({
+          image: new this.olRuntime.style.Circle({
             fill: fill,
             stroke: stroke,
             radius: 5
@@ -1112,8 +1110,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       const opacity = markSymbolizer.opacity as number;
 
       const svg = getPointSvg(markSymbolizer);
-      olStyle = new this.OlStyleConstructor({
-        image: new this.OlStyleIconConstructor({
+      olStyle = new this.olRuntime.style.Style({
+        image: new this.olRuntime.style.Icon({
           crossOrigin: 'anonymous',
           ...displacement && { displacement },
           ...OlStyleUtil.checkOpacity(opacity) && { opacity },
@@ -1130,17 +1128,17 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         OlStyleUtil.getRgbaColor(fillColor, fillOpacity) :
         fillColor) as string;
 
-      const stroke = new this.OlStyleStrokeConstructor({
+      const stroke = new this.olRuntime.style.Stroke({
         ...strokeRgbaColor && { color: strokeRgbaColor as string },
         ...strokeWidth && { width: strokeWidth }
       });
 
-      const fill = new this.OlStyleFillConstructor({
+      const fill = new this.olRuntime.style.Fill({
         ...fillRgbaColor && { color: fillRgbaColor as string }
       });
 
-      olStyle = new this.OlStyleConstructor({
-        text: new this.OlStyleTextConstructor({
+      olStyle = new this.olRuntime.style.Style({
+        text: new this.olRuntime.style.Text({
           text: OlStyleUtil.getCharacterForMarkSymbolizer(markSymbolizer),
           font: OlStyleUtil.getTextFontForMarkSymbolizer(markSymbolizer),
           ...fill && { fill },
@@ -1209,21 +1207,21 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
             image.setOpacity(baseProps.opacity);
           }
         } else {
-          image = new this.OlStyleIconConstructor({
+          image = new this.olRuntime.style.Icon({
             ...baseProps,
             src // order is important
           });
           this.olIconStyleCache[src] = image;
         }
-        const style = new this.OlStyleConstructor({
+        const style = new this.olRuntime.style.Style({
           image
         });
         return style;
       };
       return olPointStyledIconFn;
     } else {
-      return new this.OlStyleConstructor({
-        image: new this.OlStyleIconConstructor({
+      return new this.olRuntime.style.Style({
+        image: new this.olRuntime.style.Icon({
           ...baseProps
         })
       });
@@ -1255,8 +1253,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const sColor = (color && opacity !== null && opacity !== undefined) ?
       OlStyleUtil.getRgbaColor(color, opacity) : color;
 
-    return new this.OlStyleConstructor({
-      stroke: new this.OlStyleStrokeConstructor({
+    return new this.olRuntime.style.Style({
+      stroke: new this.olRuntime.style.Stroke({
         color: sColor,
         width: symbolizer.width as number,
         lineCap: symbolizer.cap as CapType,
@@ -1270,12 +1268,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   getOlGraphicStrokeFromGraphicStroke(
     symbolizer: LineSymbolizer, feat: OlFeature, resolution: number
   ) {
-    const lineStrings = OlGraphicStrokeUtil.getLineStringsFromGeometry(feat.getGeometry(), {
-      LineString: this.OlLineStringContructor,
-      MultiLineString: this.OlMultiLineStringConstructor,
-      Polygon: this.OlPolygonConstructor,
-      MultiPolygon: this.OlMultiPolygonConstructor
-    });
+    const lineStrings = this.olGraphicStrokeUtil.getLineStringsFromGeometry(feat.getGeometry());
 
     const graphicStroke = symbolizer.graphicStroke!;
     const symbolSize = this.getSymbolSizeFromGraphicStroke(graphicStroke, feat);
@@ -1302,7 +1295,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     // beginning of the line. This means that the pattern can be
     // discontinuous at vertices where the lines connect.
     return lineStrings.flatMap(line =>
-      OlGraphicStrokeUtil.processLineStringGraphicStroke(
+      this.olGraphicStrokeUtil.processLineStringGraphicStroke(
         line,
         symbolSize,
         resolution,
@@ -1310,8 +1303,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         evaluatedDashOffset,
         evaluatedSymbolRotation,
         graphicStroke,
-        symbolizerGenerator,
-        this.OlPointConstructor
+        symbolizerGenerator
       )
     );
   }
@@ -1373,7 +1365,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       : color;
 
     let fill = color
-      ? new this.OlStyleFillConstructor({color: fColor})
+      ? new this.olRuntime.style.Fill({color: fColor})
       : undefined;
 
     const outlineColor = symbolizer.outlineColor as string;
@@ -1382,13 +1374,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       ? OlStyleUtil.getRgbaColor(outlineColor, outlineOpacity)
       : outlineColor;
 
-    const stroke = outlineColor || symbolizer.outlineWidth ? new this.OlStyleStrokeConstructor({
+    const stroke = outlineColor || symbolizer.outlineWidth ? new this.olRuntime.style.Stroke({
       color: oColor,
       width: symbolizer.outlineWidth as number,
       lineDash: symbolizer.outlineDasharray as number[],
     }) : undefined;
 
-    const olStyle = new OlStyle({
+    const olStyle = new this.olRuntime.style.Style({
       fill,
       stroke
     });
@@ -1396,7 +1388,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     if (symbolizer.graphicFill) {
       const pattern = this.getOlPatternFromGraphicFill(symbolizer.graphicFill);
       if (!fill) {
-        fill = new OlStyleFill({});
+        fill = new this.olRuntime.style.Fill({});
       }
       if (pattern) {
         fill.setColor(pattern);
@@ -1454,7 +1446,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       });
 
       const pointCoords = canvasSize.map(item  => item / 2);
-      const pointFeature = new OlFeature(new OlGeomPoint(pointCoords));
+      const pointFeature = new this.olRuntime.Feature(new this.olRuntime.geom.Point(pointCoords));
 
       vectorContext.drawFeature(pointFeature, graphicFillStyle);
       return tmpContext.createPattern(tmpCanvas, 'repeat');
@@ -1527,10 +1519,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       : haloColor;
     const baseProps: OlStyleTextOptions = {
       font: OlStyleUtil.getTextFont(symbolizer),
-      fill: new this.OlStyleFillConstructor({
+      fill: new this.olRuntime.style.Fill({
         color: fColor
       }),
-      stroke: new this.OlStyleStrokeConstructor({
+      stroke: new this.olRuntime.style.Stroke({
         color: sColor,
         width: haloWidth ? haloWidth : 0 as number
       }),
@@ -1558,12 +1550,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       // return olStyleFunction
       const olPointStyledLabelFn = (feature: any) => {
 
-        const text = new this.OlStyleTextConstructor({
+        const text = new this.olRuntime.style.Text({
           text: OlStyleUtil.resolveAttributeTemplate(feature, symbolizer.label as string, ''),
           ...baseProps
         });
 
-        const style = new this.OlStyleConstructor({
+        const style = new this.olRuntime.style.Style({
           text: text
         });
 
@@ -1573,8 +1565,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     } else {
       // if TextSymbolizer does not contain a placeholder
       // return OlStyle
-      return new this.OlStyleConstructor({
-        text: new this.OlStyleTextConstructor({
+      return new this.olRuntime.style.Style({
+        text: new this.olRuntime.style.Text({
           text: symbolizer.label as string,
           ...baseProps
         })

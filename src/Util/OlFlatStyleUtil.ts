@@ -1,4 +1,4 @@
-import {
+import type {
   FlatStyle,
   FlatStyleLike,
   Rule as FlatRule,

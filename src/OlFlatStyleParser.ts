@@ -14,7 +14,7 @@ import {
   UnsupportedProperties,
   WriteStyleResult
 } from 'geostyler-style';
-import { FlatStyle, FlatStyleLike, Rule as FlatRule } from 'ol/style/flat';
+import type { FlatStyle, FlatStyleLike, Rule as FlatRule } from 'ol/style/flat';
 import OlFlatStyleUtil from './Util/OlFlatStyleUtil';
 import OlStyleUtil from './Util/OlStyleUtil';
 

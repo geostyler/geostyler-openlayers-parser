@@ -17,7 +17,7 @@ import {
   TextSymbolizer
 } from 'geostyler-style';
 
-import OlFeature from 'ol/Feature';
+import type OlFeature from 'ol/Feature';
 import { colors } from './colors';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;

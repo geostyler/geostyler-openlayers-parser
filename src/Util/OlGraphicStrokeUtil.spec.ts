@@ -5,8 +5,20 @@ import OlGeomPoint from 'ol/geom/Point';
 import OlPolygon from 'ol/geom/Polygon';
 import OlMultiPolygon from 'ol/geom/MultiPolygon';
 import { Style, MarkSymbolizer } from 'geostyler-style';
+import { OlRuntime } from './OlRuntime';
 
 describe('OlGraphicStrokeUtil', () => {
+
+  const olRuntime: OlRuntime = {
+    geom: {
+      LineString: OlLineString,
+      MultiLineString: OlMultiLineString,
+      Polygon: OlPolygon,
+      MultiPolygon: OlMultiPolygon,
+      Point: OlGeomPoint
+    }
+  } as OlRuntime;
+  const olGraphicStrokeUtil: OlGraphicStrokeUtil = new OlGraphicStrokeUtil(olRuntime);
 
   it('OlGraphicStrokeUtil is defined', () => {
     expect(OlGraphicStrokeUtil).toBeDefined();
@@ -142,7 +154,7 @@ describe('OlGraphicStrokeUtil', () => {
   describe('getSegmentFractions', () => {
     it('returns correct fractions for line', () => {
       const geom = new OlLineString([[0, 0], [10, 0], [20, 0]]);
-      const fractions = OlGraphicStrokeUtil.getSegmentFractions(geom);
+      const fractions = olGraphicStrokeUtil.getSegmentFractions(geom);
       expect(fractions).toHaveLength(2);
       expect(fractions[0]).toBeCloseTo(0.5, 5);
       expect(fractions[1]).toBeCloseTo(1.0, 5);
@@ -150,7 +162,7 @@ describe('OlGraphicStrokeUtil', () => {
 
     it('returns cumulative fractions', () => {
       const geom = new OlLineString([[0, 0], [10, 0], [20, 0], [30, 0]]);
-      const fractions = OlGraphicStrokeUtil.getSegmentFractions(geom);
+      const fractions = olGraphicStrokeUtil.getSegmentFractions(geom);
       expect(fractions).toHaveLength(3);
       expect(fractions[0]).toBeCloseTo(1/3, 5);
       expect(fractions[1]).toBeCloseTo(2/3, 5);
@@ -390,7 +402,7 @@ describe('OlGraphicStrokeUtil', () => {
 
   describe('#processLineStringGraphicStroke', () => {
     it('is defined', () => {
-      expect(OlGraphicStrokeUtil.processLineStringGraphicStroke).toBeDefined();
+      expect(olGraphicStrokeUtil.processLineStringGraphicStroke).toBeDefined();
     });
 
     it('generates styles for each tick position', () => {
@@ -413,7 +425,7 @@ describe('OlGraphicStrokeUtil', () => {
 
       const symbolizerGenerator = jest.fn().mockReturnValue(mockStyle);
 
-      const styles = OlGraphicStrokeUtil.processLineStringGraphicStroke(
+      const styles = olGraphicStrokeUtil.processLineStringGraphicStroke(
         geom,
         symbolSize,
         resolution,
@@ -421,8 +433,7 @@ describe('OlGraphicStrokeUtil', () => {
         evaluatedDashOffset,
         evaluatedSymbolRotation,
         graphicStroke,
-        symbolizerGenerator,
-        OlGeomPoint
+        symbolizerGenerator
       );
 
       expect(styles.length).toBeGreaterThan(0);
@@ -449,7 +460,7 @@ describe('OlGraphicStrokeUtil', () => {
 
       const symbolizerGenerator = jest.fn().mockReturnValue(mockStyle);
 
-      OlGraphicStrokeUtil.processLineStringGraphicStroke(
+      olGraphicStrokeUtil.processLineStringGraphicStroke(
         geom,
         symbolSize,
         resolution,
@@ -457,8 +468,7 @@ describe('OlGraphicStrokeUtil', () => {
         evaluatedDashOffset,
         evaluatedSymbolRotation,
         graphicStroke,
-        symbolizerGenerator,
-        OlGeomPoint
+        symbolizerGenerator
       );
 
       // Check that symbolizerGenerator was called with rotated graphics
@@ -489,7 +499,7 @@ describe('OlGraphicStrokeUtil', () => {
 
       const symbolizerGenerator = jest.fn().mockReturnValue(mockStyle);
 
-      OlGraphicStrokeUtil.processLineStringGraphicStroke(
+      olGraphicStrokeUtil.processLineStringGraphicStroke(
         geom,
         symbolSize,
         resolution,
@@ -497,8 +507,7 @@ describe('OlGraphicStrokeUtil', () => {
         evaluatedDashOffset,
         evaluatedSymbolRotation,
         graphicStroke,
-        symbolizerGenerator,
-        OlGeomPoint
+        symbolizerGenerator
       );
 
       expect(mockStyle.setGeometry).toHaveBeenCalled();
@@ -529,7 +538,7 @@ describe('OlGraphicStrokeUtil', () => {
 
       const symbolizerGenerator = jest.fn().mockReturnValue(mockStyle);
 
-      const styles = OlGraphicStrokeUtil.processLineStringGraphicStroke(
+      const styles = olGraphicStrokeUtil.processLineStringGraphicStroke(
         geom,
         symbolSize,
         resolution,
@@ -537,8 +546,7 @@ describe('OlGraphicStrokeUtil', () => {
         evaluatedDashOffset,
         evaluatedSymbolRotation,
         graphicStroke,
-        symbolizerGenerator,
-        OlGeomPoint
+        symbolizerGenerator
       );
 
       expect(styles.length).toBeGreaterThanOrEqual(0);
@@ -546,29 +554,17 @@ describe('OlGraphicStrokeUtil', () => {
   });
   describe('#getLineStringsFromGeometry', () => {
     it('is defined', () => {
-      expect(OlGraphicStrokeUtil.getLineStringsFromGeometry).toBeDefined();
+      expect(olGraphicStrokeUtil.getLineStringsFromGeometry).toBeDefined();
     });
     it('returns an array of LineStrings with length 1 if given a LineString', () => {
       const geom = new OlLineString([[0, 0], [10, 0]]);
-      const constructors = {
-        LineString: OlLineString,
-        MultiLineString: OlLineString, // Not used for this test
-        Polygon: OlPolygon, // Not used for this test
-        MultiPolygon: OlMultiPolygon // Not used for this test
-      };
-      const result = OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      const result = olGraphicStrokeUtil.getLineStringsFromGeometry(geom);
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(OlLineString);
     });
     it('returns an array of LineStrings if given a MultiLineString', () => {
       const geom = new OlMultiLineString([[[0, 0], [10, 0]], [[10, 0], [10, 10]]]);
-      const constructors = {
-        LineString: OlLineString,
-        MultiLineString: OlMultiLineString,
-        Polygon: OlPolygon,
-        MultiPolygon: OlMultiPolygon
-      };
-      const result = OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      const result = olGraphicStrokeUtil.getLineStringsFromGeometry(geom);
       expect(result).toHaveLength(2);
       result.forEach(line => {
         expect(line).toBeInstanceOf(OlLineString);
@@ -576,38 +572,20 @@ describe('OlGraphicStrokeUtil', () => {
     });
     it('returns an array of LineStrings if given a Polygon', () => {
       const geom = new OlPolygon([[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]);
-      const constructors = {
-        LineString: OlLineString,
-        MultiLineString: OlMultiLineString,
-        Polygon: OlPolygon,
-        MultiPolygon: OlMultiPolygon
-      };
-      const result = OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      const result = olGraphicStrokeUtil.getLineStringsFromGeometry(geom);
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(OlLineString);
     });
     it('returns an array of LineStrings if given a MultiPolygon', () => {
       const geom = new OlMultiPolygon([[[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]]);
-      const constructors = {
-        LineString: OlLineString,
-        MultiLineString: OlMultiLineString,
-        Polygon: OlPolygon,
-        MultiPolygon: OlMultiPolygon
-      };
-      const result = OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+      const result = olGraphicStrokeUtil.getLineStringsFromGeometry(geom);
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(OlLineString);
     });
     it('throws an error for other geometry types', () => {
       const geom = new OlGeomPoint([0, 0]);
-      const constructors = {
-        LineString: OlLineString,
-        MultiLineString: OlMultiLineString,
-        Polygon: OlPolygon,
-        MultiPolygon: OlMultiPolygon
-      };
       expect(() => {
-        OlGraphicStrokeUtil.getLineStringsFromGeometry(geom, constructors);
+        olGraphicStrokeUtil.getLineStringsFromGeometry(geom);
       }).toThrow();
     });
   });
