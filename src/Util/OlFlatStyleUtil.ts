@@ -186,7 +186,12 @@ const functionNameMap: Record<GeoStylerFunction['name'], typeof expressionNames[
   // ---- unknown ----
   case: 'case',
   property: 'get',
-  step: null
+  step: null,
+  // ---- geometry ----
+  custom: null,
+  startPoint: null,
+  endPoint: null,
+  centroid: null
 };
 
 const invertedFunctionNameMap: Partial<Record<typeof expressionNames[number], GeoStylerFunction['name']>> =
@@ -453,7 +458,7 @@ class OlFlatStyleUtil {
         ...args.map(OlFlatStyleUtil.olFilterToGsFilter)
       ] as Filter;
     } else {
-      filter = OlFlatStyleUtil.olExpressionToGsExpression(olFilter);
+      filter = OlFlatStyleUtil.olExpressionToGsExpression<boolean>(olFilter);
     }
 
     return filter;

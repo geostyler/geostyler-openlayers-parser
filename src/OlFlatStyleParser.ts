@@ -184,6 +184,8 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       ? [OlFlatStyleUtil.olExpressionToGsExpression<string>(flatStyle['stroke-color'])]
       : OlFlatStyleUtil.getColorAndOpacity(flatStyle['stroke-color']);
 
+    const strokeDash = flatStyle['stroke-line-dash'];
+
     // TODO add other stroke properties
     return {
       kind: 'Line',
@@ -192,7 +194,9 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
       width: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['stroke-width']),
       cap: OlFlatStyleUtil.olExpressionToGsExpression<CapType>(flatStyle['stroke-line-cap']),
       join: OlFlatStyleUtil.olExpressionToGsExpression<JoinType>(flatStyle['stroke-line-join']),
-      dasharray: OlFlatStyleUtil.olExpressionToGsExpression<number[]>(flatStyle['stroke-line-dash']),
+      dasharray: Array.isArray(strokeDash)
+        ? strokeDash.map(dash => OlFlatStyleUtil.olExpressionToGsExpression<number>(dash))
+        : undefined,
       dashOffset:
         OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['stroke-line-dash-offset']),
       miterLimit: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['stroke-miter-limit']),
@@ -250,13 +254,17 @@ export class OlFlatStyleParser implements StyleParser<FlatStyleLike> {
   }
 
   flatStyleToGeoStylerIconSymbolizer(flatStyle: FlatStyle): IconSymbolizer {
+    const iconOffset = flatStyle['icon-offset'];
     // TODO add missing properties
     return {
       kind: 'Icon',
       image: flatStyle['icon-src'],
-      offset: OlFlatStyleUtil.olExpressionToGsExpression<[number, number]>(
-        flatStyle['icon-offset']
-      ),
+      offset: Array.isArray(iconOffset)
+        ? [
+          OlFlatStyleUtil.olExpressionToGsExpression<number>(iconOffset[0]),
+          OlFlatStyleUtil.olExpressionToGsExpression<number>(iconOffset[1])
+        ]
+        : undefined,
       opacity: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-opacity']),
       rotate: OlFlatStyleUtil.olExpressionToGsExpression<number>(flatStyle['icon-rotation']),
       // we use the icon-width here to be consistent with OlStyleParser
