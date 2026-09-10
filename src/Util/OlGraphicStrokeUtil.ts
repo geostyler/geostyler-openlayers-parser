@@ -2,18 +2,21 @@ import {
   Style,
 } from 'geostyler-style';
 
-import OlGeomPoint from 'ol/geom/Point';
-import OlLineString from 'ol/geom/LineString';
-import OlMultiLineString from 'ol/geom/MultiLineString';
-import OlPolygon from 'ol/geom/Polygon';
-import OlMultiPolygon from 'ol/geom/MultiPolygon';
-import { Coordinate } from 'ol/coordinate';
-import { Geometry } from 'ol/geom';
+import type OlLineString from 'ol/geom/LineString';
+import type { Coordinate } from 'ol/coordinate';
+import type { Geometry } from 'ol/geom';
+import { OlRuntime } from './OlRuntime';
 
 /**
  * Offers some utility functions to work with OpenLayers Graphic Strokes.
  */
 class OlGraphicStrokeUtil {
+
+  olRuntime: OlRuntime;
+
+  constructor(olRuntime: OlRuntime) {
+    this.olRuntime = olRuntime;
+  }
 
   /**
    * Check if the given style contains a graphic stroke in any of its rules.
@@ -78,14 +81,14 @@ class OlGraphicStrokeUtil {
    * @param geom The LineString geometry
    * @returns An array of normalized fractions
    */
-  public static getSegmentFractions(geom: OlLineString) {
+  public getSegmentFractions(geom: OlLineString) {
     // creates a list of normalized fractions, where each segment ends
     // e.g. [0.3, 0.6, 1.0] for a line with 3 segments of equal length
     const segmentFractions: number[] = [];
     const lineLength = geom.getLength();
     let currentTotal = 0;
     geom.forEachSegment((start, end) => {
-      const segment = new OlLineString([start, end]);
+      const segment = new this.olRuntime.geom.LineString([start, end]);
       const segmentLength = segment.getLength();
       const segmentFraction = segmentLength / lineLength;
       currentTotal += segmentFraction;
@@ -269,7 +272,7 @@ class OlGraphicStrokeUtil {
    * @param PointConstructor Constructor for creating OL Point geometries
    * @returns Array of OL styles for the graphic stroke
    */
-  public static processLineStringGraphicStroke(
+  public processLineStringGraphicStroke(
     geom: OlLineString,
     symbolSize: number,
     resolution: number,
@@ -277,13 +280,12 @@ class OlGraphicStrokeUtil {
     evaluatedDashOffset: number,
     evaluatedSymbolRotation: number,
     graphicStroke: any,
-    symbolizerGenerator: (modifiedGraphicStroke: any) => any,
-    PointConstructor: typeof OlGeomPoint
+    symbolizerGenerator: (modifiedGraphicStroke: any) => any
   ): any[] {
     const tickFractions = OlGraphicStrokeUtil.getTickFractions(
       geom, symbolSize, resolution, dashArray, evaluatedDashOffset
     );
-    const segmentFractions = OlGraphicStrokeUtil.getSegmentFractions(geom);
+    const segmentFractions = this.getSegmentFractions(geom);
     const segmentRotations = OlGraphicStrokeUtil.getSegmentRotations(geom);
 
     const segmentStyles = segmentRotations.map((segmentRotation) => {
@@ -295,7 +297,7 @@ class OlGraphicStrokeUtil {
 
     return tickFractions.map(tickFraction => {
       const coord = geom.getCoordinateAt(tickFraction);
-      const tick = new PointConstructor(coord);
+      const tick = new this.olRuntime.geom.Point(coord);
       const segmentIndex = segmentFractions.findIndex(
         segmentFraction => tickFraction <= segmentFraction
       );
@@ -305,29 +307,24 @@ class OlGraphicStrokeUtil {
     });
   }
 
-  public static getLineStringsFromGeometry(geom: Geometry | undefined, constructors: {
-    LineString: typeof OlLineString;
-    MultiLineString: typeof OlMultiLineString;
-    Polygon: typeof OlPolygon;
-    MultiPolygon: typeof OlMultiPolygon;
-  }) {
+  public getLineStringsFromGeometry(geom: Geometry | undefined) {
     if (!geom) {
       throw new Error(
         'GraphicStroke can only be applied to features with geometries'
       );
     }
-    if (geom instanceof constructors.LineString) {
+    if (geom instanceof this.olRuntime.geom.LineString) {
       return [geom];
-    } else if (geom instanceof constructors.MultiLineString) {
+    } else if (geom instanceof this.olRuntime.geom.MultiLineString) {
       return geom.getLineStrings();
-    } else if (geom instanceof constructors.Polygon) {
+    } else if (geom instanceof this.olRuntime.geom.Polygon) {
       const linearRings = geom.getLinearRings();
-      return linearRings.map(ring => new constructors.LineString(ring.getCoordinates()));
-    } else if (geom instanceof constructors.MultiPolygon) {
+      return linearRings.map(ring => new this.olRuntime.geom.LineString(ring.getCoordinates()));
+    } else if (geom instanceof this.olRuntime.geom.MultiPolygon) {
       const polygons = geom.getPolygons();
       return polygons.flatMap(polygon => {
         const linearRings = polygon.getLinearRings();
-        return linearRings.map(ring => new constructors.LineString(ring.getCoordinates()));
+        return linearRings.map(ring => new this.olRuntime.geom.LineString(ring.getCoordinates()));
       });
     }
 
