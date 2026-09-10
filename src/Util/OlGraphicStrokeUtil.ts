@@ -5,7 +5,7 @@ import {
 import type OlLineString from 'ol/geom/LineString';
 import type { Coordinate } from 'ol/coordinate';
 import type { Geometry } from 'ol/geom';
-import { OlRuntime } from './OlRuntime';
+import type { OlRuntime } from './OlRuntime';
 
 /**
  * Offers some utility functions to work with OpenLayers Graphic Strokes.

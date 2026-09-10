@@ -1,32 +1,75 @@
 import OlStyleUtil, { DUMMY_MARK_SYMBOLIZER_FONT } from './OlStyleUtil';
+import OlLineString from 'ol/geom/LineString';
+import OlMultiLineString from 'ol/geom/MultiLineString';
+import OlPolygon from 'ol/geom/Polygon';
+import OlMultiPolygon from 'ol/geom/MultiPolygon';
 import OlFeature from 'ol/Feature';
+import OlLinearRing from 'ol/geom/LinearRing';
+import OlMultiPoint from 'ol/geom/MultiPoint';
+import OlGeometryCollection from 'ol/geom/GeometryCollection';
+import OlGeometry from 'ol/geom/Geometry';
 import OlGeomPoint from 'ol/geom/Point';
-import { MarkSymbolizer, TextSymbolizer, GeoStylerBooleanFunction } from 'geostyler-style';
+import OL3Parser from 'jsts/org/locationtech/jts/io/OL3Parser';
+import { GeometryFactory } from 'jsts/org/locationtech/jts/geom';
+import { MarkSymbolizer, TextSymbolizer, GeoStylerBooleanFunction, GeoStylerGeometryFunction } from 'geostyler-style';
+import type { OlRuntime } from './OlRuntime';
 
 describe('OlStyleUtil', () => {
 
+  const olRuntime: OlRuntime = {
+    geom: {
+      LineString: OlLineString,
+      MultiLineString: OlMultiLineString,
+      Polygon: OlPolygon,
+      MultiPolygon: OlMultiPolygon,
+      Point: OlGeomPoint,
+      LinearRing: OlLinearRing,
+      MultiPoint: OlMultiPoint,
+      GeometryCollection: OlGeometryCollection,
+      Geometry: OlGeometry
+    }
+  } as OlRuntime;
+
+  const geometryFactory = new GeometryFactory();
+  const jstsParser = new OL3Parser(geometryFactory, undefined);
+  jstsParser.inject(
+    olRuntime.geom.Point,
+    olRuntime.geom.LineString,
+    olRuntime.geom.LinearRing,
+    olRuntime.geom.Polygon,
+    olRuntime.geom.MultiPoint,
+    olRuntime.geom.MultiLineString,
+    olRuntime.geom.MultiPolygon,
+    olRuntime.geom.GeometryCollection
+  );
+
+  const olStyleUtil = new OlStyleUtil({
+    olRuntime,
+    jstsParser
+  });
+
   it('OlStyleUtil is defined', () => {
-    expect(OlStyleUtil).toBeDefined();
+    expect(olStyleUtil).toBeDefined();
   });
 
   describe('#getRgbaColor', () => {
     it('is defined', () => {
-      expect(OlStyleUtil.getRgbaColor).toBeDefined();
+      expect(olStyleUtil.getRgbaColor).toBeDefined();
     });
 
     it('transforms correctly', () => {
-      const rgba = OlStyleUtil.getRgbaColor('#808a08', 0.5);
+      const rgba = olStyleUtil.getRgbaColor('#808a08', 0.5);
       expect(rgba).toEqual('rgba(128, 138, 8, 0.5)');
     });
 
     it('doesn\'t transform rgba color', () => {
       const testString = 'rgba(248, 231, 28, 1)';
-      const rgba = OlStyleUtil.getRgbaColor(testString, 0.9);
+      const rgba = olStyleUtil.getRgbaColor(testString, 0.9);
       expect(rgba).toEqual(testString);
     });
 
     it('returns undefined if no valid HEX string passed to function', () => {
-      const rgba = OlStyleUtil.getRgbaColor('THIS IS NOT A COLOR STRING', 0.9);
+      const rgba = olStyleUtil.getRgbaColor('THIS IS NOT A COLOR STRING', 0.9);
       expect(rgba).toBeUndefined();
     });
   });
@@ -318,7 +361,7 @@ describe('OlStyleUtil', () => {
   describe('#evaluateBooleanFunction', () => {
 
     it('is defined', () => {
-      expect(OlStyleUtil.evaluateBooleanFunction).toBeDefined();
+      expect(olStyleUtil.evaluateBooleanFunction).toBeDefined();
     });
 
     it('regex matches', () => {
@@ -326,7 +369,7 @@ describe('OlStyleUtil', () => {
       const feat = new OlFeature();
       const regExFn: GeoStylerBooleanFunction = {name: 'strMatches', args: ['bank', '/(bus|bank)/']};
 
-      const match = OlStyleUtil.evaluateBooleanFunction(regExFn, feat);
+      const match = olStyleUtil.evaluateBooleanFunction(regExFn, feat);
       expect(match).toEqual(true);
     });
 
@@ -335,8 +378,83 @@ describe('OlStyleUtil', () => {
       const feat = new OlFeature();
       const regExFn: GeoStylerBooleanFunction = {name: 'strMatches', args: ['bank', '/(bus|bank)/i']};
 
-      const match = OlStyleUtil.evaluateBooleanFunction(regExFn, feat);
+      const match = olStyleUtil.evaluateBooleanFunction(regExFn, feat);
       expect(match).toEqual(true);
+    });
+  });
+
+  describe('#evaluateGeometryFunction', () => {
+
+    it('is defined', () => {
+      expect(olStyleUtil.evaluateGeometryFunction).toBeDefined();
+    });
+
+    it('evaluates a centroid function', () => {
+      const feat = new OlFeature({
+        geometry: new OlPolygon([[
+          [0, 0],
+          [0, 10],
+          [10, 10],
+          [10, 0],
+          [0, 0]
+        ]])
+      });
+      const centroidFn: GeoStylerGeometryFunction = {
+        name: 'centroid',
+        args: [{
+          name: 'property',
+          args: ['geometry']
+        }]
+      };
+
+      const centroid = olStyleUtil.evaluateGeometryFunction(centroidFn, feat);
+      expect(centroid).toBeDefined();
+      expect(centroid).toBeInstanceOf(OlGeomPoint);
+      expect(centroid.getFlatCoordinates()).toEqual([5, 5]);
+    });
+
+    it('evaluates a startPoint function', () => {
+      const feat = new OlFeature({
+        geometry: new OlLineString([
+          [0, 0],
+          [0, 10],
+          [10, 10]
+        ])
+      });
+      const startPointFn: GeoStylerGeometryFunction = {
+        name: 'startPoint',
+        args: [{
+          name: 'property',
+          args: ['geometry']
+        }]
+      };
+
+      const startPoint = olStyleUtil.evaluateGeometryFunction(startPointFn, feat);
+      expect(startPoint).toBeDefined();
+      expect(startPoint).toBeInstanceOf(OlGeomPoint);
+      expect(startPoint.getFlatCoordinates()).toEqual([0, 0]);
+    });
+
+    it('evaluates an endPoint function', () => {
+      const feat = new OlFeature({
+        geometry: new OlLineString([
+          [0, 0],
+          [0, 10],
+          [10, 10]
+        ])
+      });
+      const endPointFn: GeoStylerGeometryFunction = {
+        name: 'endPoint',
+        args: [{
+          name: 'property',
+          args: ['geometry']
+        }]
+      };
+
+      const endPoint = olStyleUtil.evaluateGeometryFunction(endPointFn, feat);
+      expect(endPoint).toBeDefined();
+      expect(endPoint).toBeInstanceOf(OlGeomPoint);
+      expect(endPoint.getFlatCoordinates()).toEqual([10, 10]);
     });
   });
 });

@@ -14,6 +14,10 @@ import type OlLineString from 'ol/geom/LineString';
 import type OlMultiLineString from 'ol/geom/MultiLineString';
 import type OlPolygon from 'ol/geom/Polygon';
 import type OlMultiPolygon from 'ol/geom/MultiPolygon';
+import type OlLinearRing from 'ol/geom/LinearRing';
+import type OlMultiPoint from 'ol/geom/MultiPoint';
+import type OlGeometryCollection from 'ol/geom/GeometryCollection';
+import type OlGeometry from 'ol/geom/Geometry';
 import type OlGeomPoint from 'ol/geom/Point';
 
 export interface OlRuntime {
@@ -33,6 +37,10 @@ export interface OlRuntime {
     Polygon: typeof OlPolygon;
     MultiPolygon: typeof OlMultiPolygon;
     Point: typeof OlGeomPoint;
+    LinearRing: typeof OlLinearRing;
+    MultiPoint: typeof OlMultiPoint;
+    GeometryCollection: typeof OlGeometryCollection;
+    Geometry: typeof OlGeometry;
   };
   Feature: typeof OlFeature;
   ImageState: typeof OlImageState;
