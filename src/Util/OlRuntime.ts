@@ -20,6 +20,8 @@ import type OlGeometryCollection from 'ol/geom/GeometryCollection';
 import type OlGeometry from 'ol/geom/Geometry';
 import type OlGeomPoint from 'ol/geom/Point';
 
+import type GeoJSON from 'ol/format/GeoJSON';
+
 export interface OlRuntime {
   style: {
     Style: typeof OlStyle;
@@ -44,4 +46,7 @@ export interface OlRuntime {
   };
   Feature: typeof OlFeature;
   ImageState: typeof OlImageState;
+  format: {
+    GeoJSON: typeof GeoJSON;
+  };
 }

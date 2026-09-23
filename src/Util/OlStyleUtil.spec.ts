@@ -9,8 +9,7 @@ import OlMultiPoint from 'ol/geom/MultiPoint';
 import OlGeometryCollection from 'ol/geom/GeometryCollection';
 import OlGeometry from 'ol/geom/Geometry';
 import OlGeomPoint from 'ol/geom/Point';
-import OL3Parser from 'jsts/org/locationtech/jts/io/OL3Parser';
-import { GeometryFactory } from 'jsts/org/locationtech/jts/geom';
+import OlFormatGeoJSON from 'ol/format/GeoJSON';
 import { MarkSymbolizer, TextSymbolizer, GeoStylerBooleanFunction, GeoStylerGeometryFunction } from 'geostyler-style';
 import type { OlRuntime } from './OlRuntime';
 
@@ -27,25 +26,14 @@ describe('OlStyleUtil', () => {
       MultiPoint: OlMultiPoint,
       GeometryCollection: OlGeometryCollection,
       Geometry: OlGeometry
+    },
+    format: {
+      GeoJSON: OlFormatGeoJSON
     }
   } as OlRuntime;
 
-  const geometryFactory = new GeometryFactory();
-  const jstsParser = new OL3Parser(geometryFactory, undefined);
-  jstsParser.inject(
-    olRuntime.geom.Point,
-    olRuntime.geom.LineString,
-    olRuntime.geom.LinearRing,
-    olRuntime.geom.Polygon,
-    olRuntime.geom.MultiPoint,
-    olRuntime.geom.MultiLineString,
-    olRuntime.geom.MultiPolygon,
-    olRuntime.geom.GeometryCollection
-  );
-
   const olStyleUtil = new OlStyleUtil({
-    olRuntime,
-    jstsParser
+    olRuntime
   });
 
   it('OlStyleUtil is defined', () => {

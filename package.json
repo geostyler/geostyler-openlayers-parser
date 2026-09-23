@@ -39,9 +39,9 @@
     "test": "jest --coverage"
   },
   "dependencies": {
+    "@turf/centroid": "^7.4.0",
     "css-font-parser": "^2.0.0",
-    "geostyler-style": "^13.0.0",
-    "jsts": "^2.12.1"
+    "geostyler-style": "^13.0.0"
   },
   "peerDependencies": {
     "ol": ">=7.4"

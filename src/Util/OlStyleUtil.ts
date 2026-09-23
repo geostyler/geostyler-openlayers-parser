@@ -18,14 +18,13 @@ import {
   Style,
   TextSymbolizer
 } from 'geostyler-style';
-import OL3Parser from 'jsts/org/locationtech/jts/io/OL3Parser';
-import { Centroid } from 'jsts/org/locationtech/jts/algorithm';
 
 import type OlFeature from 'ol/Feature';
-import type OlPoint from 'ol/geom/Point';
+import type OlFormatGeoJSON from 'ol/format/GeoJSON';
 import type OlSimpleGeometry from 'ol/geom/SimpleGeometry';
 import { colors } from './colors';
 import type { OlRuntime } from './OlRuntime';
+import { centroid } from '@turf/centroid';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
@@ -37,11 +36,17 @@ export const DEGREES_TO_RADIANS = Math.PI / 180;
 class OlStyleUtil {
 
   olRuntime: OlRuntime;
-  jstsParser: OL3Parser;
+  geojsonFormatter: OlFormatGeoJSON;
 
-  constructor({olRuntime, jstsParser}: {olRuntime: OlRuntime; jstsParser: OL3Parser}) {
+  constructor({olRuntime}: {olRuntime: OlRuntime}) {
     this.olRuntime = olRuntime;
-    this.jstsParser = jstsParser;
+    // Note: Right now, we do not reproject the features, since the currently
+    //       used functionality (@turf/centroid) has no reference to the real world,
+    //       i.e. it operates purely in the coordinate space of the input features.
+    //       As soon as we have functionality that has reference to the real world
+    //       (e.g. measuring distances), we have to take reprojecting coordinates
+    //       into account.
+    this.geojsonFormatter = new olRuntime.format.GeoJSON();
   }
 
   /**
@@ -638,9 +643,10 @@ class OlStyleUtil {
     });
     switch (func.name) {
       case 'centroid': {
-        const centroid = new Centroid(this.jstsParser.read(args[0])).getCentroid();
-        const centroidJstsPoint = this.jstsParser.geometryFactory.createPoint(centroid);
-        return this.jstsParser.write(centroidJstsPoint) as OlPoint;
+        const geojsonFeature = this.geojsonFormatter.writeFeatureObject(feature);
+        const geojsonCentroid = centroid(geojsonFeature);
+        const centroidFeature = this.geojsonFormatter.readFeature(geojsonCentroid);
+        return (centroidFeature as OlFeature).getGeometry();
       }
       case 'startPoint': {
         const geom = args[0] as OlSimpleGeometry;

@@ -1,6 +1,4 @@
 import { parseFont } from 'css-font-parser';
-import OL3Parser from 'jsts/org/locationtech/jts/io/OL3Parser';
-import { GeometryFactory } from 'jsts/org/locationtech/jts/geom';
 
 import {
   CapType,
@@ -49,6 +47,7 @@ import OlMultiPoint from 'ol/geom/MultiPoint';
 import OlGeometryCollection from 'ol/geom/GeometryCollection';
 import OlGeometry from 'ol/geom/Geometry';
 import { METERS_PER_UNIT } from 'ol/proj/Units';
+import OlFormatGeoJSON from 'ol/format/GeoJSON';
 
 import OlStyleUtil, { DEGREES_TO_RADIANS } from './Util/OlStyleUtil';
 import { cleanWellKnownName, getPointSvg, isPointDefinedAsSvg } from './Util/OlSvgPoints';
@@ -192,12 +191,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       Geometry: OlGeometry
     },
     Feature: OlFeature,
-    ImageState: OlImageState
+    ImageState: OlImageState,
+    format: {
+      GeoJSON: OlFormatGeoJSON
+    }
   };
   olGraphicStrokeUtil: OlGraphicStrokeUtil;
   olStyleUtil: OlStyleUtil;
-
-  jstsParser: OL3Parser;
 
   constructor(ol?: OlRuntime) {
     if (ol) {
@@ -205,21 +205,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
     this.olGraphicStrokeUtil = new OlGraphicStrokeUtil(this.olRuntime);
 
-    const geometryFactory = new GeometryFactory();
-    this.jstsParser = new OL3Parser(geometryFactory, undefined);
-    this.jstsParser.inject(
-      this.olRuntime.geom.Point,
-      this.olRuntime.geom.LineString,
-      this.olRuntime.geom.LinearRing,
-      this.olRuntime.geom.Polygon,
-      this.olRuntime.geom.MultiPoint,
-      this.olRuntime.geom.MultiLineString,
-      this.olRuntime.geom.MultiPolygon,
-      this.olRuntime.geom.GeometryCollection
-    );
     this.olStyleUtil = new OlStyleUtil({
-      olRuntime: this.olRuntime,
-      jstsParser: this.jstsParser
+      olRuntime: this.olRuntime
     });
   }
 
