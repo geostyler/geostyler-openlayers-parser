@@ -42,7 +42,12 @@ import OlLineString from 'ol/geom/LineString';
 import OlMultiLineString from 'ol/geom/MultiLineString';
 import OlPolygon from 'ol/geom/Polygon';
 import OlMultiPolygon from 'ol/geom/MultiPolygon';
+import OlLinearRing from 'ol/geom/LinearRing';
+import OlMultiPoint from 'ol/geom/MultiPoint';
+import OlGeometryCollection from 'ol/geom/GeometryCollection';
+import OlGeometry from 'ol/geom/Geometry';
 import { METERS_PER_UNIT } from 'ol/proj/Units';
+import OlFormatGeoJSON from 'ol/format/GeoJSON';
 
 import OlStyleUtil, { DEGREES_TO_RADIANS } from './Util/OlStyleUtil';
 import { cleanWellKnownName, getPointSvg, isPointDefinedAsSvg } from './Util/OlSvgPoints';
@@ -179,18 +184,30 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       MultiLineString: OlMultiLineString,
       Polygon: OlPolygon,
       MultiPolygon: OlMultiPolygon,
-      Point: OlGeomPoint
+      Point: OlGeomPoint,
+      LinearRing: OlLinearRing,
+      MultiPoint: OlMultiPoint,
+      GeometryCollection: OlGeometryCollection,
+      Geometry: OlGeometry
     },
     Feature: OlFeature,
-    ImageState: OlImageState
+    ImageState: OlImageState,
+    format: {
+      GeoJSON: OlFormatGeoJSON
+    }
   };
   olGraphicStrokeUtil: OlGraphicStrokeUtil;
+  olStyleUtil: OlStyleUtil;
 
   constructor(ol?: OlRuntime) {
     if (ol) {
       this.olRuntime = ol;
     }
     this.olGraphicStrokeUtil = new OlGraphicStrokeUtil(this.olRuntime);
+
+    this.olStyleUtil = new OlStyleUtil({
+      olRuntime: this.olRuntime
+    });
   }
 
   isOlParserStyleFct = (x: any): x is OlParserStyleFct => {
@@ -845,10 +862,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         let isWithinScale = true;
         if (minScale || maxScale) {
           minScale = isGeoStylerFunction(minScale)
-            ? OlStyleUtil.evaluateFunction(minScale, feature) as number
+            ? this.olStyleUtil.evaluateFunction(minScale, feature) as number
             : minScale;
           maxScale = isGeoStylerFunction(maxScale)
-            ? OlStyleUtil.evaluateFunction(maxScale, feature) as number
+            ? this.olStyleUtil.evaluateFunction(maxScale, feature) as number
             : maxScale;
           if (minScale && scale < minScale) {
             isWithinScale = false;
@@ -882,7 +899,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
             }
 
             if (isGeoStylerBooleanFunction(symb.visibility)) {
-              const visibility = OlStyleUtil.evaluateFunction(symb.visibility, feature) as boolean;
+              const visibility = this.olStyleUtil.evaluateFunction(symb.visibility, feature) as boolean;
               if (!visibility) {
                 styles.push(null);
               }
@@ -933,7 +950,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
 
     let matchesFilter = true;
     if (isGeoStylerBooleanFunction(filter)) {
-      return OlStyleUtil.evaluateBooleanFunction(filter, feature);
+      return this.olStyleUtil.evaluateBooleanFunction(filter, feature);
     }
     if (filter === true || filter === false) {
       return filter;
@@ -977,13 +994,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       } else {
         let arg1: any;
         if (isGeoStylerFunction(filter[1])) {
-          arg1 = OlStyleUtil.evaluateFunction(filter[1], feature);
+          arg1 = this.olStyleUtil.evaluateFunction(filter[1], feature);
         } else {
           arg1 = feature.get(filter[1]);
         }
         let arg2: any;
         if (isGeoStylerFunction(filter[2])) {
-          arg2 = OlStyleUtil.evaluateFunction(filter[2], feature);
+          arg2 = this.olStyleUtil.evaluateFunction(filter[2], feature);
         } else {
           arg2 = filter[2];
         }
@@ -1092,7 +1109,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   ): OlStyle {
     for (const key of Object.keys(markSymbolizer)) {
       if (isGeoStylerFunction(markSymbolizer[key as keyof MarkSymbolizer])) {
-        (markSymbolizer as any)[key] = OlStyleUtil.evaluateFunction((markSymbolizer as any)[key], feature);
+        (markSymbolizer as any)[key] = this.olStyleUtil.evaluateFunction((markSymbolizer as any)[key], feature);
       }
     }
 
@@ -1122,10 +1139,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       });
     } else if (OlStyleUtil.getIsFontGlyphBased(markSymbolizer)) {
       const strokeRgbaColor = (strokeColor && OlStyleUtil.checkOpacity(strokeOpacity) ?
-        OlStyleUtil.getRgbaColor(strokeColor, strokeOpacity) :
+        this.olStyleUtil.getRgbaColor(strokeColor, strokeOpacity, feature) :
         strokeColor) as string;
       const fillRgbaColor = (fillColor && OlStyleUtil.checkOpacity(fillOpacity) ?
-        OlStyleUtil.getRgbaColor(fillColor, fillOpacity) :
+        this.olStyleUtil.getRgbaColor(fillColor, fillOpacity, feature) :
         fillColor) as string;
 
       const stroke = new this.olRuntime.style.Stroke({
@@ -1152,6 +1169,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       throw new Error('MarkSymbolizer cannot be parsed. Unsupported WellKnownName.');
     }
 
+    if (markSymbolizer.geometry) {
+      olStyle.setGeometry(
+        markSymbolizer.geometry as Parameters<OlStyle['setGeometry']>[0]
+      );
+    }
+
     return olStyle;
   }
 
@@ -1167,7 +1190,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   ): OlStyle | OlStyleIcon | OlStyleFunction {
     for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof IconSymbolizer])) {
-        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+        (symbolizer as any)[key] = this.olStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
 
@@ -1216,15 +1239,26 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         const style = new this.olRuntime.style.Style({
           image
         });
+        if (symbolizer.geometry) {
+          style.setGeometry(
+            symbolizer.geometry as Parameters<OlStyle['setGeometry']>[0]
+          );
+        }
         return style;
       };
       return olPointStyledIconFn;
     } else {
-      return new this.olRuntime.style.Style({
+      const style = new this.olRuntime.style.Style({
         image: new this.olRuntime.style.Icon({
           ...baseProps
         })
       });
+      if (symbolizer.geometry) {
+        style.setGeometry(
+          symbolizer.geometry as Parameters<OlStyle['setGeometry']>[0]
+        );
+      }
+      return style;
     }
   }
 
@@ -1245,15 +1279,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
     for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof LineSymbolizer])) {
-        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+        (symbolizer as any)[key] = this.olStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
     const color = symbolizer.color as string;
     const opacity = symbolizer.opacity as number;
     const sColor = (color && opacity !== null && opacity !== undefined) ?
-      OlStyleUtil.getRgbaColor(color, opacity) : color;
+      this.olStyleUtil.getRgbaColor(color, opacity, feat) : color;
 
-    return new this.olRuntime.style.Style({
+    const style = new this.olRuntime.style.Style({
       stroke: new this.olRuntime.style.Stroke({
         color: sColor,
         width: symbolizer.width as number,
@@ -1263,12 +1297,26 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         lineDashOffset: symbolizer.dashOffset as number
       })
     });
+
+    if (symbolizer.geometry) {
+      style.setGeometry(
+        symbolizer.geometry as Parameters<OlStyle['setGeometry']>[0]
+      );
+    }
+
+    return style;
   }
 
   getOlGraphicStrokeFromGraphicStroke(
     symbolizer: LineSymbolizer, feat: OlFeature, resolution: number
   ) {
-    const lineStrings = this.olGraphicStrokeUtil.getLineStringsFromGeometry(feat.getGeometry());
+    let geometry = feat.getGeometry();
+    if (symbolizer.geometry && isGeoStylerFunction(symbolizer.geometry)) {
+      geometry = this.olStyleUtil.evaluateFunction(
+        symbolizer.geometry, feat
+      ) as ((OlGeometry) | undefined);
+    }
+    const lineStrings = this.olGraphicStrokeUtil.getLineStringsFromGeometry(geometry);
 
     const graphicStroke = symbolizer.graphicStroke!;
     const symbolSize = this.getSymbolSizeFromGraphicStroke(graphicStroke, feat);
@@ -1278,13 +1326,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
     const symbolRotation = graphicStroke.rotate;
     const evaluatedSymbolRotation = isGeoStylerFunction(symbolRotation)
-      ? OlStyleUtil.evaluateFunction(symbolRotation, feat) as number
+      ? this.olStyleUtil.evaluateFunction(symbolRotation, feat) as number
       : symbolRotation ?? 0;
     // We currently do not support expressions for dasharrays
     const dashArray = symbolizer.dasharray as number[] | undefined;
     const dashOffset = symbolizer.dashOffset || 0;
     const evaluatedDashOffset = isGeoStylerFunction(dashOffset)
-      ? OlStyleUtil.evaluateFunction(dashOffset, feat) as number
+      ? this.olStyleUtil.evaluateFunction(dashOffset, feat) as number
       : dashOffset;
 
     const symbolizerGenerator = (modifiedGraphicStroke: any) => {
@@ -1321,7 +1369,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     if (graphicStroke!.kind === 'Mark') {
       const radius = graphicStroke!.radius;
       if (isGeoStylerFunction(radius)) {
-        size = (OlStyleUtil.evaluateFunction(radius, feat) as number) * 2;
+        size = (this.olStyleUtil.evaluateFunction(radius, feat) as number) * 2;
       } else {
         size = (radius ?? 0) * 2;
       }
@@ -1330,14 +1378,14 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       }
       const strokeWidth = graphicStroke!.strokeWidth;
       if (isGeoStylerFunction(strokeWidth)) {
-        size += OlStyleUtil.evaluateFunction(strokeWidth, feat) as number;
+        size += this.olStyleUtil.evaluateFunction(strokeWidth, feat) as number;
       } else {
         size += strokeWidth ?? 0;
       }
     } else if (graphicStroke!.kind === 'Icon') {
       const iconSize = graphicStroke!.size;
       if (isGeoStylerFunction(iconSize)) {
-        size = OlStyleUtil.evaluateFunction(iconSize, feat) as number;
+        size = this.olStyleUtil.evaluateFunction(iconSize, feat) as number;
       } else {
         size = iconSize ?? 0;
       }
@@ -1354,14 +1402,14 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   getOlPolygonSymbolizerFromFillSymbolizer(symbolizer: FillSymbolizer, feat?: OlFeature): OlStyle | OlStyleFill {
     for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof FillSymbolizer])) {
-        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+        (symbolizer as any)[key] = this.olStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
 
     const color = symbolizer.color as string;
     const opacity = symbolizer.fillOpacity as number;
     const fColor = color && Number.isFinite(opacity)
-      ? OlStyleUtil.getRgbaColor(color, opacity)
+      ? this.olStyleUtil.getRgbaColor(color, opacity, feat)
       : color;
 
     let fill = color
@@ -1371,7 +1419,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     const outlineColor = symbolizer.outlineColor as string;
     const outlineOpacity = symbolizer.outlineOpacity as number;
     const oColor = (outlineColor && Number.isFinite(outlineOpacity))
-      ? OlStyleUtil.getRgbaColor(outlineColor, outlineOpacity)
+      ? this.olStyleUtil.getRgbaColor(outlineColor, outlineOpacity, feat)
       : outlineColor;
 
     const stroke = outlineColor || symbolizer.outlineWidth ? new this.olRuntime.style.Stroke({
@@ -1394,6 +1442,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         fill.setColor(pattern);
       }
       olStyle.setFill(fill);
+    }
+
+    if (symbolizer.geometry) {
+      olStyle.setGeometry(
+        symbolizer.geometry as Parameters<OlStyle['setGeometry']>[0]
+      );
     }
 
     return olStyle;
@@ -1492,7 +1546,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   ): OlStyle | OlStyleText | OlStyleFunction {
     for (const key of Object.keys(symbolizer)) {
       if (isGeoStylerFunction(symbolizer[key as keyof TextSymbolizer])) {
-        (symbolizer as any)[key] = OlStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
+        (symbolizer as any)[key] = this.olStyleUtil.evaluateFunction((symbolizer as any)[key], feat);
       }
     }
     const color = symbolizer.color as string;
@@ -1509,13 +1563,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     }
     const opacity = symbolizer.opacity as number;
     const fColor = color && Number.isFinite(opacity)
-      ? OlStyleUtil.getRgbaColor(color, opacity)
+      ? this.olStyleUtil.getRgbaColor(color, opacity, feat)
       : color;
 
     const haloColor = symbolizer.haloColor as string;
     const haloWidth = symbolizer.haloWidth as number;
     const sColor = haloColor && Number.isFinite(opacity)
-      ? OlStyleUtil.getRgbaColor(haloColor, opacity)
+      ? this.olStyleUtil.getRgbaColor(haloColor, opacity, feat)
       : haloColor;
     const baseProps: OlStyleTextOptions = {
       font: OlStyleUtil.getTextFont(symbolizer),
@@ -1559,18 +1613,32 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
           text: text
         });
 
+        if (symbolizer.geometry) {
+          style.setGeometry(
+            symbolizer.geometry as Parameters<OlStyle['setGeometry']>[0]
+          );
+        }
+
         return style;
       };
       return olPointStyledLabelFn;
     } else {
       // if TextSymbolizer does not contain a placeholder
       // return OlStyle
-      return new this.olRuntime.style.Style({
+      const style = new this.olRuntime.style.Style({
         text: new this.olRuntime.style.Text({
           text: symbolizer.label as string,
           ...baseProps
         })
       });
+
+      if (symbolizer.geometry) {
+        style.setGeometry(
+          symbolizer.geometry as Parameters<OlStyle['setGeometry']>[0]
+        );
+      }
+
+      return style;
     }
   }
 

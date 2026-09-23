@@ -5,7 +5,7 @@ import OlGeomPoint from 'ol/geom/Point';
 import OlPolygon from 'ol/geom/Polygon';
 import OlMultiPolygon from 'ol/geom/MultiPolygon';
 import { Style, MarkSymbolizer } from 'geostyler-style';
-import { OlRuntime } from './OlRuntime';
+import type { OlRuntime } from './OlRuntime';
 
 describe('OlGraphicStrokeUtil', () => {
 

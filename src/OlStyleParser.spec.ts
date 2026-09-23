@@ -15,6 +15,10 @@ import OlMultiPolygon from 'ol/geom/MultiPolygon';
 
 import OlStyleParser, { OlParserStyleFct } from './OlStyleParser';
 
+import geometry_property from '../data/styles/geometry_property';
+import geometry_centroid from '../data/styles/geometry_centroid';
+import geometry_startPoint from '../data/styles/geometry_startPoint';
+import geometry_endPoint from '../data/styles/geometry_endPoint';
 import point_simplepoint from '../data/styles/point_simplepoint';
 import point_simpleoffset from '../data/styles/point_simpleoffset';
 import point_icon from '../data/styles/point_icon';
@@ -963,14 +967,14 @@ describe('OlStyleParser implements StyleParser', () => {
 
     const expecSymbOutlCol: string = expecSymb.outlineColor as string;
     const expecSymbOutlOpac: number = expecSymb.outlineOpacity as number;
-    expect(olStroke?.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbOutlCol, expecSymbOutlOpac));
+    expect(olStroke?.getColor()).toEqual(styleParser.olStyleUtil.getRgbaColor(expecSymbOutlCol, expecSymbOutlOpac));
 
     const olFill = olStyle.getFill();
     expect(olFill).toBeDefined();
 
     const expecSymbFillCol: string = expecSymb.color as string;
     const expecSymbFillOpac: number = expecSymb.fillOpacity as number;
-    expect(olFill?.getColor()).toEqual(OlStyleUtil.getRgbaColor(expecSymbFillCol, expecSymbFillOpac));
+    expect(olFill?.getColor()).toEqual(styleParser.olStyleUtil.getRgbaColor(expecSymbFillCol, expecSymbFillOpac));
 
     expect(olStroke?.getLineDash()).toEqual(expecSymb.outlineDasharray);
   });
@@ -1529,6 +1533,68 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(inBetweenOLStyle[0].getText().getText()).toBe(inBetweenLabel);
     expect(aboveOLStyle[0].getText().getText()).toBe(aboveLabel);
     expect(belowOLStyle[0].getText().getText()).toBe(belowLabel);
+  });
+
+  it('can write a geometry from a property', async () => {
+    let { output: geoStylerStyle } = await styleParser.writeStyle(geometry_property);
+    expect(geoStylerStyle).toBeDefined();
+    expect(typeof geoStylerStyle === 'function').toBe(true);
+    geoStylerStyle = geoStylerStyle as OlParserStyleFct;
+
+    const testGeom = new OlPoint([1, 1]);
+    const testFeat = new OlFeature({
+      geometry: new OlPoint([0, 0]),
+      geom: testGeom
+    });
+
+    const featureStyle = geoStylerStyle(testFeat);
+
+    expect(featureStyle[0].getGeometry()).toBe(testGeom);
+  });
+
+  it('can write a geometry using the centroid function', async () => {
+    let { output: geoStylerStyle } = await styleParser.writeStyle(geometry_centroid);
+    expect(geoStylerStyle).toBeDefined();
+    expect(typeof geoStylerStyle === 'function').toBe(true);
+    geoStylerStyle = geoStylerStyle as OlParserStyleFct;
+
+    const testFeat = new OlFeature({
+      geometry: new OlPolygon([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]])
+    });
+
+    const featureStyle = geoStylerStyle(testFeat);
+
+    expect(featureStyle[0].getGeometry()).toBeInstanceOf(OlPoint);
+  });
+
+  it('can write a geometry using the startPoint function', async () => {
+    let { output: geoStylerStyle } = await styleParser.writeStyle(geometry_startPoint);
+    expect(geoStylerStyle).toBeDefined();
+    expect(typeof geoStylerStyle === 'function').toBe(true);
+    geoStylerStyle = geoStylerStyle as OlParserStyleFct;
+
+    const testFeat = new OlFeature({
+      geometry: new OlLineString([[0, 0], [1, 1], [2, 2]])
+    });
+
+    const featureStyle = geoStylerStyle(testFeat);
+
+    expect(featureStyle[0].getGeometry()).toBeInstanceOf(OlPoint);
+  });
+
+  it('can write a geometry using the endPoint function', async () => {
+    let { output: geoStylerStyle } = await styleParser.writeStyle(geometry_endPoint);
+    expect(geoStylerStyle).toBeDefined();
+    expect(typeof geoStylerStyle === 'function').toBe(true);
+    geoStylerStyle = geoStylerStyle as OlParserStyleFct;
+
+    const testFeat = new OlFeature({
+      geometry: new OlLineString([[0, 0], [1, 1], [2, 2]])
+    });
+
+    const featureStyle = geoStylerStyle(testFeat);
+
+    expect(featureStyle[0].getGeometry()).toBeInstanceOf(OlPoint);
   });
 
   it('adds unsupportedProperties to the write output', async () => {
