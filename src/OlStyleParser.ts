@@ -1528,7 +1528,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
     });
 
     if (symbolizer.graphicFill) {
-      const pattern = this.getOlPatternFromGraphicFill(symbolizer.graphicFill);
+      // graphicFillPadding is [top, right, bottom, left]. Without it, icon
+      // fills are seamless.
+      const graphicFillPadding = (symbolizer.graphicFillPadding ?? [0, 0, 0, 0]).map(value =>
+        isGeoStylerFunction(value) ? OlStyleUtil.evaluateFunction(value, feat) as number : value
+      ) as [number, number, number, number];
+      const pattern = this.getOlPatternFromGraphicFill(symbolizer.graphicFill, graphicFillPadding);
       if (!fill) {
         fill = new this.olRuntime.style.Fill({});
       }
@@ -1549,9 +1554,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * only IconSymbolizer and MarkSymbolizer are supported.
    *
    * @param graphicFill The Symbolizer that holds the pattern config.
+   * @param graphicFillPadding Space around each icon tile in pixels, as
+   * [top, right, bottom, left]. Defaults to no padding (a seamless fill).
+   * Only applies to IconSymbolizers.
    * @returns The created CanvasPattern, or null.
    */
-  getOlPatternFromGraphicFill(graphicFill: PointSymbolizer): CanvasPattern | null {
+  getOlPatternFromGraphicFill(
+    graphicFill: PointSymbolizer,
+    graphicFillPadding: [number, number, number, number] = [0, 0, 0, 0]
+  ): CanvasPattern | null {
     if (!isIconSymbolizer(graphicFill) && !isMarkSymbolizer(graphicFill)) {
       return null;
     }
@@ -1581,10 +1592,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       // the image's natural size.
       const naturalSize = graphicFillImage.getSize(); // size before any scaling
       iconSize = [
-        graphicFillImage.getWidth() ?? naturalSize[0],
-        graphicFillImage.getHeight() ?? naturalSize[1]
+        Math.round(graphicFillImage.getWidth() ?? naturalSize[0]),
+        Math.round(graphicFillImage.getHeight() ?? naturalSize[1])
       ];
-      canvasSize = iconSize.map(item => Math.ceil(item * iconSpacing));
+
+      const [top, right, bottom, left] = graphicFillPadding.map(Math.round);
+      canvasSize = [
+        iconSize[0] + left + right,
+        iconSize[1] + top + bottom
+      ];
 
       tmpCanvas.width = canvasSize[0];
       tmpCanvas.height = canvasSize[1];
@@ -1595,7 +1611,8 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         pixelRatio: 1
       });
 
-      const pointCoords = canvasSize.map(item  => item / 2);
+      // Centre the icon inside the padding
+      const pointCoords = [left + iconSize[0] / 2, top + iconSize[1] / 2];
       const pointFeature = new this.olRuntime.Feature(new this.olRuntime.geom.Point(pointCoords));
 
       vectorContext.drawFeature(pointFeature, graphicFillStyle);
