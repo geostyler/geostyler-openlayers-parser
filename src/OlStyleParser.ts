@@ -186,6 +186,12 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
   };
   olGraphicStrokeUtil: OlGraphicStrokeUtil;
 
+  /**
+   * Maximum time in milliseconds to wait for a single image to load in
+   * writeStyle. After that, the style is written without waiting further.
+   */
+  imageLoadTimeout = 5000;
+
   constructor(ol?: OlRuntime) {
     if (ol) {
       this.olRuntime = ol;
@@ -682,25 +688,101 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    *    one rule with multiple symbolizers, no filter, no scaleDenominator, no TextSymbolizer
    * 3. OlParserStyleFct for everything else
    *
+   * All static icon images (points, graphicFill and graphicStroke) are loaded
+   * before the style is written, so patterns depending on loaded images
+   * can be created.
+   *
    * @param geoStylerStyle A GeoStyler-Style Style.
    * @return The Promise resolving with one of above mentioned style types.
    */
-  writeStyle(geoStylerStyle: Style): Promise<WriteStyleResult<OlStyle | OlStyle[] | OlParserStyleFct>> {
-    return new Promise<WriteStyleResult>((resolve) => {
-      const clonedStyle = structuredClone(geoStylerStyle);
-      const unsupportedProperties = this.checkForUnsupportedProperties(clonedStyle);
-      try {
-        const olStyle = this.getOlStyleTypeFromGeoStylerStyle(clonedStyle);
-        resolve({
-          output: olStyle,
-          unsupportedProperties,
-          warnings: unsupportedProperties && ['Your style contains unsupportedProperties!']
-        });
-      } catch (error) {
-        resolve({
-          errors: [error]
-        });
+  async writeStyle(geoStylerStyle: Style): Promise<WriteStyleResult<OlStyle | OlStyle[] | OlParserStyleFct>> {
+    const clonedStyle = structuredClone(geoStylerStyle);
+    const unsupportedProperties = this.checkForUnsupportedProperties(clonedStyle);
+    try {
+      await this.preloadImages(clonedStyle);
+      const olStyle = this.getOlStyleTypeFromGeoStylerStyle(clonedStyle);
+      return {
+        output: olStyle,
+        unsupportedProperties,
+        warnings: unsupportedProperties && ['Your style contains unsupportedProperties!']
+      };
+    } catch (error) {
+      return {
+        errors: [error as Error]
+      };
+    }
+  }
+
+  /**
+   * Collects the sources of all static icon images in a style (point icons,
+   * graphicFill and graphicStroke) and loads them into the OpenLayers icon cache.
+   *
+   * Images whose source depends on the feature (placeholders or functions)
+   * cannot be known in advance and are skipped.
+   *
+   * @param geoStylerStyle A GeoStyler-Style Style.
+   */
+  async preloadImages(geoStylerStyle: Style): Promise<void> {
+    const srcs = new Set<string>();
+    const collect = (symbolizer?: Symbolizer) => {
+      if (!symbolizer || !isIconSymbolizer(symbolizer)) {
+        return;
       }
+      const src = isSprite(symbolizer.image) ? symbolizer.image.source : symbolizer.image;
+      if (typeof src === 'string' && src !== '' && !src.includes('{{')) {
+        srcs.add(src);
+      }
+    };
+    geoStylerStyle.rules.forEach(rule => {
+      rule.symbolizers.forEach(symbolizer => {
+        collect(symbolizer);
+        if (symbolizer.kind === 'Fill' || symbolizer.kind === 'Line') {
+          collect(symbolizer.graphicFill);
+        }
+        if (symbolizer.kind === 'Line') {
+          collect(symbolizer.graphicStroke);
+        }
+      });
+    });
+    await Promise.all([...srcs].map(src => this.preloadIcon(src)));
+  }
+
+  /**
+   * Loads a single image into the OpenLayers icon cache.
+   *
+   * Resolves once the image has loaded, failed to load, or after
+   * imageLoadTimeout, so a broken or slow image never blocks writeStyle.
+   *
+   * @param src The image source.
+   */
+  preloadIcon(src: string): Promise<void> {
+    const ImageState = this.olRuntime.ImageState;
+    // OpenLayers caches icon images by src + color
+    const icon = new this.olRuntime.style.Icon({
+      src,
+      crossOrigin: 'anonymous'
+    });
+    const isSettled = () => {
+      const state = icon.getImageState();
+      return state === ImageState.LOADED || state === ImageState.ERROR;
+    };
+    if (isSettled()) {
+      return Promise.resolve();
+    }
+    return new Promise<void>(resolve => {
+      const onChange = () => {
+        if (isSettled()) {
+          finish();
+        }
+      };
+      const finish = () => {
+        clearTimeout(timeoutId);
+        icon.unlistenImageChange(onChange);
+        resolve();
+      };
+      icon.listenImageChange(onChange);
+      const timeoutId = setTimeout(finish, this.imageLoadTimeout);
+      icon.load();
     });
   }
 
@@ -1428,9 +1510,10 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       const graphicFillStyle: any = this.getOlIconSymbolizerFromIconSymbolizer(graphicFill);
 
       const graphicFillImage = graphicFillStyle?.getImage();
-      graphicFillImage?.load(); // Needed for Icon type images with a remote src
-      // We can only work with the image once it's loaded
-      if (graphicFillImage?.getImageState() !== OlImageState.LOADED) {
+      // Static images are preloaded in writeStyle, so they are normally
+      // already loaded here. Dynamic sources may still be loading.
+      graphicFillImage?.load();
+      if (graphicFillImage?.getImageState() !== this.olRuntime.ImageState.LOADED) {
         return null;
       }
 
