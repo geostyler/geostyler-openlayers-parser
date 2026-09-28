@@ -616,6 +616,26 @@ describe('OlStyleParser implements StyleParser', () => {
 
       expect(options).toEqual({ src: 'a.png', crossOrigin: 'anonymous' });
     });
+
+    it('writes IconSymbolizer size as the icon height', () => {
+      let options: any;
+      styleParser.olRuntime.style.Icon = class {
+        constructor(o: any) { options = o; }
+      } as any;
+      styleParser.getOlIconSymbolizerFromIconSymbolizer({ kind: 'Icon', image: 'a.png', size: 16 });
+      expect(options.height).toBe(16);
+      expect(options.width).toBeUndefined();
+    });
+
+    it('#getIconWidthForHeight keeps the aspect ratio of sprites', () => {
+      const width = styleParser.getIconWidthForHeight(
+        { kind: 'Icon', image: { source: 's.png', position: [0, 0], size: [20, 10] } },
+        16
+      );
+      // A 20 x 10 sprite drawn 16 high is scaled by 16 / 10 = 1.6,
+      // so its width is 20 x 1.6 = 32 (it stays twice as wide as it is tall)
+      expect(width).toBe(32);
+    });
   });
   it('can write an OpenLayers Marker square', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_simplesquare);
