@@ -171,7 +171,7 @@ describe('OlStyleParser implements StyleParser', () => {
   beforeEach(() => {
     styleParser = new OlStyleParser();
     // jsdom never loads images, so don't wait for them
-    styleParser.imageLoadTimeout = 0;
+    styleParser = new OlStyleParser(undefined, { imageLoadTimeout: 0 });
   });
 
   describe('#readStyle', () => {
@@ -570,6 +570,9 @@ describe('OlStyleParser implements StyleParser', () => {
       const olIcon: OlStyleIcon = styles[0].getImage() as OlStyleIcon;
       expect(olIcon).toBeDefined();
       expect(olIcon.getSrc()).toEqual(dummyFeat.get('path'));
+    });
+    it('sets imageLoadTimeout from the constructor options', () => {
+      expect(new OlStyleParser(undefined, { imageLoadTimeout: 123 }).imageLoadTimeout).toBe(123);
     });
     it('#preloadImages preloads each static icon source once', async () => {
       const spy = jest.spyOn(styleParser, 'preloadIcon').mockResolvedValue();

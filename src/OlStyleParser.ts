@@ -65,6 +65,17 @@ export interface OlParserStyleFct {
   __geoStylerStyle: Style;
 }
 
+/**
+ * Options for the OlStyleParser.
+ */
+export interface OlStyleParserOptions {
+  /**
+   * Maximum time in milliseconds to wait for a single image to load in
+   * writeStyle. After that, the style is written without waiting further.
+   */
+  imageLoadTimeout?: number;
+}
+
 type SymbolizerKeyType = keyof UnsupportedProperties['Symbolizer'];
 
 /**
@@ -190,11 +201,18 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
    * Maximum time in milliseconds to wait for a single image to load in
    * writeStyle. After that, the style is written without waiting further.
    */
-  imageLoadTimeout = 5000;
+  imageLoadTimeout = 3000;
 
-  constructor(ol?: OlRuntime) {
+  /**
+  * @param ol An optional OpenLayers runtime, to use a specific ol instance.
+  * @param options Optional parser options.
+  */
+  constructor(ol?: OlRuntime, options?: OlStyleParserOptions) {
     if (ol) {
       this.olRuntime = ol;
+    }
+    if (options?.imageLoadTimeout !== undefined) {
+      this.imageLoadTimeout = options.imageLoadTimeout;
     }
     this.olGraphicStrokeUtil = new OlGraphicStrokeUtil(this.olRuntime);
   }
