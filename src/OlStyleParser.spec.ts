@@ -170,6 +170,8 @@ describe('OlStyleParser implements StyleParser', () => {
 
   beforeEach(() => {
     styleParser = new OlStyleParser();
+    // jsdom never loads images, so don't wait for them
+    styleParser = new OlStyleParser(undefined, { imageLoadTimeout: 0 });
   });
 
   describe('#readStyle', () => {
@@ -568,6 +570,51 @@ describe('OlStyleParser implements StyleParser', () => {
       const olIcon: OlStyleIcon = styles[0].getImage() as OlStyleIcon;
       expect(olIcon).toBeDefined();
       expect(olIcon.getSrc()).toEqual(dummyFeat.get('path'));
+    });
+    it('sets imageLoadTimeout from the constructor options', () => {
+      expect(new OlStyleParser(undefined, { imageLoadTimeout: 123 }).imageLoadTimeout).toBe(123);
+    });
+    it('#preloadImages preloads each static icon source once', async () => {
+      const spy = jest.spyOn(styleParser, 'preloadIcon').mockResolvedValue();
+      await styleParser.preloadImages({
+        name: 'test',
+        rules: [{
+          name: 'r',
+          symbolizers: [
+            { kind: 'Icon', image: 'point.png' },
+            { kind: 'Fill', graphicFill: { kind: 'Icon', image: 'point.png' } },
+            { kind: 'Line', graphicStroke: { kind: 'Icon', image: 'stroke.png' } },
+            { kind: 'Icon', image: '{{path}}' }
+          ]
+        }]
+      });
+      expect(spy.mock.calls.map(c => c[0]).sort()).toEqual(['point.png', 'stroke.png']);
+    });
+
+    it('#preloadIcon resolves when the image loads', async () => {
+      let options: any;
+      let state = 0; // ImageState.IDLE
+      let listener = () => {};
+      styleParser.olRuntime.style.Icon = class {
+        constructor(o: any) { options = o; }
+        getImageState() { return state; }
+        listenImageChange(l: () => void) { listener = l; }
+        unlistenImageChange() {}
+        load() {}
+      } as any;
+
+      let resolved = false;
+      styleParser.preloadIcon('a.png').then(() => { resolved = true; });
+
+      await Promise.resolve();
+      expect(resolved).toBe(false); // waiting for the image
+
+      state = 2; // ImageState.LOADED
+      listener();
+      await Promise.resolve();
+      expect(resolved).toBe(true); // resolved by the load, not the timeout
+
+      expect(options).toEqual({ src: 'a.png', crossOrigin: 'anonymous' });
     });
   });
   it('can write an OpenLayers Marker square', async () => {
