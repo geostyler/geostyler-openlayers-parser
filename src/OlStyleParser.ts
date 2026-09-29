@@ -120,7 +120,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         offsetAnchor: 'none',
         size: {
           support: 'partial',
-          info: 'Will set/get the width of the ol Icon.'
+          info: 'Will set/get the height of the ol Icon. The width follows the image aspect ratio.'
         },
         optional: 'none',
         padding: 'none',
@@ -375,9 +375,9 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       // icon
       const olIconStyle = olStyle.getImage() as OlStyleIcon;
       const displacement = olIconStyle.getDisplacement() as [number, number];
-      // initialOptions_ as fallback when image is not yet loaded
-      // this always gets calculated from ol so this might not have been set initially
-      const size = olIconStyle.getWidth();
+      // In SE/SLD, size is the height of the graphic. This is calculated by ol,
+      // so it may be undefined before the image has loaded.
+      const size = olIconStyle.getHeight();
       const rotation = olIconStyle.getRotation() / DEGREES_TO_RADIANS;
       const opacity = olIconStyle.getOpacity();
 
@@ -1275,7 +1275,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       src: isSprite(symbolizer.image) ? symbolizer.image.source as string : symbolizer.image as string,
       crossOrigin: 'anonymous',
       opacity: symbolizer.opacity as number,
-      width: symbolizer.size as number,
+      height: symbolizer.size as number,
       // Rotation in openlayers is radians while we use degree
       rotation: (typeof(symbolizer.rotate) === 'number' ? symbolizer.rotate * DEGREES_TO_RADIANS : undefined) as number,
       displacement: symbolizer.offset as [number, number],
@@ -1441,8 +1441,50 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       } else {
         size = iconSize ?? 0;
       }
+      // size is the icon height. Along the line, the symbol's extent is its
+      // width, which depends on the image's aspect ratio.
+      size = this.getIconWidthForHeight(graphicStroke!, size) ?? size;
     }
     return size;
+  }
+
+  /**
+   * Get the width of an icon scaled to the given height, keeping the image's
+   * aspect ratio.
+   *
+   * @param symbolizer The IconSymbolizer.
+   * @param height The icon height in pixels.
+   * @returns The width in pixels, or undefined if it cannot be determined
+   * (image not loaded, or source depending on the feature).
+   */
+  getIconWidthForHeight(symbolizer: IconSymbolizer, height: number): number | undefined {
+    if (height <= 0) {
+      return undefined;
+    }
+    const image = symbolizer.image;
+    // Sprites define their own size: scale the width by their aspect ratio
+    if (isSprite(image)) {
+      const [spriteWidth, spriteHeight] = image.size as [number, number];
+      return spriteHeight > 0 ? height * spriteWidth / spriteHeight : undefined;
+    }
+
+    // Skip sources without a fixed URL e.g. functions, empty values and
+    // {{attribute}} templates
+    if (typeof image !== 'string' || image === '' || image.includes('{{')) {
+      return undefined;
+    }
+    // Static images are preloaded in writeStyle so the
+    // ImageState should already be LOADED.
+    // Create an Icon and let OL work out the width based on the given height.
+    const icon = new this.olRuntime.style.Icon({
+      src: image,
+      crossOrigin: 'anonymous',
+      height
+    });
+    if (icon.getImageState() !== this.olRuntime.ImageState.LOADED) {
+      return undefined;
+    }
+    return icon.getWidth();
   }
 
   /**
@@ -1535,8 +1577,15 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         return null;
       }
 
-      iconSize = graphicFillStyle.getImage().getSize();
-      canvasSize = iconSize.map(item  => item * iconSpacing);
+      // Use the scaled size, so the tile uses the icon's size rather than
+      // the image's natural size.
+      const naturalSize = graphicFillImage.getSize(); // size before any scaling
+      iconSize = [
+        graphicFillImage.getWidth() ?? naturalSize[0],
+        graphicFillImage.getHeight() ?? naturalSize[1]
+      ];
+      canvasSize = iconSize.map(item => Math.ceil(item * iconSpacing));
+
       tmpCanvas.width = canvasSize[0];
       tmpCanvas.height = canvasSize[1];
 
