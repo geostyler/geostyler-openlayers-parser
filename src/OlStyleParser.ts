@@ -1579,7 +1579,7 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
       // graphicFillPadding is [top, right, bottom, left]. Without it, icon
       // fills are seamless.
       const graphicFillPadding = (symbolizer.graphicFillPadding ?? [0, 0, 0, 0]).map(value =>
-        isGeoStylerFunction(value) ? OlStyleUtil.evaluateFunction(value, feat) as number : value
+        isGeoStylerFunction(value) ? this.olStyleUtil.evaluateFunction(value, feat) as number : value
       ) as [number, number, number, number];
       const pattern = this.getOlPatternFromGraphicFill(symbolizer.graphicFill, graphicFillPadding);
       if (!fill) {
