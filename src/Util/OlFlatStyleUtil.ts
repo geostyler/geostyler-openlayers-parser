@@ -208,7 +208,7 @@ class OlFlatStyleUtil {
       return false;
     }
 
-    const hasFlatRules = flatStyleLike.every(style => OlFlatStyleUtil.isFlatRule(style));
+    const hasFlatRules = flatStyleLike.every(style => this.isFlatRule(style), this);
     return hasFlatRules;
   }
 
@@ -225,12 +225,12 @@ class OlFlatStyleUtil {
     if (!isArray) {
       return false;
     }
-    const isFlatRuleArray = OlFlatStyleUtil.isFlatRuleArray(flatStyleLike);
+    const isFlatRuleArray = this.isFlatRuleArray(flatStyleLike);
     if (isFlatRuleArray) {
       return false;
     }
     const hasFlatStyles = flatStyleLike.every(
-      style => OlFlatStyleUtil.isFlatStyle(style)
+      style => this.isFlatStyle(style)
     );
     return hasFlatStyles;
   }
@@ -324,7 +324,7 @@ class OlFlatStyleUtil {
   }
 
   public static olExpressionToGsExpression<T extends PropertyType>(olExpression: any): StyleExpression<T> {
-    if (!OlFlatStyleUtil.isExpression(olExpression)) {
+    if (!this.isExpression(olExpression)) {
       return olExpression;
     }
 
@@ -336,20 +336,20 @@ class OlFlatStyleUtil {
     switch (functionName) {
       case 'case': {
         const gsArgs: any[] = [];
-        const fallback = OlFlatStyleUtil.olExpressionToGsExpression(args.pop());
+        const fallback = this.olExpressionToGsExpression(args.pop());
         args.forEach((a, index) => {
           const gsIndex = Math.floor(index / 2);
           if (index % 2 === 0) {
             gsArgs[gsIndex] = {
-              case: OlFlatStyleUtil.olExpressionToGsExpression(a)
+              case: this.olExpressionToGsExpression(a)
             };
           } else {
             gsArgs[gsIndex] = {
               ...gsArgs[gsIndex] as any,
-              value: OlFlatStyleUtil.olExpressionToGsExpression(a)
+              value: this.olExpressionToGsExpression(a)
             };
           }
-        });
+        }, this);
         func = {
           name: functionName,
           args: [fallback, ...gsArgs]
@@ -359,22 +359,22 @@ class OlFlatStyleUtil {
       case 'interpolate': {
         // currently only supporting linear interpolation
         const interpolationType = (args.shift() as [string])[0];
-        const input = OlFlatStyleUtil.olExpressionToGsExpression(args.shift());
+        const input = this.olExpressionToGsExpression(args.shift());
         const gsArgs: any[] = [];
 
         args.forEach((a, index) => {
           const gsIndex = Math.floor(index / 2);
           if (index % 2 === 0) {
             gsArgs[gsIndex] = {
-              stop: OlFlatStyleUtil.olExpressionToGsExpression(a)
+              stop: this.olExpressionToGsExpression(a)
             };
           } else {
             gsArgs[gsIndex] = {
               ...gsArgs[gsIndex] as any,
-              value: OlFlatStyleUtil.olExpressionToGsExpression(a)
+              value: this.olExpressionToGsExpression(a)
             };
           }
-        });
+        }, this);
         // adding the interpolation type and the input as the first args
         gsArgs.unshift({ name: interpolationType }, input);
         func = {
@@ -389,12 +389,12 @@ class OlFlatStyleUtil {
           // gs function only allows two args
           args: args
             .slice(0, 2)
-            .map(OlFlatStyleUtil.olExpressionToGsExpression) as FstrDefaultIfBlank['args']
+            .map(this.olExpressionToGsExpression, this) as FstrDefaultIfBlank['args']
         };
         break;
       }
       case 'in': {
-        const needle = OlFlatStyleUtil.olExpressionToGsExpression(args.shift());
+        const needle = this.olExpressionToGsExpression(args.shift());
         let haystack: number[] | string[] = [];
         if (args[0] === 'literal') {
           haystack = args[0].pop();
@@ -411,7 +411,7 @@ class OlFlatStyleUtil {
       case 'atan2': {
         const atanFunc = {
           name: args.length === 1 ? 'atan' : 'atan2',
-          args: args.map(OlFlatStyleUtil.olExpressionToGsExpression)
+          args: args.map(this.olExpressionToGsExpression, this)
         };
         if (args.length === 1) {
           func = atanFunc as Fatan;
@@ -423,7 +423,7 @@ class OlFlatStyleUtil {
       default:
         func = {
           name: functionName,
-          args: args.map(OlFlatStyleUtil.olExpressionToGsExpression)
+          args: args.map(this.olExpressionToGsExpression, this)
         } as GeoStylerFunction;
         break;
     }
@@ -431,9 +431,9 @@ class OlFlatStyleUtil {
   }
 
   public static olFilterToGsFilter(olFilter: any): Filter | undefined {
-    const isExpression = OlFlatStyleUtil.isExpression(olFilter);
-    const isFilter = OlFlatStyleUtil.isFilter(olFilter);
-    const isComparisonFilter = OlFlatStyleUtil.isComparisonFilter(olFilter);
+    const isExpression = this.isExpression(olFilter);
+    const isFilter = this.isFilter(olFilter);
+    const isComparisonFilter = this.isComparisonFilter(olFilter);
     if (!isFilter && !isExpression) {
       return olFilter;
     }
@@ -454,11 +454,11 @@ class OlFlatStyleUtil {
 
       filter = [
         filterName,
-        OlFlatStyleUtil.olFilterToGsFilter(propertyName),
-        ...args.map(OlFlatStyleUtil.olFilterToGsFilter)
+        this.olFilterToGsFilter(propertyName),
+        ...args.map(this.olFilterToGsFilter, this)
       ] as Filter;
     } else {
-      filter = OlFlatStyleUtil.olExpressionToGsExpression<boolean>(olFilter);
+      filter = this.olExpressionToGsExpression<boolean>(olFilter);
     }
 
     return filter;

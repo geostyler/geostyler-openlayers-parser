@@ -3,11 +3,13 @@ import {
   Fcase,
   GeoStylerBooleanFunction,
   GeoStylerFunction,
+  GeoStylerGeometryFunction,
   GeoStylerNumberFunction,
   GeoStylerStringFunction,
   GeoStylerUnknownFunction,
   isGeoStylerBooleanFunction,
   isGeoStylerFunction,
+  isGeoStylerGeometryFunction,
   isGeoStylerNumberFunction,
   isGeoStylerStringFunction,
   isGeoStylerUnknownFunction,
@@ -18,7 +20,11 @@ import {
 } from 'geostyler-style';
 
 import type OlFeature from 'ol/Feature';
+import type OlFormatGeoJSON from 'ol/format/GeoJSON';
+import type OlSimpleGeometry from 'ol/geom/SimpleGeometry';
 import { colors } from './colors';
+import type { OlRuntime } from './OlRuntime';
+import { centroid } from '@turf/centroid';
 
 const WELLKNOWNNAME_TTF_REGEXP = /^ttf:\/\/(.+)#(.+)$/;
 export const DUMMY_MARK_SYMBOLIZER_FONT = 'geostyler-mark-symbolizer';
@@ -29,6 +35,20 @@ export const DEGREES_TO_RADIANS = Math.PI / 180;
  */
 class OlStyleUtil {
 
+  olRuntime: OlRuntime;
+  geojsonFormatter: OlFormatGeoJSON;
+
+  constructor({olRuntime}: {olRuntime: OlRuntime}) {
+    this.olRuntime = olRuntime;
+    // Note: Right now, we do not reproject the features, since the currently
+    //       used functionality (@turf/centroid) has no reference to the real world,
+    //       i.e. it operates purely in the coordinate space of the input features.
+    //       As soon as we have functionality that has reference to the real world
+    //       (e.g. measuring distances), we have to take reprojecting coordinates
+    //       into account.
+    this.geojsonFormatter = new olRuntime.format.GeoJSON();
+  }
+
   /**
    * Transforms a HEX encoded color and an opacity value to a RGB(A) notation.
    *
@@ -36,9 +56,13 @@ class OlStyleUtil {
    * @param opacity  Opacity (Betweeen 0 and 1)
    * @return the RGB(A) value of the input color
    */
-  public static getRgbaColor(colorString: string | GeoStylerStringFunction, opacity: number | GeoStylerNumberFunction) {
+  public getRgbaColor(
+    colorString: string | GeoStylerStringFunction,
+    opacity: number | GeoStylerNumberFunction,
+    feature?: OlFeature
+  ): string | undefined {
     if (isGeoStylerStringFunction(colorString)) {
-      colorString = OlStyleUtil.evaluateStringFunction(colorString);
+      colorString = this.evaluateStringFunction(colorString, feature);
     }
 
     if (typeof(colorString) !== 'string') {
@@ -60,7 +84,7 @@ class OlStyleUtil {
     const b = parseInt(colorString.slice(5, 7), 16);
 
     if (isGeoStylerNumberFunction(opacity)) {
-      opacity = OlStyleUtil.evaluateNumberFunction(opacity);
+      opacity = this.evaluateNumberFunction(opacity, feature) as number;
     }
 
     if (opacity < 0) {
@@ -98,11 +122,11 @@ class OlStyleUtil {
     if (inColor.startsWith('#')) {
       return inColor;
     } else if (inColor.startsWith('rgb')) {
-      const colorArr = OlStyleUtil.splitRgbaColor(inColor);
-      return OlStyleUtil.getHexCodeFromRgbArray(colorArr);
+      const colorArr = this.splitRgbaColor(inColor);
+      return this.getHexCodeFromRgbArray(colorArr);
     } else if (colors[inColor.toLocaleLowerCase()] !== undefined) {
       const rgbColorArr = colors[inColor.toLocaleLowerCase()];
-      return OlStyleUtil.getHexCodeFromRgbArray(rgbColorArr);
+      return this.getHexCodeFromRgbArray(rgbColorArr);
     } else {
       return;
     }
@@ -164,7 +188,7 @@ class OlStyleUtil {
 
     let colorArr;
     if (isRgba) {
-      colorArr = OlStyleUtil.splitRgbaColor(color);
+      colorArr = this.splitRgbaColor(color);
     } else {
       const hexOpacity = parseInt(color.slice(7, 9), 16) / 255;
       colorArr = [undefined, undefined, undefined, hexOpacity];
@@ -351,37 +375,40 @@ class OlStyleUtil {
     return template;
   }
 
-  public static evaluateFunction(func: GeoStylerFunction, feature?: OlFeature): PropertyType {
+  public evaluateFunction(func: GeoStylerFunction, feature?: OlFeature): PropertyType {
     if (func.name === 'property') {
       if (!feature) {
-        throw new Error(`Could not evalute 'property' function. Feature ${feature} is not defined.`);
+        throw new Error(`Could not evaluate 'property' function. Feature ${feature} is not defined.`);
       }
       if (isGeoStylerStringFunction(func.args[0])) {
-        return feature?.get(OlStyleUtil.evaluateStringFunction(func.args[0], feature));
+        return feature?.get(this.evaluateStringFunction(func.args[0], feature));
       } else {
         return feature?.get(func.args[0]);
       }
     }
 
     if (isGeoStylerUnknownFunction(func)) {
-      return OlStyleUtil.evaluateUnknownFunction(func, feature);
+      return this.evaluateUnknownFunction(func, feature);
     }
     if (isGeoStylerStringFunction(func)) {
-      return OlStyleUtil.evaluateStringFunction(func, feature);
+      return this.evaluateStringFunction(func, feature);
     }
     if (isGeoStylerNumberFunction(func)) {
-      return OlStyleUtil.evaluateNumberFunction(func, feature);
+      return this.evaluateNumberFunction(func, feature);
     }
     if (isGeoStylerBooleanFunction(func)) {
-      return OlStyleUtil.evaluateBooleanFunction(func, feature);
+      return this.evaluateBooleanFunction(func, feature);
+    }
+    if (isGeoStylerGeometryFunction(func)) {
+      return this.evaluateGeometryFunction(func, feature);
     }
     return;
   }
 
-  public static evaluateBooleanFunction(func: GeoStylerBooleanFunction, feature?: OlFeature): boolean {
+  public evaluateBooleanFunction(func: GeoStylerBooleanFunction, feature?: OlFeature): boolean {
     const args = func.args.map(arg => {
       if (isGeoStylerFunction(arg)) {
-        return OlStyleUtil.evaluateFunction(arg, feature);
+        return this.evaluateFunction(arg, feature);
       }
       return arg;
     });
@@ -435,7 +462,7 @@ class OlStyleUtil {
     }
   }
 
-  public static evaluateNumberFunction(func: GeoStylerNumberFunction, feature?: OlFeature): number {
+  public evaluateNumberFunction(func: GeoStylerNumberFunction, feature?: OlFeature): number {
     if (func.name === 'pi') {
       return Math.PI;
     }
@@ -444,7 +471,7 @@ class OlStyleUtil {
     }
     const args = func.args.map(arg => {
       if (isGeoStylerFunction(arg)) {
-        return OlStyleUtil.evaluateFunction(arg, feature);
+        return this.evaluateFunction(arg, feature);
       }
       return arg;
     });
@@ -512,10 +539,10 @@ class OlStyleUtil {
     }
   }
 
-  public static evaluateUnknownFunction(func: GeoStylerUnknownFunction, feature?: OlFeature): unknown {
+  public evaluateUnknownFunction(func: GeoStylerUnknownFunction, feature?: OlFeature): unknown {
     const args = func.args.map(arg => {
       if (isGeoStylerFunction(arg)) {
-        return OlStyleUtil.evaluateFunction(arg, feature);
+        return this.evaluateFunction(arg, feature);
       }
       return arg;
     });
@@ -540,7 +567,9 @@ class OlStyleUtil {
             match = caseArg.value;
             break;
             // … or a boolean function that has to be evaluated first
-          } else if (OlStyleUtil.evaluateBooleanFunction(caseArg.case as GeoStylerBooleanFunction, feature)) {
+          } else if (
+            this.evaluateBooleanFunction(caseArg.case as GeoStylerBooleanFunction, feature)
+          ) {
             match = caseArg.value;
             break;
           }
@@ -552,10 +581,10 @@ class OlStyleUtil {
     }
   }
 
-  public static evaluateStringFunction(func: GeoStylerStringFunction, feature?: OlFeature): string {
+  public evaluateStringFunction(func: GeoStylerStringFunction, feature?: OlFeature): string {
     const args = func.args.map(arg => {
       if (isGeoStylerFunction(arg)) {
-        return OlStyleUtil.evaluateFunction(arg, feature);
+        return this.evaluateFunction(arg, feature);
       }
       return arg;
     });
@@ -599,6 +628,36 @@ class OlStyleUtil {
         return (args[0] as string).trim();
       default:
         return args[0] as string;
+    }
+  }
+
+  public evaluateGeometryFunction(func: GeoStylerGeometryFunction, feature?: OlFeature) {
+    if (!feature) {
+      throw new Error(`Could not evaluate '${func.name}' function. Feature is not defined.`);
+    }
+    const args = func.args.map(arg => {
+      if (isGeoStylerFunction(arg)) {
+        return this.evaluateFunction(arg, feature);
+      }
+      return arg;
+    });
+    switch (func.name) {
+      case 'centroid': {
+        const geojsonFeature = this.geojsonFormatter.writeFeatureObject(feature);
+        const geojsonCentroid = centroid(geojsonFeature);
+        const centroidFeature = this.geojsonFormatter.readFeature(geojsonCentroid);
+        return (centroidFeature as OlFeature).getGeometry();
+      }
+      case 'startPoint': {
+        const geom = args[0] as OlSimpleGeometry;
+        return new this.olRuntime.geom.Point(geom.getFirstCoordinate());
+      }
+      case 'endPoint': {
+        const geom = args[0] as OlSimpleGeometry;
+        return new this.olRuntime.geom.Point(geom.getLastCoordinate());
+      }
+      default:
+        return args[0] as OlSimpleGeometry;
     }
   }
 
