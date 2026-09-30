@@ -1050,6 +1050,20 @@ describe('OlStyleParser implements StyleParser', () => {
     expect(olFill).toBeDefined();
     expect(olFill?.getColor()).toBeInstanceOf(CanvasPattern);
   });
+  it('passes graphicFillPadding to the graphicFill pattern, defaulting to seamless', () => {
+    const spy = jest.spyOn(styleParser, 'getOlPatternFromGraphicFill').mockReturnValue(null);
+    const graphicFill: IconSymbolizer = { kind: 'Icon', image: 'a.png' };
+
+    styleParser.getOlPolygonSymbolizerFromFillSymbolizer({ kind: 'Fill', graphicFill });
+    expect(spy).toHaveBeenLastCalledWith(graphicFill, [0, 0, 0, 0]);
+
+    styleParser.getOlPolygonSymbolizerFromFillSymbolizer({
+      kind: 'Fill',
+      graphicFill,
+      graphicFillPadding: [1, 2, 3, 4]
+    });
+    expect(spy).toHaveBeenLastCalledWith(graphicFill, [1, 2, 3, 4]);
+  });
   it('can write an OpenLayers TextSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_styledlabel);
     olStyle = olStyle as OlParserStyleFct;
