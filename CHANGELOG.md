@@ -1,3 +1,18 @@
+## [5.8.0](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.7.1...v5.8.0) (2026-09-30)
+
+### Features
+
+* add support for symbolizers' geometry property ([#947](https://github.com/geostyler/geostyler-openlayers-parser/issues/947)) ([6d4832d](https://github.com/geostyler/geostyler-openlayers-parser/commit/6d4832defd22ad16d5c13ec2bc09931efd236d0e))
+* allow setting imageLoadTimeout via constructor options ([6be60df](https://github.com/geostyler/geostyler-openlayers-parser/commit/6be60dfa891d01bdec9037c3e3a7552566239b2c))
+
+### Bug Fixes
+
+* make icon graphic fills seamless, using graphicFillPadding for spacing ([eaf0659](https://github.com/geostyler/geostyler-openlayers-parser/commit/eaf0659e408221862b833daae896b849c51bcb0b))
+* use IconSymbolizer size as icon height, as in SE/SLD ([4ddc3ff](https://github.com/geostyler/geostyler-openlayers-parser/commit/4ddc3ffbd055f8132cca7989ab7b2a4b3feaf044))
+* use instance method evaluateFunction ([3296856](https://github.com/geostyler/geostyler-openlayers-parser/commit/329685687811dcd80fa88fac694b69d782c969f4))
+* use ol runtime consistently ([#944](https://github.com/geostyler/geostyler-openlayers-parser/issues/944)) ([24bd673](https://github.com/geostyler/geostyler-openlayers-parser/commit/24bd6739af5a7a0237df62376a53beb092a67b8a))
+* wait for static icon images to load in writeStyle ([a65fdb4](https://github.com/geostyler/geostyler-openlayers-parser/commit/a65fdb49524ca767e7fbe9dbaa8343de55ff3ce2)), closes [#434](https://github.com/geostyler/geostyler-openlayers-parser/issues/434)
+
 ## [5.7.1](https://github.com/geostyler/geostyler-openlayers-parser/compare/v5.7.0...v5.7.1) (2026-06-24)
 
 ### Bug Fixes
