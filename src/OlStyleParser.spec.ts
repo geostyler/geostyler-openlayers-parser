@@ -122,6 +122,12 @@ import {
 import OlStyleUtil, { DEGREES_TO_RADIANS } from './Util/OlStyleUtil';
 import { cleanWellKnownName } from './Util/OlSvgPoints';
 import { getDecodedSvg, getSvgProperties } from './Util/OlSvgUtil';
+import { toContext } from 'ol/render';
+
+jest.mock('ol/render', () => {
+  const actual = jest.requireActual('ol/render');
+  return { ...actual, toContext: jest.fn(actual.toContext) };
+});
 
 // reverse calculation of resolution for scale (from ol-util MapUtil)
 const getResolutionForScale = (scale, units) => {
@@ -1067,6 +1073,31 @@ describe('OlStyleParser implements StyleParser', () => {
       graphicFillPadding: [1, 2, 3, 4]
     });
     expect(spy).toHaveBeenLastCalledWith(graphicFill, [1, 2, 3, 4]);
+  });
+  it('draws graphicFill icon patterns at the device pixel ratio', () => {
+    const originalRatio = window.devicePixelRatio;
+    Object.defineProperty(window, 'devicePixelRatio', { value: 2, configurable: true });
+    try {
+      // A mocked 12 x 12 icon
+      styleParser.olRuntime.style.Icon = class {
+        load() {}
+        getImageState() { return 2; } // ImageState.LOADED
+        getSize() { return [12, 12]; }
+        getWidth() { return 12; }
+        getHeight() { return 12; }
+      } as any;
+      (toContext as jest.Mock).mockReturnValueOnce({ drawFeature: jest.fn() });
+
+      styleParser.getOlPatternFromGraphicFill({ kind: 'Icon', image: 'a.png', size: 12 });
+
+      // The tile is defined in CSS pixels and drawn at the device pixel ratio
+      expect(toContext).toHaveBeenLastCalledWith(
+        expect.anything(),
+        { size: [12, 12], pixelRatio: 2 }
+      );
+    } finally {
+      Object.defineProperty(window, 'devicePixelRatio', { value: originalRatio, configurable: true });
+    }
   });
   it('can write an OpenLayers TextSymbolizer', async () => {
     let { output: olStyle } = await styleParser.writeStyle(point_styledlabel);
