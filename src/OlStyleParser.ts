@@ -1656,13 +1656,13 @@ export class OlStyleParser implements StyleParser<OlStyleLike> {
         iconSize[1] + top + bottom
       ];
 
-      tmpCanvas.width = canvasSize[0];
-      tmpCanvas.height = canvasSize[1];
-
-      // Create the context where we'll be drawing the style on
+      // Create the context where we'll be drawing the style on.
+      // Draw the tile at the device pixel ratio. toContext sizes the
+      // canvas to size × pixelRatio and scales the drawing accordingly.
+      const pixelRatio = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
       const vectorContext = toContext(tmpContext, {
         size: canvasSize,
-        pixelRatio: 1
+        pixelRatio
       });
 
       // Centre the icon inside the padding
